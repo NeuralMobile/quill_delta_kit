@@ -7,6 +7,7 @@ import 'demos/custom_toolbar_demo.dart';
 import 'demos/export_demo.dart';
 import 'demos/fixed_height_list_demo.dart';
 import 'demos/floating_toolbar_demo.dart';
+import 'demos/import_demo.dart';
 import 'demos/media_embeds_demo.dart';
 import 'demos/read_only_demo.dart';
 import 'demos/scrollable_form_demo.dart';
@@ -48,6 +49,7 @@ class _Home extends StatelessWidget {
     _Demo('Corner floating toolbar', Icons.layers, FloatingToolbarDemo()),
     _Demo('Selection toolbar (iOS-style)', Icons.text_fields, SelectionToolbarDemo()),
     _Demo('Multi-format export', Icons.import_export, ExportDemo()),
+    _Demo('Import documents', Icons.upload_file, ImportDemo()),
   ];
 
   @override
