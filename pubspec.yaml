@@ -1,0 +1,16 @@
+name: quill_delta_html
+description: Lossless bidirectional Quill Delta <-> HTML conversion. Pure Dart. Cross-editor (CKEditor, TipTap, ProseMirror, Quill JS, Lexical) interop with adapter API for custom embeds.
+version: 0.1.0
+repository: https://github.com/yourname/quill_delta_html
+issue_tracker: https://github.com/yourname/quill_delta_html/issues
+
+environment:
+  sdk: ^3.4.0
+
+dependencies:
+  dart_quill_delta: ^10.8.0
+  html: ^0.15.4
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0
