@@ -15,6 +15,7 @@ export 'src/converter/converter_registry.dart'
     show ConverterRegistry, ConverterNotFound, sniffMagicBytes, sniffExtension;
 export 'src/converter/delta_exporter.dart';
 export 'src/converter/delta_importer.dart';
+export 'src/converter/embed_adapter_base.dart';
 export 'src/converter/html_pivot_importer.dart';
 export 'src/converter/options/docx_options.dart';
 export 'src/converter/options/html_options.dart';

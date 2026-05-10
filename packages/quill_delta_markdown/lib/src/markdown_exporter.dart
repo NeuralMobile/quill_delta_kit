@@ -1,15 +1,21 @@
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:quill_delta_core/quill_delta_core.dart';
 
+import 'markdown_embed_adapter.dart';
+
 /// Delta -> Markdown. Native walker over `splitIntoLines` output. No HTML
 /// pivot, so format-specific decisions (fenced code, GFM tables, task lists)
 /// are made directly.
 final class MarkdownExporter
     implements DeltaExporter<String, MarkdownOptions> {
-  const MarkdownExporter({MarkdownOptions? defaultOptions})
-      : _defaultOptions = defaultOptions;
+  const MarkdownExporter({
+    MarkdownOptions? defaultOptions,
+    MarkdownEmbedRegistry? embedRegistry,
+  })  : _defaultOptions = defaultOptions,
+        _embedRegistry = embedRegistry;
 
   final MarkdownOptions? _defaultOptions;
+  final MarkdownEmbedRegistry? _embedRegistry;
 
   @override
   String get format => 'markdown';
@@ -186,6 +192,19 @@ final class MarkdownExporter
     if (embed.isEmpty) return;
     final type = embed.keys.first;
     final value = embed[type];
+
+    // Format-native adapter beats built-in handling.
+    final adapter = _embedRegistry?.forType(type);
+    if (adapter != null) {
+      adapter.encodeMarkdown(
+        buf: buf,
+        value: value,
+        siblingAttrs: op.attributes,
+        options: opts,
+      );
+      return;
+    }
+
     switch (type) {
       case 'image':
         final src = value is String ? value : '';
@@ -197,8 +216,6 @@ final class MarkdownExporter
         break;
       default:
         if (opts.allowHtmlPassthrough) {
-          // Best-effort: emit a placeholder; full custom embed support in MD
-          // is left to the consumer.
           buf.write('<!-- $type -->');
         }
     }

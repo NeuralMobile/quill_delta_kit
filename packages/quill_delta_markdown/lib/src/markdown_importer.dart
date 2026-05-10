@@ -37,18 +37,18 @@ final class MarkdownImporter
     final ops = List<Map<String, dynamic>>.from(input.toJson());
     if (ops.isEmpty) return input;
 
-    bool _isBareNewline(Map<String, dynamic> op) {
+    bool isBareNewline(Map<String, dynamic> op) {
       return op['attributes'] == null && op['insert'] == '\n';
     }
 
-    bool _endsWithNewline(Map<String, dynamic> op) {
+    bool endsWithNewline(Map<String, dynamic> op) {
       final v = op['insert'];
       return v is String && v.endsWith('\n');
     }
 
     while (ops.length > 1 &&
-        _isBareNewline(ops.last) &&
-        _endsWithNewline(ops[ops.length - 2])) {
+        isBareNewline(ops.last) &&
+        endsWithNewline(ops[ops.length - 2])) {
       ops.removeLast();
     }
 

@@ -6,5 +6,6 @@ library quill_delta_markdown;
 
 export 'package:quill_delta_core/quill_delta_core.dart';
 
+export 'src/markdown_embed_adapter.dart';
 export 'src/markdown_exporter.dart';
 export 'src/markdown_importer.dart';
