@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Example - profile" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="$PROJECT_DIR$/packages/quill_delta_editor/example/lib/main.dart" />
+    <option name="workingDirectory" value="$PROJECT_DIR$/packages/quill_delta_editor/example" />
+    <option name="buildFlavor" value="profile" />
+    <option name="additionalArgs" value="--profile" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -5,5 +5,8 @@
 build/
 *.iml
 .idea/
-.vscode/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
 pubspec.lock

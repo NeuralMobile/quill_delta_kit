@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Example: debug",
+      "type": "dart",
+      "request": "launch",
+      "program": "packages/quill_delta_editor/example/lib/main.dart",
+      "cwd": "${workspaceFolder}/packages/quill_delta_editor/example"
+    },
+    {
+      "name": "Example: profile",
+      "type": "dart",
+      "request": "launch",
+      "flutterMode": "profile",
+      "program": "packages/quill_delta_editor/example/lib/main.dart",
+      "cwd": "${workspaceFolder}/packages/quill_delta_editor/example"
+    },
+    {
+      "name": "Example: release",
+      "type": "dart",
+      "request": "launch",
+      "flutterMode": "release",
+      "program": "packages/quill_delta_editor/example/lib/main.dart",
+      "cwd": "${workspaceFolder}/packages/quill_delta_editor/example"
+    },
+    {
+      "name": "Example: web (chrome)",
+      "type": "dart",
+      "request": "launch",
+      "program": "packages/quill_delta_editor/example/lib/main.dart",
+      "cwd": "${workspaceFolder}/packages/quill_delta_editor/example",
+      "deviceId": "chrome"
+    },
+    {
+      "name": "Tests: all packages (dart test)",
+      "type": "dart",
+      "request": "launch",
+      "program": "test",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

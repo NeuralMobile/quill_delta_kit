@@ -1,0 +1,100 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pub: get (workspace)",
+      "type": "shell",
+      "command": "dart pub get",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "test: editor",
+      "type": "shell",
+      "command": "flutter test",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/quill_delta_editor"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "test: core",
+      "type": "shell",
+      "command": "dart test",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/quill_delta_core"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "test: html",
+      "type": "shell",
+      "command": "dart test",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/quill_delta_html"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "test: markdown",
+      "type": "shell",
+      "command": "dart test",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/quill_delta_markdown"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "test: docx",
+      "type": "shell",
+      "command": "dart test",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/quill_delta_docx"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "test: pdf",
+      "type": "shell",
+      "command": "dart test",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/quill_delta_pdf"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "test: e2e",
+      "type": "shell",
+      "command": "dart test",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/_e2e_tests"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "bench: encode/decode",
+      "type": "shell",
+      "command": "dart run bench/encode_decode_bench.dart",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/quill_delta_html"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "example: flutter run",
+      "type": "shell",
+      "command": "flutter run",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/quill_delta_editor/example"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
