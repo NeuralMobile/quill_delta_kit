@@ -22,13 +22,16 @@ class QuillSize {
     return s;
   }
 
+  static final _bareNumberRe = RegExp(r'^[0-9]+(\.[0-9]+)?$');
+  static final _pxValueRe = RegExp(r'^([0-9]+(?:\.[0-9]+)?)px$');
+
   /// Convert a Delta `size` attribute to a CSS `font-size` value.
   /// `"small"` -> `"10px"`, `"14"` -> `"14px"`, `"14px"` -> `"14px"`, `"1.2em"` -> `"1.2em"`.
   static String toCss(String value) {
     final v = value.trim();
     final px = namedToPx[v];
     if (px != null) return '${_n(px)}px';
-    if (RegExp(r'^[0-9]+(\.[0-9]+)?$').hasMatch(v)) return '${v}px';
+    if (_bareNumberRe.hasMatch(v)) return '${v}px';
     return v;
   }
 
@@ -41,7 +44,7 @@ class QuillSize {
     for (final entry in namedToPx.entries) {
       if (v == '${_n(entry.value)}px') return entry.key;
     }
-    final m = RegExp(r'^([0-9]+(?:\.[0-9]+)?)px$').firstMatch(v);
+    final m = _pxValueRe.firstMatch(v);
     if (m != null) return m.group(1)!;
     return v;
   }

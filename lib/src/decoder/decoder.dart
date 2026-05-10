@@ -426,7 +426,7 @@ class HtmlDecoder {
     }
     final padding = style['padding-left'];
     if (padding != null) {
-      final m = RegExp(r'^([0-9]+(?:\.[0-9]+)?)(em|px|rem)?$').firstMatch(padding.trim());
+      final m = _paddingLeftRe.firstMatch(padding.trim());
       if (m != null) {
         final v = double.parse(m.group(1)!);
         final unit = m.group(2) ?? 'em';
@@ -454,6 +454,9 @@ class HtmlDecoder {
   bool _isBlockLevelEmbedTag(dom.Element el) {
     return el.localName == 'hr' || el.localName == 'table';
   }
+
+  static final _paddingLeftRe =
+      RegExp(r'^([0-9]+(?:\.[0-9]+)?)(em|px|rem)?$');
 
   bool _hasBlockChild(dom.Element el) {
     const blocks = {'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'li', 'hr'};

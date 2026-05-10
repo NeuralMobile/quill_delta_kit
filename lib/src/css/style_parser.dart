@@ -6,7 +6,7 @@ class StyleMap {
 
   static StyleMap parse(String? style) {
     final m = StyleMap();
-    if (style == null) return m;
+    if (style == null || style.isEmpty) return m;
     for (final raw in style.split(';')) {
       final s = raw.trim();
       if (s.isEmpty) continue;

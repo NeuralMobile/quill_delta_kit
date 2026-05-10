@@ -78,6 +78,8 @@ class CssColor {
     return CssColor(r, g, b, a);
   }
 
+  static final _separatorRe = RegExp(r'[ ,]+');
+
   static CssColor? _parseRgbFunc(String s) {
     final start = s.indexOf('(');
     final end = s.indexOf(')');
@@ -85,7 +87,7 @@ class CssColor {
     final inner = s.substring(start + 1, end);
     final parts = inner
         .replaceAll('/', ',')
-        .split(RegExp(r'[ ,]+'))
+        .split(_separatorRe)
         .where((p) => p.isNotEmpty)
         .toList();
     if (parts.length < 3 || parts.length > 4) return null;
@@ -126,7 +128,7 @@ class CssColor {
     final inner = s.substring(start + 1, end);
     final parts = inner
         .replaceAll('/', ',')
-        .split(RegExp(r'[ ,]+'))
+        .split(_separatorRe)
         .where((p) => p.isNotEmpty)
         .toList();
     if (parts.length < 3 || parts.length > 4) return null;

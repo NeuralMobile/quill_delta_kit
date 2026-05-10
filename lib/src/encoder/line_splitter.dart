@@ -84,10 +84,12 @@ const _blockKeys = <String>{
 };
 
 Map<String, dynamic>? _extractBlockAttrs(Map<String, dynamic>? attrs) {
-  if (attrs == null) return null;
-  final out = <String, dynamic>{};
+  if (attrs == null || attrs.isEmpty) return null;
+  Map<String, dynamic>? out;
   for (final entry in attrs.entries) {
-    if (_blockKeys.contains(entry.key)) out[entry.key] = entry.value;
+    if (_blockKeys.contains(entry.key)) {
+      (out ??= <String, dynamic>{})[entry.key] = entry.value;
+    }
   }
-  return out.isEmpty ? null : out;
+  return out;
 }
