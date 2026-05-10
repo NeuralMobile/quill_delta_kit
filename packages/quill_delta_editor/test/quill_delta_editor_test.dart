@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart'
-    show Document, FlutterQuillLocalizations, QuillSimpleToolbar;
+    show ChangeSource, Document, FlutterQuillLocalizations, QuillSimpleToolbar;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta_editor/quill_delta_editor.dart';
 
@@ -200,6 +200,56 @@ void main() {
         expect(find.byType(Stack), findsWidgets);
         expect(find.byKey(const Key('FAKE_FLOAT_TB')), findsOneWidget);
         controller.dispose();
+      });
+    });
+
+    testWidgets('selection toolbar shows on non-collapsed selection',
+        (tester) async {
+      await tester.runAsync(() async {
+        final controller = QuillController(
+          document: Document.fromJson([
+            {'insert': 'hello world\n'},
+          ]),
+          selection: const TextSelection.collapsed(offset: 0),
+        );
+        await tester.pumpWidget(_wrap(SizedBox(
+          width: 600,
+          height: 400,
+          child: QuillDeltaEditor(
+            controller: controller,
+            layout: const EditorLayoutConfig.expanded(),
+            toolbar: const ToolbarConfig.selection(
+              style: ToolbarStyle.minimal,
+            ),
+          ),
+        )));
+        await tester.pump(const Duration(milliseconds: 50));
+
+        // No selection: toolbar must not be in the tree.
+        expect(find.byType(QuillSimpleToolbar), findsNothing);
+
+        // Programmatically select some text.
+        controller.updateSelection(
+          const TextSelection(baseOffset: 0, extentOffset: 5),
+          ChangeSource.local,
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+
+        // Toolbar should now be in the overlay.
+        expect(find.byType(QuillSimpleToolbar), findsOneWidget);
+
+        // Collapse selection — toolbar disappears.
+        controller.updateSelection(
+          const TextSelection.collapsed(offset: 5),
+          ChangeSource.local,
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(find.byType(QuillSimpleToolbar), findsNothing);
+
+        // Tear down before flutter_quill timer fires.
+        await tester.pumpWidget(const SizedBox());
+        controller.dispose();
+        tester.takeException();
       });
     });
 

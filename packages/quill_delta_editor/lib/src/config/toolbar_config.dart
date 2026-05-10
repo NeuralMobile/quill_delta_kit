@@ -108,6 +108,19 @@ sealed class ToolbarConfig {
 
   const factory ToolbarConfig.none() = NoToolbar;
 
+  /// Toolbar appears as a floating popover anchored to the active text
+  /// selection (iOS-style selection context menu). Hidden when the
+  /// selection is collapsed or the editor has no focus.
+  const factory ToolbarConfig.selection({
+    SelectionAnchor anchor,
+    double offset,
+    ToolbarStyle style,
+    List<ToolbarSection>? sections,
+    Color? backgroundColor,
+    EdgeInsets padding,
+    double toolbarSize,
+  }) = SelectionToolbar;
+
   /// Fully custom toolbar. The wrapper renders the result of [builder] in
   /// the chosen [position] without applying its own styling.
   const factory ToolbarConfig.custom({
@@ -160,6 +173,32 @@ final class FloatingToolbar extends ToolbarConfig {
 
 final class NoToolbar extends ToolbarConfig {
   const NoToolbar() : super(sections: null);
+}
+
+/// Anchor point for [SelectionToolbar].
+enum SelectionAnchor {
+  /// Float above the selection rect (or above the editor top when the
+  /// rect cannot be measured).
+  above,
+
+  /// Float below the selection rect (or below the editor bottom).
+  below,
+}
+
+final class SelectionToolbar extends ToolbarConfig {
+  const SelectionToolbar({
+    this.anchor = SelectionAnchor.above,
+    this.offset = 8,
+    super.style,
+    super.sections,
+    super.backgroundColor,
+    super.padding,
+    super.toolbarSize,
+  });
+  final SelectionAnchor anchor;
+
+  /// Pixel gap between the selection (or editor edge) and the toolbar.
+  final double offset;
 }
 
 final class CustomToolbar extends ToolbarConfig {

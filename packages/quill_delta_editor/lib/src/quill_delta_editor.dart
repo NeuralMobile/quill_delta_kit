@@ -5,6 +5,7 @@ import 'config/editor_layout.dart';
 import 'config/toolbar_config.dart';
 import 'embeds/media_embed_builder.dart';
 import 'embeds/media_preview_builders.dart';
+import 'toolbar/selection_toolbar_overlay.dart';
 import 'toolbar/toolbar_renderer.dart';
 
 /// Main editor widget. Wraps `flutter_quill`'s [QuillEditor] +
@@ -203,6 +204,11 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
           position: position,
           margin: margin,
           config: tb,
+        ),
+      SelectionToolbar() => SelectionToolbarOverlay(
+          controller: widget.controller,
+          config: tb,
+          child: _expanding ? SizedBox.expand(child: core) : core,
         ),
       CustomToolbar(:final builder, :final placement) =>
         _withCustom(core, builder(context, widget.controller), placement),

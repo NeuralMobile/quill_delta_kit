@@ -10,6 +10,7 @@ import 'demos/floating_toolbar_demo.dart';
 import 'demos/media_embeds_demo.dart';
 import 'demos/read_only_demo.dart';
 import 'demos/scrollable_form_demo.dart';
+import 'demos/selection_toolbar_demo.dart';
 
 void main() => runApp(const ExampleApp());
 
@@ -44,7 +45,9 @@ class _Home extends StatelessWidget {
     _Demo('Media embeds', Icons.perm_media, MediaEmbedsDemo()),
     _Demo('Auth-injected previews', Icons.lock, AuthInjectionDemo()),
     _Demo('Custom toolbar', Icons.build, CustomToolbarDemo()),
-    _Demo('Floating toolbar', Icons.layers, FloatingToolbarDemo()),
+    _Demo('Corner floating toolbar', Icons.layers, FloatingToolbarDemo()),
+    _Demo('Selection toolbar (iOS-style)', Icons.text_fields,
+        SelectionToolbarDemo()),
     _Demo('Multi-format export', Icons.import_export, ExportDemo()),
   ];
 
