@@ -74,10 +74,8 @@ void main() {
   group('MarkdownImporter goldens', () {
     test('plain paragraph', () async {
       final d = await imp.import('Hello\n');
-      // package:markdown wraps in <p>, html decoder yields a trailing
-      // empty newline op. Accept that — it is a structural artifact.
       expect(d.toJson(), [
-        {'insert': 'Hello\n\n'},
+        {'insert': 'Hello\n'},
       ]);
     });
 
@@ -86,7 +84,6 @@ void main() {
       expect(d.toJson(), [
         {'insert': 'Title'},
         {'insert': '\n', 'attributes': {'header': 1}},
-        {'insert': '\n'},
       ]);
     });
 
@@ -97,7 +94,7 @@ void main() {
         {'insert': 'b', 'attributes': {'bold': true}},
         {'insert': ' '},
         {'insert': 'c', 'attributes': {'italic': true}},
-        {'insert': '\n\n'},
+        {'insert': '\n'},
       ]);
     });
 
@@ -106,7 +103,6 @@ void main() {
       expect(d.toJson(), [
         {'insert': 'print("x")'},
         {'insert': '\n', 'attributes': {'code-block': 'dart'}},
-        {'insert': '\n'},
       ]);
     });
   });
