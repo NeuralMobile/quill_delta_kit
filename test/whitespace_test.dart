@@ -1,8 +1,37 @@
+import 'package:quill_delta_html/src/util/whitespace.dart';
 import 'package:test/test.dart';
 
 import '_helpers.dart';
 
 void main() {
+  group('Ws.encodeText direct', () {
+    test('preserves emoji surrogate pair verbatim', () {
+      // U+1F30D EARTH GLOBE EUROPE-AFRICA — outside BMP, encoded as surrogate
+      // pair in UTF-16. encodeText must NOT emit a numeric entity for it.
+      expect(Ws.encodeText('a🌍b'), 'a🌍b');
+    });
+
+    test('preserves multi-codepoint emoji ZWJ sequence', () {
+      // family emoji uses ZWJ joins between surrogate pairs
+      const fam = '👨‍👩‍👧';
+      // ZWJ is a significantSpace -> emitted as &#8205;
+      expect(Ws.encodeText(fam), contains('&#8205;'));
+      expect(Ws.encodeText(fam), contains('👨'));
+    });
+
+    test('escapes &, <, >, " as named entities', () {
+      expect(Ws.encodeText('a&b<c>d"e'), 'a&amp;b&lt;c&gt;d&quot;e');
+    });
+
+    test('tab and CR -> numeric entities', () {
+      expect(Ws.encodeText('a\tb\rc'), 'a&#9;b&#13;c');
+    });
+
+    test('NBSP and ZWSP -> numeric entities', () {
+      expect(Ws.encodeText('a b​c'), 'a&#160;b&#8203;c');
+    });
+  });
+
   final c = frag();
 
   group('whitespace torture', () {

@@ -229,17 +229,27 @@ class HtmlDecoder {
     }
     final text = source.text;
     final block = <String, dynamic>{'code-block': lang ?? true};
-    final lines = text.split('\n');
-    for (var i = 0; i < lines.length; i++) {
-      if (lines[i].isNotEmpty) out.insertText(lines[i], inline.snapshot());
-      // Last segment without trailing \n shouldn't emit a flushLine.
-      if (i < lines.length - 1 || text.endsWith('\n')) {
+    if (text.isEmpty) {
+      out.flushLine(block);
+      return;
+    }
+    // Single-pass walk on code units. Each '\n' closes a line; final segment
+    // (after the last '\n', or the whole string if no '\n') closes a line too.
+    final buf = StringBuffer();
+    final attrs = inline.snapshot();
+    for (var i = 0; i < text.length; i++) {
+      if (text.codeUnitAt(i) == 0x0A) {
+        if (buf.isNotEmpty) {
+          out.insertText(buf.toString(), attrs);
+          buf.clear();
+        }
         out.flushLine(block);
+      } else {
+        buf.writeCharCode(text.codeUnitAt(i));
       }
     }
-    if (!text.endsWith('\n') && lines.last.isNotEmpty) {
-      out.flushLine(block);
-    } else if (lines.isEmpty) {
+    if (buf.isNotEmpty) {
+      out.insertText(buf.toString(), attrs);
       out.flushLine(block);
     }
   }

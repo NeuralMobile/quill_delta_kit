@@ -82,5 +82,16 @@ void main() {
       final s = StyleMap.parse('; color: red ; ;');
       expect(s.props.length, 1);
     });
+
+    test('parse(null) -> empty StyleMap', () {
+      final s = StyleMap.parse(null);
+      expect(s.isEmpty, true);
+      expect(s['color'], isNull);
+    });
+
+    test("parse('') -> empty StyleMap", () {
+      final s = StyleMap.parse('');
+      expect(s.isEmpty, true);
+    });
   });
 }

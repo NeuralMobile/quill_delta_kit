@@ -89,5 +89,39 @@ void main() {
         {'insert': '\nafter\n'}
       ]);
     });
+
+    test('pre with single line no trailing newline', () {
+      expect(c.decode('<pre><code>only</code></pre>').toJson(), [
+        {'insert': 'only'},
+        {'insert': '\n', 'attributes': {'code-block': true}},
+      ]);
+    });
+
+    test('pre with explicit trailing newline', () {
+      expect(c.decode('<pre><code>line1\n</code></pre>').toJson(), [
+        {'insert': 'line1'},
+        {'insert': '\n', 'attributes': {'code-block': true}},
+      ]);
+    });
+
+    test('pre with leading empty line', () {
+      // Leading \n produces empty line, then 'line2', both code-block.
+      // Adjacent same-attr \n inserts merge in Delta.
+      expect(c.decode('<pre><code>\nline2</code></pre>').toJson(), [
+        {'insert': '\n', 'attributes': {'code-block': true}},
+        {'insert': 'line2'},
+        {'insert': '\n', 'attributes': {'code-block': true}},
+      ]);
+    });
+
+    test('pre with multiple internal blank lines', () {
+      // Delta merges consecutive same-attr \n inserts -> '\n\n' as one op.
+      expect(c.decode('<pre><code>a\n\nb</code></pre>').toJson(), [
+        {'insert': 'a'},
+        {'insert': '\n\n', 'attributes': {'code-block': true}},
+        {'insert': 'b'},
+        {'insert': '\n', 'attributes': {'code-block': true}},
+      ]);
+    });
   });
 }

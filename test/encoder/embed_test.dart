@@ -1,3 +1,4 @@
+import 'package:quill_delta_html/quill_delta_html.dart';
 import 'package:test/test.dart';
 
 import '../_helpers.dart';
@@ -99,6 +100,27 @@ void main() {
         {'insert': '\n'}
       ]));
       expect(html, contains('data-quill-unknown='));
+    });
+
+    test('wrapDocument=true wraps embeds in ql-html-doc div', () {
+      final wrapped = QuillHtmlCodec();
+      final html = wrapped.encode(deltaOf([
+        {'insert': {'image': 'https://x/a.png'}},
+        {'insert': '\n'}
+      ]));
+      expect(html, startsWith('<div class="ql-html-doc"'));
+      expect(html, contains('<img src="https://x/a.png">'));
+      expect(html, endsWith('</div>'));
+    });
+
+    test('wrapDocument=true wraps divider', () {
+      final wrapped = QuillHtmlCodec();
+      final html = wrapped.encode(deltaOf([
+        {'insert': {'divider': true}},
+        {'insert': '\n'}
+      ]));
+      expect(html, contains('class="ql-html-doc"'));
+      expect(html, contains('<hr>'));
     });
   });
 }

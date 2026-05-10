@@ -68,6 +68,17 @@ void main() {
       expect(html, '<pre><code class="language-dart">x</code></pre>');
     });
 
+    test('code-block with empty line inside', () {
+      final html = c.encode(deltaOf([
+        {'insert': 'line1'},
+        {'insert': '\n', 'attributes': {'code-block': true}},
+        {'insert': '\n', 'attributes': {'code-block': true}},
+        {'insert': 'line3'},
+        {'insert': '\n', 'attributes': {'code-block': true}}
+      ]));
+      expect(html, '<pre><code>line1\n\nline3</code></pre>');
+    });
+
     test('align center', () {
       final html = c.encode(deltaOf([
         {'insert': 'x'},
