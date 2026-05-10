@@ -5,7 +5,7 @@ import 'config/editor_layout.dart';
 import 'config/toolbar_config.dart';
 import 'embeds/media_embed_builder.dart';
 import 'embeds/media_preview_builders.dart';
-import 'toolbar/selection_toolbar_controls.dart';
+import 'toolbar/selection_toolbar_overlay.dart';
 import 'toolbar/toolbar_renderer.dart';
 
 /// Main editor widget. Wraps `flutter_quill`'s [QuillEditor] +
@@ -81,6 +81,10 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
   late final FocusNode _focusNode = widget.focusNode ?? FocusNode();
   late final ScrollController _scrollController =
       widget.scrollController ?? ScrollController();
+  // Used by SelectionToolbarOverlay to reach the RenderEditor for endpoint
+  // measurement.
+  final GlobalKey<QuillEditorState> _quillEditorKey =
+      GlobalKey<QuillEditorState>();
 
   bool get _ownFocus => widget.focusNode == null;
   bool get _ownScroll => widget.scrollController == null;
@@ -128,16 +132,6 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
   /// chosen container (Column, Stack, etc.).
   Widget _buildEditorCore() {
     final layout = widget.layout;
-    final tb = widget.toolbar;
-    // SelectionToolbar replaces flutter_quill's default copy/paste context
-    // menu with our formatting toolbar via QuillEditorConfig.contextMenuBuilder
-    // — anchored to the actual selection rect (iOS-style).
-    final contextMenuBuilder = tb is SelectionToolbar
-        ? buildSelectionContextMenuBuilder(
-            controller: widget.controller,
-            config: tb,
-          )
-        : null;
     final editorConfig = QuillEditorConfig(
       padding: layout.padding,
       placeholder: layout.placeholder,
@@ -154,10 +148,10 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
         FixedHeightLayout(:final height) => height,
         _ => null,
       },
-      contextMenuBuilder: contextMenuBuilder,
     );
 
     final core = QuillEditor(
+      key: _quillEditorKey,
       focusNode: _focusNode,
       scrollController: _scrollController,
       controller: widget.controller,
@@ -216,10 +210,16 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
           margin: margin,
           config: tb,
         ),
-      // SelectionToolbar plumbs its toolbar through textSelectionControls
-      // (set in _buildEditorCore). Rendering happens via the platform
-      // selection-toolbar machinery — no widget-tree wrap needed here.
-      SelectionToolbar() => core,
+      // SelectionToolbar uses an OverlayEntry watcher anchored to
+      // RenderEditor.getEndpointsForSelection. Cross-platform (works on
+      // web, where flutter_quill suppresses its built-in selection
+      // toolbar via kIsWeb).
+      SelectionToolbar() => SelectionToolbarOverlay(
+          controller: widget.controller,
+          config: tb,
+          editorKey: _quillEditorKey,
+          child: _expanding ? SizedBox.expand(child: core) : core,
+        ),
       CustomToolbar(:final builder, :final placement) =>
         _withCustom(core, builder(context, widget.controller), placement),
     };
