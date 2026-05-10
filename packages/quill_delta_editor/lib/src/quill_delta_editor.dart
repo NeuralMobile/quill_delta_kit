@@ -129,12 +129,13 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
   Widget _buildEditorCore() {
     final layout = widget.layout;
     final tb = widget.toolbar;
-    // SelectionToolbar plugs into Flutter's TextSelectionControls so the
-    // toolbar position tracks the actual selection rect (iOS-style).
-    final selectionControls = tb is SelectionToolbar
-        ? QuillFormattingSelectionControls(
+    // SelectionToolbar replaces flutter_quill's default copy/paste context
+    // menu with our formatting toolbar via QuillEditorConfig.contextMenuBuilder
+    // — anchored to the actual selection rect (iOS-style).
+    final contextMenuBuilder = tb is SelectionToolbar
+        ? buildSelectionContextMenuBuilder(
             controller: widget.controller,
-            toolbarConfig: tb,
+            config: tb,
           )
         : null;
     final editorConfig = QuillEditorConfig(
@@ -153,7 +154,7 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
         FixedHeightLayout(:final height) => height,
         _ => null,
       },
-      textSelectionControls: selectionControls,
+      contextMenuBuilder: contextMenuBuilder,
     );
 
     final core = QuillEditor(

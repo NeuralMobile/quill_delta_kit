@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart'
-    show ChangeSource, Document, FlutterQuillLocalizations, QuillSimpleToolbar;
+    show Document, FlutterQuillLocalizations, QuillSimpleToolbar;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta_editor/quill_delta_editor.dart';
 
