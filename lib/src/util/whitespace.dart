@@ -20,9 +20,13 @@ class Ws {
 
   /// HTML-encode text preserving every space, tab, newline.
   /// Uses numeric char refs for invisible / collapsing whitespace.
+  ///
+  /// Iterates UTF-16 code units (not runes). All [significantSpaces] are BMP,
+  /// so surrogate pairs (emoji etc.) pass through unchanged via writeCharCode.
   static String encodeText(String s) {
     final out = StringBuffer();
-    for (final cu in s.runes) {
+    for (var i = 0; i < s.length; i++) {
+      final cu = s.codeUnitAt(i);
       switch (cu) {
         case 0x26: // &
           out.write('&amp;');
