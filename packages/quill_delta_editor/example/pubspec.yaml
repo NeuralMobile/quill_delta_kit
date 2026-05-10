@@ -1,0 +1,26 @@
+name: quill_delta_editor_example
+description: >-
+  Flutter example app demonstrating QuillDeltaEditor's layout modes,
+  toolbar configurations, media embeds, custom preview builders, and
+  multi-format export.
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_quill: ^11.0.0
+  quill_delta_editor:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
