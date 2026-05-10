@@ -516,12 +516,18 @@ class _DeltaBuilder {
   Delta build() => _delta;
 }
 
-/// Immutable inline attribute frame.
+/// Immutable inline attribute frame with a lazy snapshot cache.
+///
+/// `with_` returns a new instance whose cache starts null. The first
+/// `snapshot()` call materializes a defensive copy and caches it; subsequent
+/// calls on the same frame (e.g. multiple text nodes under the same
+/// formatting wrapper) return the cached map without re-allocating.
 class _InlineAttrs {
-  const _InlineAttrs._(this._map);
-  factory _InlineAttrs.empty() => const _InlineAttrs._(<String, dynamic>{});
+  _InlineAttrs._(this._map);
+  factory _InlineAttrs.empty() => _InlineAttrs._(const <String, dynamic>{});
 
   final Map<String, dynamic> _map;
+  Map<String, dynamic>? _cachedSnapshot;
 
   _InlineAttrs with_(String key, Object? value) {
     if (value == null) return this;
@@ -530,5 +536,8 @@ class _InlineAttrs {
     return _InlineAttrs._(next);
   }
 
-  Map<String, dynamic>? snapshot() => _map.isEmpty ? null : Map<String, dynamic>.of(_map);
+  Map<String, dynamic>? snapshot() {
+    if (_map.isEmpty) return null;
+    return _cachedSnapshot ??= Map<String, dynamic>.of(_map);
+  }
 }
