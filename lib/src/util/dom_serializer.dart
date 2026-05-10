@@ -42,10 +42,15 @@ class DomSerializer {
   void _writeElement(dom.Element el, StringBuffer out) {
     final name = el.localName ?? '';
     out.write('<$name');
-    final keys = el.attributes.keys.map((k) => k.toString()).toList()..sort();
-    for (final k in keys) {
-      final v = el.attributes[k]?.toString() ?? '';
-      out.write(' $k="${Ws.encodeAttr(v)}"');
+    final attrs = el.attributes;
+    if (attrs.length == 1) {
+      final entry = attrs.entries.first;
+      out.write(' ${entry.key}="${Ws.encodeAttr(entry.value.toString())}"');
+    } else if (attrs.length > 1) {
+      final keys = attrs.keys.map((k) => k.toString()).toList()..sort();
+      for (final k in keys) {
+        out.write(' $k="${Ws.encodeAttr(attrs[k]?.toString() ?? '')}"');
+      }
     }
     if (_voidElements.contains(name)) {
       out.write('>');
