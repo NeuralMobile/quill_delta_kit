@@ -288,7 +288,7 @@ class HtmlDecoder {
       // or task-list parent.
       final liData = child.attributes['data-list'];
       final liChecked = child.attributes['data-checked'];
-      final input = child.querySelector('input[type=checkbox]');
+      final input = _findCheckboxChild(child);
       final itemIsTask = listIsTask ||
           liData != null ||
           liChecked != null ||
@@ -457,6 +457,29 @@ class HtmlDecoder {
 
   static final _paddingLeftRe =
       RegExp(r'^([0-9]+(?:\.[0-9]+)?)(em|px|rem)?$');
+
+  /// Direct-child checkbox lookup for task-list detection.
+  /// Replaces querySelector('input[type=checkbox]') which traverses the entire
+  /// subtree. Real-world editors place the checkbox at depth 0-1 inside <li>;
+  /// transparent wrappers <label>, <div>, <p>, <span> at depth 1 are searched.
+  static dom.Element? _findCheckboxChild(dom.Element parent) {
+    for (final child in parent.children) {
+      if (child.localName == 'input' &&
+          child.attributes['type'] == 'checkbox') {
+        return child;
+      }
+      final n = child.localName;
+      if (n == 'label' || n == 'div' || n == 'p' || n == 'span') {
+        for (final grand in child.children) {
+          if (grand.localName == 'input' &&
+              grand.attributes['type'] == 'checkbox') {
+            return grand;
+          }
+        }
+      }
+    }
+    return null;
+  }
 
   bool _hasBlockChild(dom.Element el) {
     const blocks = {'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'li', 'hr'};
