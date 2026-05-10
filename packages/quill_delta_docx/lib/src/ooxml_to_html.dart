@@ -41,18 +41,25 @@ String docxToHtml(List<int> bytes) {
 }
 
 void _writeBody(XmlElement body, StringBuffer buf, _NumberingMap numbering) {
-  // Track open list state across consecutive list paragraphs.
-  String? openListTag;
-  int openIndent = -1;
+  // Open <ul>/<ol> stack and parallel <li>-open tracker, mirrors the
+  // BlockEncoder algorithm in quill_delta_html so nested lists emit valid
+  // HTML (`<li>...<ul>...</ul></li>`) rather than sibling lists.
+  final openLists = <String>[];
+  final liOpen = <bool>[];
+  String? listTagFamily; // 'ul' or 'ol'
 
   void closeOpenList() {
-    if (openListTag != null) {
-      for (var d = openIndent; d >= 0; d--) {
-        buf.write('</$openListTag>');
+    while (openLists.isNotEmpty) {
+      if (liOpen.last) buf.write('</li>');
+      buf.write('</${openLists.last}>');
+      openLists.removeLast();
+      liOpen.removeLast();
+      if (liOpen.isNotEmpty && liOpen.last) {
+        buf.write('</li>');
+        liOpen[liOpen.length - 1] = false;
       }
-      openListTag = null;
-      openIndent = -1;
     }
+    listTagFamily = null;
   }
 
   for (final el in body.childElements) {
@@ -61,34 +68,42 @@ void _writeBody(XmlElement body, StringBuffer buf, _NumberingMap numbering) {
       final listInfo = _detectList(el, numbering);
       if (listInfo != null) {
         final tag = listInfo.ordered ? 'ol' : 'ul';
-        // If switching list type or starting fresh, open.
-        if (openListTag == null) {
-          for (var d = 0; d <= listInfo.indent; d++) {
-            buf.write('<$tag>');
-          }
-          openListTag = tag;
-          openIndent = listInfo.indent;
-        } else if (openListTag != tag) {
+
+        if (listTagFamily != null && listTagFamily != tag) {
           closeOpenList();
-          for (var d = 0; d <= listInfo.indent; d++) {
-            buf.write('<$tag>');
+        }
+        listTagFamily = tag;
+
+        final targetDepth = listInfo.indent + 1;
+        // De-nest if needed.
+        while (openLists.length > targetDepth) {
+          if (liOpen.last) buf.write('</li>');
+          buf.write('</${openLists.last}>');
+          openLists.removeLast();
+          liOpen.removeLast();
+          if (liOpen.isNotEmpty && liOpen.last) {
+            buf.write('</li>');
+            liOpen[liOpen.length - 1] = false;
           }
-          openListTag = tag;
-          openIndent = listInfo.indent;
-        } else if (listInfo.indent > openIndent) {
-          for (var d = openIndent + 1; d <= listInfo.indent; d++) {
-            buf.write('<$tag>');
+        }
+        // Nest deeper if needed.
+        while (openLists.length < targetDepth) {
+          if (openLists.isNotEmpty && !liOpen.last) {
+            buf.write('<li>');
+            liOpen[liOpen.length - 1] = true;
           }
-          openIndent = listInfo.indent;
-        } else if (listInfo.indent < openIndent) {
-          for (var d = openIndent; d > listInfo.indent; d--) {
-            buf.write('</$tag>');
-          }
-          openIndent = listInfo.indent;
+          buf.write('<$tag>');
+          openLists.add(tag);
+          liOpen.add(false);
+        }
+        // Close any previously open <li> at this depth before fresh one.
+        if (liOpen.last) {
+          buf.write('</li>');
+          liOpen[liOpen.length - 1] = false;
         }
         buf.write('<li>');
         _writeRuns(el, buf);
-        buf.write('</li>');
+        liOpen[liOpen.length - 1] = true;
       } else {
         closeOpenList();
         final styleName = _paragraphStyle(el);
@@ -171,9 +186,14 @@ void _writeRun(XmlElement run, StringBuffer buf) {
         )
         .value;
     if (szVal != null && szVal.isNotEmpty) {
-      // OOXML stores size in half-points.
+      // OOXML stores size in half-points -> points (hp/2) -> pixels (* 4/3).
+      // Symmetric inverse of DocxExporter's `(px * 0.75 * 2).round()`.
       final hp = int.tryParse(szVal);
-      if (hp != null) sizeVal = '${(hp / 2).toStringAsFixed(0)}px';
+      if (hp != null) {
+        final px = (hp / 2.0) * 4.0 / 3.0;
+        final rounded = px.round();
+        sizeVal = '${rounded}px';
+      }
     }
   }
 
