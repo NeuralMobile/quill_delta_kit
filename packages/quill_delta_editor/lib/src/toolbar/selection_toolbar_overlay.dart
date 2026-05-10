@@ -137,22 +137,33 @@ class _SelectionToolbarOverlayState extends State<SelectionToolbarOverlay> {
       end.dy + widget.config.offset,
     );
 
+    // Bound the toolbar width: cap at a sensible popover size and clamp
+    // to the available viewport so we never render edge-to-edge. The
+    // toolbar's internal arrow-indicated button list scrolls horizontally
+    // when its content exceeds this width.
+    final screen = MediaQuery.of(overlayContext).size;
+    const desired = 460.0;
+    final maxWidth = (screen.width - 16).clamp(160.0, desired);
+
     return CustomSingleChildLayout(
       delegate: TextSelectionToolbarLayoutDelegate(
         anchorAbove: aboveAnchor,
         anchorBelow: belowAnchor,
       ),
-      child: Material(
-        elevation: 6,
-        borderRadius: BorderRadius.circular(8),
-        color: widget.config.backgroundColor ??
-            Theme.of(overlayContext).colorScheme.surface,
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: widget.config.padding,
-          child: buildSimpleToolbar(
-            controller: widget.controller,
-            config: widget.config,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: Material(
+          elevation: 6,
+          borderRadius: BorderRadius.circular(8),
+          color: widget.config.backgroundColor ??
+              Theme.of(overlayContext).colorScheme.surface,
+          clipBehavior: Clip.antiAlias,
+          child: Padding(
+            padding: widget.config.padding,
+            child: buildSimpleToolbar(
+              controller: widget.controller,
+              config: widget.config,
+            ),
           ),
         ),
       ),
