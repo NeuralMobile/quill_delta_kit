@@ -1,0 +1,34 @@
+name: quill_delta_editor
+description: >-
+  Flutter wrapper around flutter_quill that bundles the quill_delta_*
+  multi-format converter family with configurable toolbars, layout modes
+  (scrollable / auto-grow / fixed / read-only), and pluggable media
+  preview builders for auth-injected URLs.
+version: 0.1.0
+publish_to: none
+repository: https://github.com/yourname/quill_delta_html
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.16.0"
+
+resolution: workspace
+
+dependencies:
+  dart_quill_delta: ^10.8.0
+  flutter:
+    sdk: flutter
+  flutter_quill: ^11.0.0
+  quill_delta_core:
+    path: ../quill_delta_core
+  quill_delta_docx:
+    path: ../quill_delta_docx
+  quill_delta_html:
+    path: ../quill_delta_html
+  quill_delta_markdown:
+    path: ../quill_delta_markdown
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
