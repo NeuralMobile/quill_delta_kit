@@ -48,14 +48,16 @@ void main() {
       controller.dispose();
     });
 
-    testWidgets('expanded inside Column', (tester) async {
+    testWidgets('expanded wrapped in Expanded by caller', (tester) async {
       final controller = QuillController.basic();
       await tester.pumpWidget(_wrap(Column(
         children: [
-          QuillDeltaEditor(
-            controller: controller,
-            layout: const EditorLayoutConfig.expanded(),
-            toolbar: const ToolbarConfig.none(),
+          Expanded(
+            child: QuillDeltaEditor(
+              controller: controller,
+              layout: const EditorLayoutConfig.expanded(),
+              toolbar: const ToolbarConfig.none(),
+            ),
           ),
         ],
       )));
@@ -92,6 +94,44 @@ void main() {
         controller.dispose();
       });
     });
+
+    testWidgets(
+      'floating toolbar with ExpandedLayout — layout regression',
+      (tester) async {
+        // Regression for: Expanded() inside Stack causing ParentDataWidget
+        // assertion, plus toolbar Row needing bounded width.
+        // Use a custom-builder substitute for the toolbar so the test does
+        // not exercise flutter_quill's QuillToolbarArrowIndicatedButtonList,
+        // which has a post-teardown _handleScroll null-check timer that
+        // dirties the test runner. The actual fix lives in the editor's
+        // _withFloating + Expanding logic.
+        await tester.runAsync(() async {
+          final controller = QuillController.basic();
+          await tester.pumpWidget(_wrap(SizedBox(
+            width: 800,
+            height: 600,
+            child: QuillDeltaEditor(
+              controller: controller,
+              layout: const EditorLayoutConfig.expanded(),
+              toolbar: ToolbarConfig.custom(
+                builder: (ctx, c) => Container(
+                  key: const Key('FLOAT_TOOLBAR'),
+                  width: 120,
+                  height: 32,
+                  color: Colors.indigo,
+                ),
+                placement: ToolbarPlacement.overlay,
+              ),
+            ),
+          )));
+          await tester.pump(const Duration(milliseconds: 50));
+          expect(find.byKey(const Key('FLOAT_TOOLBAR')), findsOneWidget);
+          expect(find.byType(Stack), findsWidgets);
+          expect(tester.takeException(), isNull);
+          controller.dispose();
+        });
+      },
+    );
 
     testWidgets('floating toolbar uses Stack', (tester) async {
       // Use a fake toolbar builder to avoid flutter_quill's

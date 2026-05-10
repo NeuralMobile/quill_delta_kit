@@ -119,21 +119,19 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final editor = _buildEditor(context);
-    return _wrapWithToolbar(context, editor);
+    return _wrapWithToolbar(context);
   }
 
-  Widget _buildEditor(BuildContext context) {
+  /// Build the [QuillEditor] core (no parent-data wrappers like [Expanded] or
+  /// [Positioned]). The toolbar wrapper decides how to size it for its
+  /// chosen container (Column, Stack, etc.).
+  Widget _buildEditorCore() {
     final layout = widget.layout;
-    final builders = _resolvedEmbedBuilders();
-    final padding = layout.padding;
-    final placeholder = layout.placeholder;
-
     final editorConfig = QuillEditorConfig(
-      padding: padding,
-      placeholder: placeholder,
+      padding: layout.padding,
+      placeholder: layout.placeholder,
       autoFocus: layout.autoFocus,
-      embedBuilders: builders,
+      embedBuilders: _resolvedEmbedBuilders(),
       scrollable: switch (layout) {
         ScrollableLayout() || FixedHeightLayout() || ExpandedLayout() => true,
         AutoGrowLayout() => false,
@@ -156,38 +154,58 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
 
     return switch (layout) {
       FixedHeightLayout(:final height) => SizedBox(height: height, child: core),
-      ExpandedLayout() => Expanded(child: core),
       _ => core,
     };
   }
 
-  Widget _wrapWithToolbar(BuildContext context, Widget editor) {
+  /// True when the layout asks the widget to fill its parent's vertical
+  /// constraints. The toolbar wrapper uses this to pick the right
+  /// container-specific sizing widget ([Expanded] inside Column,
+  /// [Positioned.fill] inside Stack, [SizedBox.expand] for a no-toolbar
+  /// solo layout).
+  bool get _expanding => widget.layout is ExpandedLayout;
+
+  Widget _wrapWithToolbar(BuildContext context) {
     final tb = widget.toolbar;
+    final core = _buildEditorCore();
     return switch (tb) {
-      NoToolbar() => editor,
+      // No toolbar: caller controls the parent constraints. For ExpandedLayout
+      // the caller wraps us in Expanded / SizedBox.expand themselves; we don't
+      // do it here because we cannot tell whether the parent is a Flex.
+      NoToolbar() => core,
       TopToolbar() => Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: _expanding ? MainAxisSize.max : MainAxisSize.min,
           children: [
-            _toolbarChrome(buildSimpleToolbar(controller: widget.controller, config: tb), tb),
-            editor,
+            _toolbarChrome(
+              buildSimpleToolbar(controller: widget.controller, config: tb),
+              tb,
+            ),
+            if (_expanding) Expanded(child: core) else core,
           ],
         ),
       BottomToolbar() => Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: _expanding ? MainAxisSize.max : MainAxisSize.min,
           children: [
-            editor,
-            _toolbarChrome(buildSimpleToolbar(controller: widget.controller, config: tb), tb),
+            if (_expanding) Expanded(child: core) else core,
+            _toolbarChrome(
+              buildSimpleToolbar(controller: widget.controller, config: tb),
+              tb,
+            ),
           ],
         ),
       FloatingToolbar(:final position, :final margin) => _withFloating(
-          editor,
-          buildSimpleToolbar(controller: widget.controller, config: tb),
-          position,
-          margin,
-          tb,
+          context: context,
+          editor: core,
+          toolbar: buildSimpleToolbar(
+            controller: widget.controller,
+            config: tb,
+          ),
+          position: position,
+          margin: margin,
+          config: tb,
         ),
       CustomToolbar(:final builder, :final placement) =>
-        _withCustom(editor, builder(context, widget.controller), placement),
+        _withCustom(core, builder(context, widget.controller), placement),
     };
   }
 
@@ -199,38 +217,47 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
     );
   }
 
-  Widget _withFloating(
-    Widget editor,
-    Widget toolbar,
-    FloatingToolbarPosition position,
-    EdgeInsets margin,
-    ToolbarConfig config,
-  ) {
+  /// Layered toolbar over editor.
+  ///
+  /// Editor is wrapped in [Positioned.fill] when the layout is
+  /// [ExpandedLayout] so the [Stack] sizes correctly to its parent. Toolbar
+  /// is wrapped in [IntrinsicWidth] so its inner Row receives a bounded
+  /// width constraint inside the Stack — without this, flutter_quill's
+  /// QuillToolbarArrowIndicatedButtonList trips a 'non-zero flex with
+  /// unbounded width' assertion.
+  Widget _withFloating({
+    required BuildContext context,
+    required Widget editor,
+    required Widget toolbar,
+    required FloatingToolbarPosition position,
+    required EdgeInsets margin,
+    required ToolbarConfig config,
+  }) {
+    final isTop = position == FloatingToolbarPosition.topCenter ||
+        position == FloatingToolbarPosition.topRight;
+    final isBottom = position == FloatingToolbarPosition.bottomCenter ||
+        position == FloatingToolbarPosition.bottomRight;
+    final isLeftish = position == FloatingToolbarPosition.topCenter ||
+        position == FloatingToolbarPosition.bottomCenter;
+    final isRightish = position == FloatingToolbarPosition.topRight ||
+        position == FloatingToolbarPosition.bottomRight;
+
     return Stack(
       children: [
-        editor,
+        if (_expanding) Positioned.fill(child: editor) else editor,
         Positioned(
-          top: position == FloatingToolbarPosition.topCenter ||
-                  position == FloatingToolbarPosition.topRight
-              ? margin.top
-              : null,
-          bottom: position == FloatingToolbarPosition.bottomCenter ||
-                  position == FloatingToolbarPosition.bottomRight
-              ? margin.bottom
-              : null,
-          left: position == FloatingToolbarPosition.topCenter ||
-                  position == FloatingToolbarPosition.bottomCenter
-              ? margin.left
-              : null,
-          right: position == FloatingToolbarPosition.topRight ||
-                  position == FloatingToolbarPosition.bottomRight
-              ? margin.right
-              : null,
+          top: isTop ? margin.top : null,
+          bottom: isBottom ? margin.bottom : null,
+          left: isLeftish ? margin.left : null,
+          right: isRightish ? margin.right : null,
           child: Material(
             elevation: 4,
             borderRadius: BorderRadius.circular(8),
             color: config.backgroundColor ?? Theme.of(context).cardColor,
-            child: Padding(padding: config.padding, child: toolbar),
+            child: Padding(
+              padding: config.padding,
+              child: IntrinsicWidth(child: toolbar),
+            ),
           ),
         ),
       ],
@@ -239,12 +266,26 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
 
   Widget _withCustom(Widget editor, Widget toolbar, ToolbarPlacement placement) {
     return switch (placement) {
-      ToolbarPlacement.top =>
-        Column(mainAxisSize: MainAxisSize.min, children: [toolbar, editor]),
-      ToolbarPlacement.bottom =>
-        Column(mainAxisSize: MainAxisSize.min, children: [editor, toolbar]),
-      ToolbarPlacement.overlay =>
-        Stack(children: [editor, Positioned.fill(child: toolbar)]),
+      ToolbarPlacement.top => Column(
+          mainAxisSize: _expanding ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            toolbar,
+            if (_expanding) Expanded(child: editor) else editor,
+          ],
+        ),
+      ToolbarPlacement.bottom => Column(
+          mainAxisSize: _expanding ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            if (_expanding) Expanded(child: editor) else editor,
+            toolbar,
+          ],
+        ),
+      ToolbarPlacement.overlay => Stack(
+          children: [
+            if (_expanding) Positioned.fill(child: editor) else editor,
+            Positioned.fill(child: toolbar),
+          ],
+        ),
     };
   }
 
