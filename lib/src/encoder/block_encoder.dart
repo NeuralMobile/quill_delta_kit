@@ -95,10 +95,13 @@ class BlockEncoder {
       }
 
       // 5) Block-level embed standalone (e.g. divider as <hr>) — do not wrap in <p>.
-      if (line.ops.length == 1 && line.ops.first.isEmbed && _isBlockLevelEmbed(line.ops.first.asEmbed)) {
-        _inline.emit(line.ops.first, root);
-        i++;
-        continue;
+      if (line.ops.length == 1 && line.ops.first.isEmbed) {
+        final embed = line.ops.first.asEmbed;
+        if (embed.isNotEmpty && _isBlockLevelEmbed(embed.keys.first)) {
+          _inline.emit(line.ops.first, root);
+          i++;
+          continue;
+        }
       }
 
       // 6) Plain paragraph (with possible align/indent/direction/line-height).
@@ -136,6 +139,12 @@ class BlockEncoder {
 
   /// Emit a contiguous list group; supports nested indents.
   /// Returns number of lines consumed.
+  ///
+  /// Maintains an ancestor stack [containers] holding the open <ul>/<ol>
+  /// at each depth so we never re-scan DOM nodes. Index 0 is the outer list.
+  /// Each item with indent N attaches to containers[N], creating missing
+  /// inner levels by appending a fresh nested <ul>/<ol> to the previous
+  /// level's last <li>.
   int _emitListGroup(List<Line> lines, int start, dom.Element root) {
     final firstType = lines[start].blockAttrs?['list']?.toString();
     if (firstType == null) return 0;
@@ -146,6 +155,7 @@ class BlockEncoder {
     }
     root.append(outerEl);
 
+    final containers = <dom.Element>[outerEl];
     int consumed = 0;
     while (start + consumed < lines.length) {
       final line = lines[start + consumed];
@@ -153,29 +163,44 @@ class BlockEncoder {
       final type = attrs['list']?.toString();
       if (type == null) break;
       final tag = _listTag(type);
-      // If switching between ordered/unordered roots, end the group.
       if ((tag == 'ol') != (outer == 'ol')) break;
 
       consumed++;
-      final indent = (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
-      _appendListItem(outerEl, line, type, indent);
+      final indent =
+          (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
+      _appendListItem(containers, outer, line, type, indent);
     }
     return consumed;
   }
 
-  void _appendListItem(dom.Element root, Line line, String type, int indent) {
-    var target = root;
-    for (var d = 0; d < indent; d++) {
-      var lastLi = _lastChild(target, 'li');
-      lastLi ??= dom.Element.tag('li')..append(dom.Text(''));
-      if (lastLi.parent == null) target.append(lastLi);
-      var nestedList = _lastChild(lastLi, target.localName!);
-      if (nestedList == null) {
-        nestedList = dom.Element.tag(target.localName!);
-        lastLi.append(nestedList);
-      }
-      target = nestedList;
+  void _appendListItem(
+    List<dom.Element> containers,
+    String listTag,
+    Line line,
+    String type,
+    int indent,
+  ) {
+    // Trim ancestors deeper than current indent (de-nesting).
+    while (containers.length > indent + 1) {
+      containers.removeLast();
     }
+    // Open new nested levels up to indent.
+    while (containers.length <= indent) {
+      final parent = containers.last;
+      var hostLi = parent.children.isNotEmpty &&
+              parent.children.last.localName == 'li'
+          ? parent.children.last
+          : null;
+      if (hostLi == null) {
+        hostLi = dom.Element.tag('li');
+        parent.append(hostLi);
+      }
+      final nested = dom.Element.tag(listTag);
+      hostLi.append(nested);
+      containers.add(nested);
+    }
+
+    final target = containers[indent];
     final li = dom.Element.tag('li');
     if (type == 'checked' || type == 'unchecked') {
       li.attributes['data-list'] = type;
@@ -193,16 +218,6 @@ class BlockEncoder {
     return 'ul';
   }
 
-  bool _isBlockLevelEmbed(Map<String, dynamic> embed) {
-    final t = embed.keys.first;
-    return t == 'divider' || t == 'hr' || t == 'table';
-  }
-
-  dom.Element? _lastChild(dom.Element parent, String tag) {
-    for (var i = parent.nodes.length - 1; i >= 0; i--) {
-      final n = parent.nodes[i];
-      if (n is dom.Element && n.localName == tag) return n;
-    }
-    return null;
-  }
+  bool _isBlockLevelEmbed(String type) =>
+      type == 'divider' || type == 'hr' || type == 'table';
 }
