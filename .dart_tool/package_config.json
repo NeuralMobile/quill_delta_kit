@@ -26,6 +26,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "benchmark_harness",
+      "rootUri": "file:///Users/ps9310/.pub-cache/hosted/pub.dev/benchmark_harness-2.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.10"
+    },
+    {
       "name": "boolean_selector",
       "rootUri": "file:///Users/ps9310/.pub-cache/hosted/pub.dev/boolean_selector-2.1.2",
       "packageUri": "lib/",

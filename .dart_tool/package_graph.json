@@ -11,6 +11,7 @@
         "html"
       ],
       "devDependencies": [
+        "benchmark_harness",
         "lints",
         "test"
       ]
@@ -50,6 +51,13 @@
       "name": "lints",
       "version": "4.0.0",
       "dependencies": []
+    },
+    {
+      "name": "benchmark_harness",
+      "version": "2.4.0",
+      "dependencies": [
+        "args"
+      ]
     },
     {
       "name": "html",
@@ -317,6 +325,11 @@
       ]
     },
     {
+      "name": "args",
+      "version": "2.7.0",
+      "dependencies": []
+    },
+    {
       "name": "csslib",
       "version": "1.0.2",
       "dependencies": [
@@ -410,11 +423,6 @@
         "async",
         "path"
       ]
-    },
-    {
-      "name": "args",
-      "version": "2.7.0",
-      "dependencies": []
     },
     {
       "name": "term_glyph",
