@@ -42,7 +42,7 @@ List<Line> splitIntoLines(Delta delta) {
     current = <InlineOp>[];
   }
 
-  for (final op in delta.toList()) {
+  for (final op in delta.operations) {
     if (!op.isInsert) continue;
     final data = op.data;
     final attrs = op.attributes;
