@@ -1,15 +1,17 @@
 import 'package:dart_quill_delta/dart_quill_delta.dart';
-import 'package:html/parser.dart' as html_parser;
 
-import 'decoder/decoder.dart';
 import 'embeds/embed_adapter.dart';
 import 'embeds/registry.dart';
-import 'encoder/block_encoder.dart';
-import 'encoder/line_splitter.dart';
+import 'html/html_exporter.dart';
+import 'html/html_importer.dart';
 import 'options.dart';
-import 'util/html_writer.dart';
 
 /// Bidirectional Quill Delta <-> HTML codec.
+///
+/// Thin façade around [HtmlImporter] + [HtmlExporter]. Prefer the importer/
+/// exporter classes directly for new code — they conform to the
+/// [DeltaImporter]/[DeltaExporter] contract used by the multi-format
+/// converter family.
 class QuillHtmlCodec {
   QuillHtmlCodec({
     List<EmbedAdapter> adapters = const [],
@@ -20,25 +22,12 @@ class QuillHtmlCodec {
   final EmbedRegistry registry;
 
   /// Delta -> HTML.
-  String encode(Delta delta) {
-    final writer = HtmlWriter();
-    if (options.wrapDocument) {
-      writer.open('div', {
-        'class': 'ql-html-doc',
-        'style': 'white-space: pre-wrap',
-      });
-    }
-    final lines = splitIntoLines(delta);
-    BlockEncoder(registry, options).encode(lines, writer);
-    if (options.wrapDocument) {
-      writer.close('div');
-    }
-    return writer.toString();
-  }
+  String encode(Delta delta) =>
+      HtmlExporter(registry: registry, defaultOptions: options)
+          .exportSync(delta);
 
   /// HTML -> Delta.
-  Delta decode(String html) {
-    final doc = html_parser.parse(html);
-    return HtmlDecoder(registry, options).decode(doc);
-  }
+  Delta decode(String html) =>
+      HtmlImporter(registry: registry, defaultOptions: options)
+          .importSync(html);
 }
