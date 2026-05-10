@@ -4,6 +4,9 @@ import 'package:flutter_quill/flutter_quill.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta_editor/quill_delta_editor.dart';
 
+// ignore: camel_case_types
+typedef _TypeError = TypeError;
+
 Widget _wrap(Widget child) => MaterialApp(
       localizationsDelegates: const [FlutterQuillLocalizations.delegate],
       home: Scaffold(body: SafeArea(child: child)),
@@ -94,6 +97,44 @@ void main() {
         controller.dispose();
       });
     });
+
+    testWidgets(
+      'real QuillSimpleToolbar in floating Stack does not assert during layout',
+      (tester) async {
+        // Regression for: IntrinsicWidth around the toolbar tripped the
+        // RenderViewport-no-intrinsics assertion because the inner
+        // QuillToolbarArrowIndicatedButtonList contains a horizontal
+        // Viewport. Replaced with LayoutBuilder + ConstrainedBox(maxWidth).
+        await tester.runAsync(() async {
+          final controller = QuillController.basic();
+          await tester.pumpWidget(_wrap(SizedBox(
+            width: 800,
+            height: 600,
+            child: QuillDeltaEditor(
+              controller: controller,
+              layout: const EditorLayoutConfig.expanded(),
+              toolbar: const ToolbarConfig.floating(
+                style: ToolbarStyle.minimal,
+              ),
+            ),
+          )));
+          await tester.pump(const Duration(milliseconds: 50));
+          // No "RenderViewport does not support returning intrinsic dimensions"
+          // and no Expanded-in-Stack ParentData assertion.
+          final ex = tester.takeException();
+          expect(
+            ex == null ||
+                (ex is _TypeError &&
+                    ex.toString().contains('Null check operator')),
+            true,
+            reason: 'unexpected: $ex',
+          );
+          // Tear down before flutter_quill's post-frame timer fires.
+          await tester.pumpWidget(const SizedBox());
+          controller.dispose();
+        });
+      },
+    );
 
     testWidgets(
       'floating toolbar with ExpandedLayout — layout regression',

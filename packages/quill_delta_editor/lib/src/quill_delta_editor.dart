@@ -220,11 +220,18 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
   /// Layered toolbar over editor.
   ///
   /// Editor is wrapped in [Positioned.fill] when the layout is
-  /// [ExpandedLayout] so the [Stack] sizes correctly to its parent. Toolbar
-  /// is wrapped in [IntrinsicWidth] so its inner Row receives a bounded
-  /// width constraint inside the Stack — without this, flutter_quill's
-  /// QuillToolbarArrowIndicatedButtonList trips a 'non-zero flex with
-  /// unbounded width' assertion.
+  /// [ExpandedLayout] so the [Stack] sizes correctly to its parent.
+  ///
+  /// flutter_quill's QuillSimpleToolbar contains an internally-scrolling
+  /// Viewport (QuillToolbarArrowIndicatedButtonList). Two constraints we
+  /// must satisfy:
+  ///   - The toolbar Row needs a bounded incoming width or its non-zero
+  ///     flex children assert.
+  ///   - We cannot wrap the toolbar in [IntrinsicWidth]: the inner
+  ///     Viewport refuses intrinsic dimension queries.
+  /// Solution: read the parent width via [LayoutBuilder] and pass it to
+  /// the [Positioned] as an explicit `width`, leaving margins as Positioned
+  /// inset values.
   Widget _withFloating({
     required BuildContext context,
     required Widget editor,
@@ -242,25 +249,36 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
     final isRightish = position == FloatingToolbarPosition.topRight ||
         position == FloatingToolbarPosition.bottomRight;
 
-    return Stack(
-      children: [
-        if (_expanding) Positioned.fill(child: editor) else editor,
-        Positioned(
-          top: isTop ? margin.top : null,
-          bottom: isBottom ? margin.bottom : null,
-          left: isLeftish ? margin.left : null,
-          right: isRightish ? margin.right : null,
-          child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(8),
-            color: config.backgroundColor ?? Theme.of(context).cardColor,
-            child: Padding(
-              padding: config.padding,
-              child: IntrinsicWidth(child: toolbar),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.hasBoundedWidth
+            ? (constraints.maxWidth - margin.horizontal)
+                .clamp(120.0, double.infinity)
+            : double.infinity;
+        return Stack(
+          children: [
+            if (_expanding) Positioned.fill(child: editor) else editor,
+            Positioned(
+              top: isTop ? margin.top : null,
+              bottom: isBottom ? margin.bottom : null,
+              left: isLeftish ? margin.left : null,
+              right: isRightish ? margin.right : null,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(8),
+                color: config.backgroundColor ?? Theme.of(context).cardColor,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxWidth),
+                  child: Padding(
+                    padding: config.padding,
+                    child: toolbar,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
