@@ -92,10 +92,13 @@ class WordHtmlCleaner {
       // style: drop mso-* properties.
       final style = el.attributes['style'];
       if (style != null) {
-        final cleaned = style.split(';').where((p) {
-          final t = p.trim();
-          return t.isNotEmpty && !t.toLowerCase().startsWith('mso-');
-        }).join('; ');
+        final cleaned = style
+            .split(';')
+            .where((p) {
+              final t = p.trim();
+              return t.isNotEmpty && !t.toLowerCase().startsWith('mso-');
+            })
+            .join('; ');
         if (cleaned.trim().isEmpty) {
           el.attributes.remove('style');
         } else {

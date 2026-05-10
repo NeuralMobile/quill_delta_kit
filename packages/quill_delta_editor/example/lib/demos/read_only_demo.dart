@@ -53,16 +53,34 @@ class _ReadOnlyDemoState extends State<ReadOnlyDemo> {
 
 const _sample = [
   {'insert': 'Project Update'},
-  {'insert': '\n', 'attributes': {'header': 1}},
+  {
+    'insert': '\n',
+    'attributes': {'header': 1}
+  },
   {'insert': 'This document is rendered in '},
-  {'insert': 'read-only', 'attributes': {'bold': true}},
+  {
+    'insert': 'read-only',
+    'attributes': {'bold': true}
+  },
   {'insert': ' mode. You can select text but not edit it.\n\n'},
   {'insert': 'Highlights'},
-  {'insert': '\n', 'attributes': {'header': 2}},
+  {
+    'insert': '\n',
+    'attributes': {'header': 2}
+  },
   {'insert': 'Shipped converter abstraction'},
-  {'insert': '\n', 'attributes': {'list': 'bullet'}},
+  {
+    'insert': '\n',
+    'attributes': {'list': 'bullet'}
+  },
   {'insert': 'Added markdown + docx + pdf'},
-  {'insert': '\n', 'attributes': {'list': 'bullet'}},
+  {
+    'insert': '\n',
+    'attributes': {'list': 'bullet'}
+  },
   {'insert': 'StringBuffer encoder, ~17% faster round trip'},
-  {'insert': '\n', 'attributes': {'list': 'bullet'}},
+  {
+    'insert': '\n',
+    'attributes': {'list': 'bullet'}
+  },
 ];

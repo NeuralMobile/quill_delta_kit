@@ -36,8 +36,7 @@ class _FixedHeightListDemoState extends State<FixedHeightListDemo> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Note ${i + 1}',
-                      style: Theme.of(context).textTheme.titleSmall),
+                  Text('Note ${i + 1}', style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 8),
                   QuillDeltaEditor(
                     controller: _controllers[i],

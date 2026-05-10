@@ -10,10 +10,7 @@ import 'package:test/test.dart';
 /// Three formats round-trip via Delta (html, markdown, docx). PDF is one-way
 /// and has its own per-format whitespace tests.
 void main() {
-  String _plain(Delta d) => d.operations
-      .where((op) => op.data is String)
-      .map((op) => op.data as String)
-      .join();
+  String _plain(Delta d) => d.operations.where((op) => op.data is String).map((op) => op.data as String).join();
 
   Future<Delta> _viaHtml(Delta d) async {
     final html = await HtmlExporter(
@@ -72,8 +69,7 @@ void main() {
   // CommonMark parser. HTML and docx preserve them. Document the loss
   // explicitly so any future change to markdown's whitespace handling is
   // caught by the test rather than silently regressing other formats.
-  group('leading/trailing ASCII spaces — html + docx preserve, markdown strips',
-      () {
+  group('leading/trailing ASCII spaces — html + docx preserve, markdown strips', () {
     final cases = <String, String>{
       'leading-space': '   abc',
       'trailing-space': 'abc   ',

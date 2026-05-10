@@ -9,23 +9,35 @@ void main() {
     test('bullet list', () {
       expect(c.decode('<ul><li>a</li><li>b</li></ul>').toJson(), [
         {'insert': 'a'},
-        {'insert': '\n', 'attributes': {'list': 'bullet'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'bullet'}
+        },
         {'insert': 'b'},
-        {'insert': '\n', 'attributes': {'list': 'bullet'}}
+        {
+          'insert': '\n',
+          'attributes': {'list': 'bullet'}
+        }
       ]);
     });
 
     test('ordered list', () {
       expect(c.decode('<ol><li>a</li></ol>').toJson(), [
         {'insert': 'a'},
-        {'insert': '\n', 'attributes': {'list': 'ordered'}}
+        {
+          'insert': '\n',
+          'attributes': {'list': 'ordered'}
+        }
       ]);
     });
 
     test('checked via Quill data-checked', () {
       expect(c.decode('<ul data-checked="true"><li>a</li></ul>').toJson(), [
         {'insert': 'a'},
-        {'insert': '\n', 'attributes': {'list': 'checked'}}
+        {
+          'insert': '\n',
+          'attributes': {'list': 'checked'}
+        }
       ]);
     });
 
@@ -34,7 +46,10 @@ void main() {
         c.decode('<ul data-checked="false"><li data-list="checked">a</li></ul>').toJson(),
         [
           {'insert': 'a'},
-          {'insert': '\n', 'attributes': {'list': 'checked'}}
+          {
+            'insert': '\n',
+            'attributes': {'list': 'checked'}
+          }
         ],
       );
     });
@@ -45,7 +60,10 @@ void main() {
           '</label></li></ul>';
       expect(c.decode(ck).toJson(), [
         {'insert': 'a'},
-        {'insert': '\n', 'attributes': {'list': 'checked'}}
+        {
+          'insert': '\n',
+          'attributes': {'list': 'checked'}
+        }
       ]);
     });
 
@@ -54,7 +72,10 @@ void main() {
           '<label><input type="checkbox" checked></label><div>a</div></li></ul>';
       expect(c.decode(tip).toJson(), [
         {'insert': 'a'},
-        {'insert': '\n', 'attributes': {'list': 'checked'}}
+        {
+          'insert': '\n',
+          'attributes': {'list': 'checked'}
+        }
       ]);
     });
 
@@ -62,11 +83,20 @@ void main() {
       const html = '<ol><li>a<ol><li>b</li></ol></li><li>c</li></ol>';
       expect(c.decode(html).toJson(), [
         {'insert': 'a'},
-        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'ordered'}
+        },
         {'insert': 'b'},
-        {'insert': '\n', 'attributes': {'list': 'ordered', 'indent': 1}},
+        {
+          'insert': '\n',
+          'attributes': {'list': 'ordered', 'indent': 1}
+        },
         {'insert': 'c'},
-        {'insert': '\n', 'attributes': {'list': 'ordered'}}
+        {
+          'insert': '\n',
+          'attributes': {'list': 'ordered'}
+        }
       ]);
     });
   });

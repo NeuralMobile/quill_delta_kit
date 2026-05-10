@@ -46,8 +46,7 @@ class _Home extends StatelessWidget {
     _Demo('Auth-injected previews', Icons.lock, AuthInjectionDemo()),
     _Demo('Custom toolbar', Icons.build, CustomToolbarDemo()),
     _Demo('Corner floating toolbar', Icons.layers, FloatingToolbarDemo()),
-    _Demo('Selection toolbar (iOS-style)', Icons.text_fields,
-        SelectionToolbarDemo()),
+    _Demo('Selection toolbar (iOS-style)', Icons.text_fields, SelectionToolbarDemo()),
     _Demo('Multi-format export', Icons.import_export, ExportDemo()),
   ];
 

@@ -141,11 +141,7 @@ Map<String, dynamic> _randomEmbed(Random rng) {
       return {'video': 'https://x/v${rng.nextInt(99)}.mp4'};
     case 3:
       return {
-        'mention': {
-          'id': '${rng.nextInt(1000)}',
-          'value': 'User${rng.nextInt(99)}',
-          'denotationChar': '@'
-        }
+        'mention': {'id': '${rng.nextInt(1000)}', 'value': 'User${rng.nextInt(99)}', 'denotationChar': '@'}
       };
     default:
       return {'formula': 'x^${rng.nextInt(10)}'};

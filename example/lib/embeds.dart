@@ -5,20 +5,20 @@ import 'package:flutter_quill/flutter_quill.dart' as fq;
 /// chip showing the embed type + value so the editor doesn't crash. Real apps
 /// should use `flutter_quill_extensions` or supply network/file widgets.
 List<fq.EmbedBuilder> exampleEmbedBuilders() => [
-      _SimpleEmbed('image', icon: Icons.image),
-      _SimpleEmbed('video', icon: Icons.play_circle),
-      _SimpleEmbed('audio', icon: Icons.audiotrack),
-      _SimpleEmbed('formula', icon: Icons.functions),
-      _SimpleEmbed('mention', icon: Icons.alternate_email),
-      _SimpleEmbed('divider', icon: Icons.horizontal_rule, isInline: false, label: '— divider —'),
-      _SimpleEmbed('table', icon: Icons.table_chart),
-      _SimpleEmbed('iframe', icon: Icons.open_in_new),
-      _SimpleEmbed('loom', icon: Icons.play_circle_outline),
-      _SimpleEmbed('spotify', icon: Icons.music_note),
-      _SimpleEmbed('soundcloud', icon: Icons.cloud),
-      _SimpleEmbed('codepen', icon: Icons.code),
-      _SimpleEmbed('tweet', icon: Icons.tag),
-    ];
+  _SimpleEmbed('image', icon: Icons.image),
+  _SimpleEmbed('video', icon: Icons.play_circle),
+  _SimpleEmbed('audio', icon: Icons.audiotrack),
+  _SimpleEmbed('formula', icon: Icons.functions),
+  _SimpleEmbed('mention', icon: Icons.alternate_email),
+  _SimpleEmbed('divider', icon: Icons.horizontal_rule, isInline: false, label: '— divider —'),
+  _SimpleEmbed('table', icon: Icons.table_chart),
+  _SimpleEmbed('iframe', icon: Icons.open_in_new),
+  _SimpleEmbed('loom', icon: Icons.play_circle_outline),
+  _SimpleEmbed('spotify', icon: Icons.music_note),
+  _SimpleEmbed('soundcloud', icon: Icons.cloud),
+  _SimpleEmbed('codepen', icon: Icons.code),
+  _SimpleEmbed('tweet', icon: Icons.tag),
+];
 
 fq.EmbedBuilder unknownEmbedBuilder() => _SimpleEmbed('unknown', icon: Icons.help_outline);
 
@@ -54,11 +54,7 @@ class _SimpleEmbed extends fq.EmbedBuilder {
           Icon(icon, size: 14),
           const SizedBox(width: 4),
           Flexible(
-            child: Text(
-              '$_key: $preview',
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: Text('$_key: $preview', style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
           ),
         ],
       ),

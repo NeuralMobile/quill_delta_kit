@@ -14,17 +14,13 @@ void main() {
   final exp = const DocxExporter();
   final imp = DocxImporter();
 
-  String _plain(Delta d) => d.operations
-      .where((op) => op.data is String)
-      .map((op) => op.data as String)
-      .join();
+  String _plain(Delta d) => d.operations.where((op) => op.data is String).map((op) => op.data as String).join();
 
   group('exporter writes xml:space="preserve"', () {
     test('on every <w:t>', () async {
       final bytes = await exp.export(Delta()..insert('one\n'));
       final archive = ZipDecoder().decodeBytes(bytes);
-      final doc = utf8.decode(
-          archive.findFile('word/document.xml')!.content as List<int>);
+      final doc = utf8.decode(archive.findFile('word/document.xml')!.content as List<int>);
       expect(doc, contains('xml:space="preserve"'));
     });
   });
@@ -96,8 +92,7 @@ void main() {
       final bytes = await exp.export(delta);
       final back = await imp.import(bytes);
       final boldOp = back.operations.firstWhere(
-        (op) =>
-            op.attributes != null && op.attributes!['bold'] == true,
+        (op) => op.attributes != null && op.attributes!['bold'] == true,
         orElse: () => Operation.insert(''),
       );
       expect(boldOp.data, 'a   b');
@@ -122,8 +117,7 @@ void main() {
       final delta = Delta()..insert('line1\nline2\n');
       final bytes = await exp.export(delta);
       final archive = ZipDecoder().decodeBytes(bytes);
-      final doc = utf8.decode(
-          archive.findFile('word/document.xml')!.content as List<int>);
+      final doc = utf8.decode(archive.findFile('word/document.xml')!.content as List<int>);
       // splitIntoLines breaks on \n -> two paragraphs.
       expect('<w:p'.allMatches(doc).length, greaterThanOrEqualTo(2));
     });

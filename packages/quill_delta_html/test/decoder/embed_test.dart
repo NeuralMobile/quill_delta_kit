@@ -17,8 +17,7 @@ void main() {
 
     test('img with width/height/style', () {
       expect(
-        c.decode('<p><img src="x" width="100" height="50" style="margin: auto" alt="hi"></p>')
-            .toJson(),
+        c.decode('<p><img src="x" width="100" height="50" style="margin: auto" alt="hi"></p>').toJson(),
         [
           {
             'insert': {'image': 'x'},
@@ -73,10 +72,7 @@ void main() {
 
     test('CKEditor oembed -> video', () {
       expect(
-        c
-            .decode(
-                '<figure class="media"><oembed url="https://www.youtube.com/watch?v=xyz"></oembed></figure>')
-            .toJson(),
+        c.decode('<figure class="media"><oembed url="https://www.youtube.com/watch?v=xyz"></oembed></figure>').toJson(),
         [
           {
             'insert': {'video': 'https://www.youtube.com/watch?v=xyz'}
@@ -128,7 +124,11 @@ void main() {
     test('passthrough unknown round-trip', () {
       // Encode unknown -> decode should reproduce.
       final original = deltaOf([
-        {'insert': {'weirdembed': {'k': 'v', 'n': 7}}},
+        {
+          'insert': {
+            'weirdembed': {'k': 'v', 'n': 7}
+          }
+        },
         {'insert': '\n'}
       ]);
       final html = c.encode(original);

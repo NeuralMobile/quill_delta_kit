@@ -50,12 +50,16 @@ void main() {
 
     test('encoded HTML chars survive through escape -> decode', () {
       final c = frag();
-      final input = [{'insert': '<script>alert(1)</script>\n'}];
+      final input = [
+        {'insert': '<script>alert(1)</script>\n'}
+      ];
       final html = c.encode(deltaOf(input));
       // Encoded as escaped text, not as a real script tag.
       expect(html, contains('&lt;script&gt;alert(1)&lt;/script&gt;'));
       final back = c.decode(html).toJson();
-      expect(back, [{'insert': '<script>alert(1)</script>\n'}]);
+      expect(back, [
+        {'insert': '<script>alert(1)</script>\n'}
+      ]);
     });
 
     test('img onerror attribute does not survive', () {

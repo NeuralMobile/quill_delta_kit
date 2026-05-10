@@ -112,8 +112,7 @@ class InlineEncoder {
       try {
         final inner = _decodeCustom(value);
         if (inner != null) {
-          final adapter =
-              registry.forType(inner.key, customSubType: inner.key) ?? registry.forType(inner.key);
+          final adapter = registry.forType(inner.key, customSubType: inner.key) ?? registry.forType(inner.key);
           if (adapter != null) {
             adapter.encode(
               writer: writer,

@@ -17,8 +17,7 @@ void main() {
   final exp = const PdfExporter();
   const _u = PdfOptions(compress: false);
 
-  String _body(List<int> bytes) =>
-      latin1.decode(bytes, allowInvalid: true);
+  String _body(List<int> bytes) => latin1.decode(bytes, allowInvalid: true);
 
   group('PdfExporter does not crash on whitespace inputs', () {
     final cases = <String, String>{

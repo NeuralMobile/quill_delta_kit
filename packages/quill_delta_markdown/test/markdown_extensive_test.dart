@@ -155,7 +155,10 @@ void main() {
         final d = await imp.import('${'#' * i} H$i\n');
         expect(d.toJson(), [
           {'insert': 'H$i'},
-          {'insert': '\n', 'attributes': {'header': i}},
+          {
+            'insert': '\n',
+            'attributes': {'header': i}
+          },
         ]);
       }
     });
@@ -164,7 +167,10 @@ void main() {
       final d = await imp.import('a ~~b~~\n');
       expect(d.toJson(), [
         {'insert': 'a '},
-        {'insert': 'b', 'attributes': {'strike': true}},
+        {
+          'insert': 'b',
+          'attributes': {'strike': true}
+        },
         {'insert': '\n'},
       ]);
     });
@@ -211,10 +217,7 @@ void main() {
       const text = 'Hello — world… "quoted" 🌍';
       final md = await exp.export(Delta()..insert('$text\n'));
       final back = await imp.import(md);
-      final restored = back.operations
-          .where((op) => op.data is String)
-          .map((op) => op.data as String)
-          .join();
+      final restored = back.operations.where((op) => op.data is String).map((op) => op.data as String).join();
       expect(restored.trim(), text);
     });
 
@@ -225,10 +228,7 @@ void main() {
         ..insert('Para three.\n');
       final md = await exp.export(delta);
       final back = await imp.import(md);
-      final text = back.operations
-          .where((op) => op.data is String)
-          .map((op) => op.data as String)
-          .join();
+      final text = back.operations.where((op) => op.data is String).map((op) => op.data as String).join();
       expect(text, contains('Para one'));
       expect(text, contains('Para two'));
       expect(text, contains('Para three'));

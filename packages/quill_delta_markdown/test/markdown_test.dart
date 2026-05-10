@@ -83,7 +83,10 @@ void main() {
       final d = await imp.import('# Title\n');
       expect(d.toJson(), [
         {'insert': 'Title'},
-        {'insert': '\n', 'attributes': {'header': 1}},
+        {
+          'insert': '\n',
+          'attributes': {'header': 1}
+        },
       ]);
     });
 
@@ -91,9 +94,15 @@ void main() {
       final d = await imp.import('a **b** *c*\n');
       expect(d.toJson(), [
         {'insert': 'a '},
-        {'insert': 'b', 'attributes': {'bold': true}},
+        {
+          'insert': 'b',
+          'attributes': {'bold': true}
+        },
         {'insert': ' '},
-        {'insert': 'c', 'attributes': {'italic': true}},
+        {
+          'insert': 'c',
+          'attributes': {'italic': true}
+        },
         {'insert': '\n'},
       ]);
     });
@@ -102,7 +111,10 @@ void main() {
       final d = await imp.import('```dart\nprint("x")\n```\n');
       expect(d.toJson(), [
         {'insert': 'print("x")'},
-        {'insert': '\n', 'attributes': {'code-block': 'dart'}},
+        {
+          'insert': '\n',
+          'attributes': {'code-block': 'dart'}
+        },
       ]);
     });
   });

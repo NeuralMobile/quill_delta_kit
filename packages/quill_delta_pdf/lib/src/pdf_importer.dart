@@ -5,8 +5,7 @@ import 'pdf_options.dart';
 
 /// PDF bytes -> Delta. **Stub for v0.1; throws [UnimplementedError].**
 final class PdfImporter implements DeltaImporter<List<int>, PdfOptions> {
-  const PdfImporter({PdfOptions? defaultOptions})
-      : _defaultOptions = defaultOptions;
+  const PdfImporter({PdfOptions? defaultOptions}) : _defaultOptions = defaultOptions;
 
   final PdfOptions? _defaultOptions;
 

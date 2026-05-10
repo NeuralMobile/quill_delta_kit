@@ -9,7 +9,9 @@ void main() {
 
     test('encode raw TeX', () {
       final html = c.encode(deltaOf([
-        {'insert': {'formula': 'e^{i\\pi}+1=0'}},
+        {
+          'insert': {'formula': 'e^{i\\pi}+1=0'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('class="ql-formula"'));
@@ -53,7 +55,9 @@ void main() {
         options: const QuillHtmlOptions(wrapDocument: false),
       );
       final html = cR.encode(deltaOf([
-        {'insert': {'formula': 'x^2'}},
+        {
+          'insert': {'formula': 'x^2'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('class="rendered"'));

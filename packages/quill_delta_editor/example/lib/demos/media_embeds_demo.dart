@@ -45,12 +45,18 @@ class _MediaEmbedsDemoState extends State<MediaEmbedsDemo> {
 
 const _doc = [
   {'insert': 'Mixed media\n'},
-  {'insert': {'image': 'https://picsum.photos/640/360'}},
+  {
+    'insert': {'image': 'https://picsum.photos/640/360'}
+  },
   {'insert': '\n'},
   {'insert': 'A short video:\n'},
-  {'insert': {'video': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}},
+  {
+    'insert': {'video': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}
+  },
   {'insert': '\n'},
   {'insert': 'And a podcast:\n'},
-  {'insert': {'audio': 'https://example.com/podcast.mp3'}},
+  {
+    'insert': {'audio': 'https://example.com/podcast.mp3'}
+  },
   {'insert': '\n'},
 ];

@@ -39,16 +39,14 @@ void main() {
     });
 
     test('declares at least one page object', () async {
-      final bytes =
-          await exp.export(Delta()..insert('x\n'), options: _uncompressed);
+      final bytes = await exp.export(Delta()..insert('x\n'), options: _uncompressed);
       final body = _asLatin1(bytes);
       expect(body, contains('/Pages'));
       expect(RegExp(r'/Page\b').hasMatch(body), true);
     });
 
     test('catalog object present', () async {
-      final bytes =
-          await exp.export(Delta()..insert('x\n'), options: _uncompressed);
+      final bytes = await exp.export(Delta()..insert('x\n'), options: _uncompressed);
       final body = _asLatin1(bytes);
       expect(body, contains('/Catalog'));
     });

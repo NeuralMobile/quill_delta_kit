@@ -33,8 +33,7 @@ class SelectionToolbarOverlay extends StatefulWidget {
   final Widget child;
 
   @override
-  State<SelectionToolbarOverlay> createState() =>
-      _SelectionToolbarOverlayState();
+  State<SelectionToolbarOverlay> createState() => _SelectionToolbarOverlayState();
 }
 
 class _SelectionToolbarOverlayState extends State<SelectionToolbarOverlay> {
@@ -119,9 +118,7 @@ class _SelectionToolbarOverlayState extends State<SelectionToolbarOverlay> {
     if (endpoints.isEmpty) return const SizedBox.shrink();
     final origin = renderEditor.localToGlobal(Offset.zero);
     final start = endpoints.first.point + origin;
-    final end = endpoints.length > 1
-        ? endpoints.last.point + origin
-        : start;
+    final end = endpoints.length > 1 ? endpoints.last.point + origin : start;
     // The endpoint y is at the BASELINE of the line. To get a top-of-line
     // position, subtract a heuristic line height. flutter_quill exposes
     // glyph height via _getGlyphHeights but it isn't public; 18 is a
@@ -155,8 +152,7 @@ class _SelectionToolbarOverlayState extends State<SelectionToolbarOverlay> {
         child: Material(
           elevation: 6,
           borderRadius: BorderRadius.circular(8),
-          color: widget.config.backgroundColor ??
-              Theme.of(overlayContext).colorScheme.surface,
+          color: widget.config.backgroundColor ?? Theme.of(overlayContext).colorScheme.surface,
           clipBehavior: Clip.antiAlias,
           child: Padding(
             padding: widget.config.padding,

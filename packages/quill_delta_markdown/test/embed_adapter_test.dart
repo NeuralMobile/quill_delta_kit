@@ -58,8 +58,7 @@ void main() {
 
     test('registry firstMatchIn returns first hit by start index', () {
       final reg = MarkdownEmbedRegistry(adapters: [_MentionAdapter()]);
-      final hit = reg.firstMatchIn(
-          'hello @bob and @carol', const MarkdownOptions());
+      final hit = reg.firstMatchIn('hello @bob and @carol', const MarkdownOptions());
       expect(hit, isNotNull);
       expect(hit!.start, 6);
       expect(hit.end, 10);

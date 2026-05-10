@@ -22,10 +22,7 @@ class ExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'quill_delta_html example',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
+      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo), useMaterial3: true),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
@@ -50,14 +47,7 @@ class _HomePageState extends State<HomePage> {
   final _scrollCtrl = ScrollController();
   final _focusNode = FocusNode();
   final _codec = QuillHtmlCodec(
-    adapters: [
-      AudioAdapter(),
-      LoomAdapter(),
-      SpotifyAdapter(),
-      CodePenAdapter(),
-      TweetAdapter(),
-      TableAdapter(),
-    ],
+    adapters: [AudioAdapter(), LoomAdapter(), SpotifyAdapter(), CodePenAdapter(), TweetAdapter(), TableAdapter()],
     options: const QuillHtmlOptions(
       wrapDocument: true,
       iframePolicy: IframePolicy(
@@ -149,9 +139,7 @@ class _HomePageState extends State<HomePage> {
       _refresh();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('docx import failed: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('docx import failed: $e')));
     }
   }
 
@@ -167,9 +155,9 @@ class _HomePageState extends State<HomePage> {
     }
     if (html == null || html.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Clipboard empty — try the "Paste HTML…" dialog')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Clipboard empty — try the "Paste HTML…" dialog')));
       return;
     }
     _ingestHtml(html, source: 'paste');
@@ -199,10 +187,7 @@ class _HomePageState extends State<HomePage> {
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, controller.text),
-              child: const Text('Import'),
-            ),
+            FilledButton(onPressed: () => Navigator.pop(ctx, controller.text), child: const Text('Import')),
           ],
         );
       },
@@ -236,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: Column(
@@ -246,9 +231,7 @@ class _HomePageState extends State<HomePage> {
             height: 56,
             child: fq.QuillSimpleToolbar(
               controller: _controller,
-              config: const fq.QuillSimpleToolbarConfig(
-                multiRowsDisplay: false,
-              ),
+              config: const fq.QuillSimpleToolbarConfig(multiRowsDisplay: false),
             ),
           ),
           const Divider(height: 1),
@@ -331,10 +314,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(width: 16),
               const Text('HTML in:', style: TextStyle(fontWeight: FontWeight.bold)),
               for (final entry in htmlFixtures.entries)
-                ActionChip(
-                  label: Text(entry.key),
-                  onPressed: () => _loadHtmlFixture(entry.value),
-                ),
+                ActionChip(label: Text(entry.key), onPressed: () => _loadHtmlFixture(entry.value)),
               const SizedBox(width: 16),
               const Text('Import:', style: TextStyle(fontWeight: FontWeight.bold)),
               ActionChip(
@@ -370,9 +350,7 @@ class _Panel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(color: Theme.of(context).dividerColor),
-        ),
+        border: Border(left: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

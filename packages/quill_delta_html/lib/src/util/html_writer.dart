@@ -15,8 +15,20 @@ class HtmlWriter {
   /// HTML5 void elements emit without a closing slash: `<br>`, `<hr>`,
   /// `<img src="x">` etc.
   static const _voidElements = <String>{
-    'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
-    'link', 'meta', 'param', 'source', 'track', 'wbr',
+    'area',
+    'base',
+    'br',
+    'col',
+    'embed',
+    'hr',
+    'img',
+    'input',
+    'link',
+    'meta',
+    'param',
+    'source',
+    'track',
+    'wbr',
   };
 
   /// Write an opening tag. For void elements use [voidEl].

@@ -41,8 +41,7 @@ abstract class MarkdownEmbedAdapter extends EmbedAdapterBase<MarkdownOptions> {
 /// Registry of markdown embed adapters. Format packages manage their own
 /// registries; cross-format embed handling lives in each format.
 class MarkdownEmbedRegistry {
-  MarkdownEmbedRegistry({List<MarkdownEmbedAdapter> adapters = const []})
-      : _adapters = List.of(adapters);
+  MarkdownEmbedRegistry({List<MarkdownEmbedAdapter> adapters = const []}) : _adapters = List.of(adapters);
 
   final List<MarkdownEmbedAdapter> _adapters;
 

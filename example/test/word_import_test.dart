@@ -8,23 +8,24 @@ import 'package:quill_delta_html_example/word_import.dart';
 /// Build a minimal in-memory `.docx` from the given `word/document.xml` body.
 List<int> buildDocx(String bodyXml, {Map<String, String>? rels, Map<String, List<int>>? media}) {
   final archive = Archive();
-  final doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+  final doc =
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
       '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
       'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
       'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
       '<w:body>$bodyXml</w:body></w:document>';
   archive.addFile(ArchiveFile('word/document.xml', doc.length, utf8.encode(doc)));
   if (rels != null && rels.isNotEmpty) {
-    final sb = StringBuffer('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">');
+    final sb = StringBuffer(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">',
+    );
     rels.forEach((id, target) {
       sb.write('<Relationship Id="$id" Type="x" Target="$target"/>');
     });
     sb.write('</Relationships>');
     final str = sb.toString();
-    archive.addFile(
-      ArchiveFile('word/_rels/document.xml.rels', str.length, utf8.encode(str)),
-    );
+    archive.addFile(ArchiveFile('word/_rels/document.xml.rels', str.length, utf8.encode(str)));
   }
   if (media != null) {
     media.forEach((path, bytes) {
@@ -46,9 +47,7 @@ void main() {
     });
 
     test('bold + italic + underline', () async {
-      final bytes = buildDocx(
-        '<w:p><w:r><w:rPr><w:b/><w:i/><w:u w:val="single"/></w:rPr><w:t>fmt</w:t></w:r></w:p>',
-      );
+      final bytes = buildDocx('<w:p><w:r><w:rPr><w:b/><w:i/><w:u w:val="single"/></w:rPr><w:t>fmt</w:t></w:r></w:p>');
       final html = await importer.docxToHtml(Uint8List.fromList(bytes));
       expect(html, contains('<strong>'));
       expect(html, contains('<em>'));
@@ -114,7 +113,7 @@ void main() {
       final bytes = buildDocx('<w:p><w:r><w:t>hi</w:t></w:r></w:p>');
       final delta = await importer.docxToDelta(Uint8List.fromList(bytes));
       expect(delta.toJson(), [
-        {'insert': 'hi\n'}
+        {'insert': 'hi\n'},
       ]);
     });
 
@@ -131,10 +130,7 @@ void main() {
     });
 
     test('rejects non-docx', () async {
-      expect(
-        () => importer.docxToHtml(Uint8List.fromList([0x00, 0x01])),
-        throwsA(isA<Exception>()),
-      );
+      expect(() => importer.docxToHtml(Uint8List.fromList([0x00, 0x01])), throwsA(isA<Exception>()));
     });
   });
 }

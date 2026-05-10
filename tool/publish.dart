@@ -65,8 +65,7 @@ void main(List<String> args) {
     stdout.writeln('Wrote publish-ready pubspec to ${pubspec.path}.');
     stdout.writeln('Backup at ${backup.path}.');
     stdout.writeln('Run: cd ${pkgDir.path} && dart pub publish --dry-run');
-    stdout.writeln(
-        'When done: dart run tool/publish.dart $pkgName --restore');
+    stdout.writeln('When done: dart run tool/publish.dart $pkgName --restore');
   } else {
     final preview = File('${pkgDir.path}/pubspec.publish.yaml');
     preview.writeAsStringSync(rewritten);
@@ -89,15 +88,13 @@ String _rewrite(String pubspec, String selfName) {
     if (trimmed == 'resolution: workspace') continue;
 
     // Detect "<dep>:" line that starts a multi-line `path:` block.
-    final depMatch =
-        RegExp(r'^(\s+)([a-z_][a-z0-9_]*):\s*$').firstMatch(line);
+    final depMatch = RegExp(r'^(\s+)([a-z_][a-z0-9_]*):\s*$').firstMatch(line);
     if (depMatch != null) {
       pendingDepName = depMatch.group(2);
       // Peek next line for `path: ...`.
       if (i + 1 < lines.length) {
         final next = lines[i + 1];
-        final pathMatch = RegExp(r'^\s+path:\s*\.\./([a-z_][a-z0-9_]*)\s*$')
-            .firstMatch(next);
+        final pathMatch = RegExp(r'^\s+path:\s*\.\./([a-z_][a-z0-9_]*)\s*$').firstMatch(next);
         if (pathMatch != null) {
           final depPkg = pathMatch.group(1)!;
           final version = _readVersion(depPkg);

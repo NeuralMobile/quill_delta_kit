@@ -51,7 +51,9 @@ void main() {
     test('table as block-level (no <p> wrapper)', () {
       // Encode a delta with a table embed -> HTML must NOT wrap table in <p>.
       final orig = deltaOf([
-        {'insert': {'table': '<table><tr><td>x</td></tr></table>'}},
+        {
+          'insert': {'table': '<table><tr><td>x</td></tr></table>'}
+        },
         {'insert': '\n'}
       ]);
       final html = c.encode(orig);

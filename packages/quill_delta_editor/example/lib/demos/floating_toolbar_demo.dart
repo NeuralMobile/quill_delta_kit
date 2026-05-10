@@ -56,8 +56,7 @@ class _FloatingToolbarDemoState extends State<FloatingToolbarDemo> {
               padding: const EdgeInsets.all(16),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border:
-                      Border.all(color: Theme.of(context).dividerColor),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: QuillDeltaEditor(

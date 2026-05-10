@@ -8,7 +8,9 @@ void main() {
   group('iframe handling', () {
     test('YouTube watch URL -> embed iframe', () {
       final html = c.encode(deltaOf([
-        {'insert': {'video': 'https://www.youtube.com/watch?v=abc123'}},
+        {
+          'insert': {'video': 'https://www.youtube.com/watch?v=abc123'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('https://www.youtube.com/embed/abc123'));
@@ -17,7 +19,9 @@ void main() {
 
     test('YouTube short URL -> embed', () {
       final html = c.encode(deltaOf([
-        {'insert': {'video': 'https://youtu.be/abc123'}},
+        {
+          'insert': {'video': 'https://youtu.be/abc123'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('youtube.com/embed/abc123'));
@@ -25,7 +29,9 @@ void main() {
 
     test('Vimeo URL -> player.vimeo.com', () {
       final html = c.encode(deltaOf([
-        {'insert': {'video': 'https://vimeo.com/12345'}},
+        {
+          'insert': {'video': 'https://vimeo.com/12345'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('player.vimeo.com/video/12345'));

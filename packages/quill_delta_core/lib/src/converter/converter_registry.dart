@@ -93,8 +93,7 @@ class ConverterRegistry {
     String? filename,
     String? mime,
   }) async {
-    final resolvedFormat = format?.toLowerCase() ??
-        _resolveFormat(input, filename: filename, mime: mime);
+    final resolvedFormat = format?.toLowerCase() ?? _resolveFormat(input, filename: filename, mime: mime);
 
     if (resolvedFormat == null) {
       throw ConverterNotFound(
@@ -106,15 +105,13 @@ class ConverterRegistry {
 
     final found = _importers[resolvedFormat];
     if (found == null) {
-      throw ConverterNotFound(
-          'No importer registered for format "$resolvedFormat"');
+      throw ConverterNotFound('No importer registered for format "$resolvedFormat"');
     }
 
     if (input is String) {
       return (found as DeltaImporter<String, ConverterOptions>).import(input);
     } else if (input is List<int>) {
-      return (found as DeltaImporter<List<int>, ConverterOptions>)
-          .import(input);
+      return (found as DeltaImporter<List<int>, ConverterOptions>).import(input);
     } else {
       throw ArgumentError.value(
         input,
@@ -158,9 +155,7 @@ class ConverterRegistry {
   static String? _sniffTextFormat(String text) {
     final trimmed = text.trimLeft();
     if (trimmed.isEmpty) return null;
-    final lower = trimmed.length >= 16
-        ? trimmed.substring(0, 16).toLowerCase()
-        : trimmed.toLowerCase();
+    final lower = trimmed.length >= 16 ? trimmed.substring(0, 16).toLowerCase() : trimmed.toLowerCase();
     if (lower.startsWith('<!doctype html') || lower.startsWith('<html')) {
       return 'html';
     }

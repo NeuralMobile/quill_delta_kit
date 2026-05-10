@@ -14,10 +14,7 @@ void main() {
   final exp = const MarkdownExporter();
   final imp = MarkdownImporter();
 
-  String _plain(Delta d) => d.operations
-      .where((op) => op.data is String)
-      .map((op) => op.data as String)
-      .join();
+  String _plain(Delta d) => d.operations.where((op) => op.data is String).map((op) => op.data as String).join();
 
   group('exporter — significant unicode spaces survive verbatim', () {
     final cases = <String, String>{

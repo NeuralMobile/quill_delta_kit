@@ -134,11 +134,8 @@ String buildDocumentRelsXml(Map<String, String> hyperlinks) {
       'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" '
       'Target="numbering.xml"/>');
   for (final entry in hyperlinks.entries) {
-    final url = entry.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('"', '&quot;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;');
+    final url =
+        entry.value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
     buf.write('<Relationship Id="${entry.key}" '
         'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" '
         'Target="$url" TargetMode="External"/>');

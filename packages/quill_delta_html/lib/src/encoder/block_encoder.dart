@@ -179,8 +179,7 @@ class BlockEncoder {
       if ((tag == 'ol') != (outerTag == 'ol')) break;
 
       consumed++;
-      final indent =
-          (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
+      final indent = (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
       final targetDepth = indent + 1;
 
       // De-nest: close lists deeper than target.
@@ -257,6 +256,5 @@ class BlockEncoder {
     return 'ul';
   }
 
-  bool _isBlockLevelEmbed(String type) =>
-      type == 'divider' || type == 'hr' || type == 'table';
+  bool _isBlockLevelEmbed(String type) => type == 'divider' || type == 'hr' || type == 'table';
 }

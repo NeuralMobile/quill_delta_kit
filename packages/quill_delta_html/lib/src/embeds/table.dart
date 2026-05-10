@@ -12,7 +12,8 @@ import 'embed_adapter.dart';
 /// preserves rows, cols, rowspan, colspan, cell formatting, header rows,
 /// captions.
 class TableAdapter extends EmbedAdapter {
-  TableAdapter({this.allowedCellTags = const {'p', 'div', 'br', 'strong', 'em', 'u', 's', 'code', 'a', 'span', 'sub', 'sup'}});
+  TableAdapter(
+      {this.allowedCellTags = const {'p', 'div', 'br', 'strong', 'em', 'u', 's', 'code', 'a', 'span', 'sub', 'sup'}});
 
   final Set<String> allowedCellTags;
 

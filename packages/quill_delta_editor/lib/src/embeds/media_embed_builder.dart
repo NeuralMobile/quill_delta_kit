@@ -95,6 +95,5 @@ class _Placeholder extends StatelessWidget {
     );
   }
 
-  double _defaultHeight(String k) =>
-      switch (k) { 'image' => 120, 'video' => 180, 'audio' => 56, _ => 56 };
+  double _defaultHeight(String k) => switch (k) { 'image' => 120, 'video' => 180, 'audio' => 56, _ => 56 };
 }

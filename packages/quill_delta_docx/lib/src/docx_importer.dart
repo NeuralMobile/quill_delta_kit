@@ -4,15 +4,16 @@ import 'package:quill_delta_html/quill_delta_html.dart' show HtmlImporter;
 import 'ooxml_to_html.dart';
 
 /// .docx bytes -> Delta. Pivots through HTML.
-final class DocxImporter
-    extends HtmlPivotImporter<List<int>, DocxOptions> {
+final class DocxImporter extends HtmlPivotImporter<List<int>, DocxOptions> {
   DocxImporter({
     DeltaImporter<String, HtmlOptions>? htmlImporter,
     DocxOptions? defaultOptions,
   })  : _defaultOptions = defaultOptions,
-        super(htmlImporter: htmlImporter ?? HtmlImporter(
-          defaultOptions: const HtmlOptions(wrapDocument: false),
-        ));
+        super(
+            htmlImporter: htmlImporter ??
+                HtmlImporter(
+                  defaultOptions: const HtmlOptions(wrapDocument: false),
+                ));
 
   final DocxOptions? _defaultOptions;
 

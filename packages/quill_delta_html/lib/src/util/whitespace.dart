@@ -58,9 +58,6 @@ class Ws {
   }
 
   /// Encode an attribute value (no need to escape `<` / `>` / tab).
-  static String encodeAttr(String s) => s
-      .replaceAll('&', '&amp;')
-      .replaceAll('"', '&quot;')
-      .replaceAll('\n', '&#10;')
-      .replaceAll('\r', '&#13;');
+  static String encodeAttr(String s) =>
+      s.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('\n', '&#10;').replaceAll('\r', '&#13;');
 }

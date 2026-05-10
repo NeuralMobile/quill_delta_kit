@@ -85,11 +85,7 @@ class CssColor {
     final end = s.indexOf(')');
     if (start < 0 || end < 0) return null;
     final inner = s.substring(start + 1, end);
-    final parts = inner
-        .replaceAll('/', ',')
-        .split(_separatorRe)
-        .where((p) => p.isNotEmpty)
-        .toList();
+    final parts = inner.replaceAll('/', ',').split(_separatorRe).where((p) => p.isNotEmpty).toList();
     if (parts.length < 3 || parts.length > 4) return null;
     int? component(String p) {
       if (p.endsWith('%')) {
@@ -126,11 +122,7 @@ class CssColor {
     final end = s.indexOf(')');
     if (start < 0 || end < 0) return null;
     final inner = s.substring(start + 1, end);
-    final parts = inner
-        .replaceAll('/', ',')
-        .split(_separatorRe)
-        .where((p) => p.isNotEmpty)
-        .toList();
+    final parts = inner.replaceAll('/', ',').split(_separatorRe).where((p) => p.isNotEmpty).toList();
     if (parts.length < 3 || parts.length > 4) return null;
 
     double? num(String p) {
@@ -209,8 +201,7 @@ class CssColor {
   String toString() => toCss();
 
   @override
-  bool operator ==(Object other) =>
-      other is CssColor && other.r == r && other.g == g && other.b == b && other.a == a;
+  bool operator ==(Object other) => other is CssColor && other.r == r && other.g == g && other.b == b && other.a == a;
 
   @override
   int get hashCode => Object.hash(r, g, b, a);

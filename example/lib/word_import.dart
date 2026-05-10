@@ -17,7 +17,7 @@ import 'package:xml/xml.dart';
 /// Use [docxToHtml] to inspect the HTML; use [docxToDelta] for Quill.
 class WordImporter {
   WordImporter({QuillHtmlCodec? codec})
-      : _codec = codec ?? QuillHtmlCodec(options: const QuillHtmlOptions(wrapDocument: false));
+    : _codec = codec ?? QuillHtmlCodec(options: const QuillHtmlOptions(wrapDocument: false));
 
   final QuillHtmlCodec _codec;
 
@@ -49,10 +49,7 @@ class WordImporter {
     final numberingFile = archive.findFile('word/numbering.xml');
     final numbering = <String, _NumDef>{};
     if (numberingFile != null) {
-      _parseNumbering(
-        XmlDocument.parse(utf8.decode(numberingFile.content as List<int>)),
-        numbering,
-      );
+      _parseNumbering(XmlDocument.parse(utf8.decode(numberingFile.content as List<int>)), numbering);
     }
 
     String? mediaResolver(String target) {
@@ -87,7 +84,7 @@ class WordImporter {
       case 'w:sectPr':
         return; // ignore
       default:
-        // Unknown block — skip.
+      // Unknown block — skip.
     }
   }
 
@@ -127,14 +124,7 @@ class WordImporter {
     out.write('</$tag>');
   }
 
-  void _emitListItem(
-    XmlElement p,
-    StringBuffer out,
-    _Ctx ctx,
-    _ListNum num, {
-    String? align,
-    int? indent,
-  }) {
+  void _emitListItem(XmlElement p, StringBuffer out, _Ctx ctx, _ListNum num, {String? align, int? indent}) {
     // Collapse list markup into discrete <ul>/<ol> by buffering siblings.
     // For simplicity we emit each li inline and rely on adjacent <ul>/<ol>
     // grouping at the codec layer. (HTML technically allows orphan <li>; the
@@ -376,12 +366,7 @@ class WordImporter {
     for (final a in doc.findAllElements('w:abstractNum')) {
       final id = a.getAttribute('w:abstractNumId');
       if (id == null) continue;
-      final fmt = a
-          .findElements('w:lvl')
-          .firstOrNull
-          ?.findElements('w:numFmt')
-          .firstOrNull
-          ?.getAttribute('w:val');
+      final fmt = a.findElements('w:lvl').firstOrNull?.findElements('w:numFmt').firstOrNull?.getAttribute('w:val');
       abs[id] = fmt ?? 'bullet';
     }
     for (final n in doc.findAllElements('w:num')) {
@@ -427,11 +412,8 @@ class WordImporter {
     return 'application/octet-stream';
   }
 
-  String _escape(String s) => s
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll(' ', '&#160;');
+  String _escape(String s) =>
+      s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll(' ', '&#160;');
 
   String _attr(String s) => s.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
 }

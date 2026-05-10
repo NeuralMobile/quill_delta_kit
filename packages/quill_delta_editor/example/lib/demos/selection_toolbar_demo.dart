@@ -22,11 +22,15 @@ class _SelectionToolbarDemoState extends State<SelectionToolbarDemo> {
       document: Document.fromJson(const [
         {'insert': 'Try selecting some text.\n'},
         {'insert': 'A floating toolbar will appear above (or below) '},
-        {'insert': 'the selection', 'attributes': {'bold': true}},
+        {
+          'insert': 'the selection',
+          'attributes': {'bold': true}
+        },
         {'insert': ' — like the iOS context menu.\n\n'},
-        {'insert':
-          'Tap somewhere with no selection to dismiss it. Drag-select '
-          'across multiple lines to keep it open.\n'},
+        {
+          'insert': 'Tap somewhere with no selection to dismiss it. Drag-select '
+              'across multiple lines to keep it open.\n'
+        },
       ]),
       selection: const TextSelection.collapsed(offset: 0),
     );
@@ -66,8 +70,7 @@ class _SelectionToolbarDemoState extends State<SelectionToolbarDemo> {
               padding: const EdgeInsets.all(16),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border:
-                      Border.all(color: Theme.of(context).dividerColor),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: QuillDeltaEditor(

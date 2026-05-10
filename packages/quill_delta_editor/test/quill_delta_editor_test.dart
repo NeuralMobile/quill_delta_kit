@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart'
-    show Document, FlutterQuillLocalizations, QuillSimpleToolbar;
+import 'package:flutter_quill/flutter_quill.dart' show Document, FlutterQuillLocalizations, QuillSimpleToolbar;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta_editor/quill_delta_editor.dart';
 
@@ -123,9 +122,7 @@ void main() {
           // and no Expanded-in-Stack ParentData assertion.
           final ex = tester.takeException();
           expect(
-            ex == null ||
-                (ex is _TypeError &&
-                    ex.toString().contains('Null check operator')),
+            ex == null || (ex is _TypeError && ex.toString().contains('Null check operator')),
             true,
             reason: 'unexpected: $ex',
           );
@@ -254,8 +251,7 @@ void main() {
   });
 
   group('Embed builders', () {
-    testWidgets('image preview placeholder renders when no custom builder',
-        (tester) async {
+    testWidgets('image preview placeholder renders when no custom builder', (tester) async {
       final controller = QuillController(
         document: Document.fromJson([
           {

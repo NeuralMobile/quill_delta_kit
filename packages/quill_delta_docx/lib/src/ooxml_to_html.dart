@@ -24,8 +24,7 @@ String docxToHtml(List<int> bytes) {
 
   // Parse numbering.xml if present so list detection knows ordered vs bullet
   // per (numId, ilvl).
-  final numberingFile =
-      archive.files.where((f) => f.name == 'word/numbering.xml').firstOrNull;
+  final numberingFile = archive.files.where((f) => f.name == 'word/numbering.xml').firstOrNull;
   final numbering = numberingFile == null
       ? const _NumberingMap.empty()
       : _NumberingMap.parse(
@@ -162,10 +161,8 @@ void _writeRun(XmlElement run, StringBuffer buf) {
   final rPr = run.findElements('rPr', namespace: '*').firstOrNull;
   final bold = rPr != null && _hasOnElement(rPr, 'b');
   final italic = rPr != null && _hasOnElement(rPr, 'i');
-  final underline =
-      rPr != null && rPr.findElements('u', namespace: '*').isNotEmpty;
-  final strike = rPr != null &&
-      (_hasOnElement(rPr, 'strike') || _hasOnElement(rPr, 'dstrike'));
+  final underline = rPr != null && rPr.findElements('u', namespace: '*').isNotEmpty;
+  final strike = rPr != null && (_hasOnElement(rPr, 'strike') || _hasOnElement(rPr, 'dstrike'));
 
   String? colorVal;
   String? sizeVal;
@@ -233,10 +230,7 @@ bool _hasOnElement(XmlElement parent, String name) {
   final el = parent.findElements(name, namespace: '*').firstOrNull;
   if (el == null) return false;
   // <w:b/> or <w:b w:val="true"/> means bold; <w:b w:val="false"/> means off.
-  final val = el.attributes
-      .where((a) => a.localName == 'val')
-      .map((a) => a.value)
-      .firstOrNull;
+  final val = el.attributes.where((a) => a.localName == 'val').map((a) => a.value).firstOrNull;
   return val == null || val == '1' || val == 'true' || val == 'on';
 }
 
@@ -245,10 +239,7 @@ String? _paragraphStyle(XmlElement p) {
   if (pPr == null) return null;
   final pStyle = pPr.findElements('pStyle', namespace: '*').firstOrNull;
   if (pStyle == null) return null;
-  return pStyle.attributes
-      .where((a) => a.localName == 'val')
-      .map((a) => a.value)
-      .firstOrNull;
+  return pStyle.attributes.where((a) => a.localName == 'val').map((a) => a.value).firstOrNull;
 }
 
 String? _headingTag(String? styleName) {
@@ -272,15 +263,9 @@ _ListInfo? _detectList(XmlElement p, _NumberingMap numbering) {
   final ilvl = numPr.findElements('ilvl', namespace: '*').firstOrNull;
   final numIdEl = numPr.findElements('numId', namespace: '*').firstOrNull;
   if (numIdEl == null) return null;
-  final indentStr = ilvl?.attributes
-      .where((a) => a.localName == 'val')
-      .map((a) => a.value)
-      .firstOrNull;
+  final indentStr = ilvl?.attributes.where((a) => a.localName == 'val').map((a) => a.value).firstOrNull;
   final indent = int.tryParse(indentStr ?? '0') ?? 0;
-  final numIdStr = numIdEl.attributes
-      .where((a) => a.localName == 'val')
-      .map((a) => a.value)
-      .firstOrNull;
+  final numIdStr = numIdEl.attributes.where((a) => a.localName == 'val').map((a) => a.value).firstOrNull;
   final numId = int.tryParse(numIdStr ?? '');
 
   // Resolve via numbering.xml when available.
@@ -292,8 +277,7 @@ _ListInfo? _detectList(XmlElement p, _NumberingMap numbering) {
   }
   // Fall back to pStyle heuristic when numbering.xml is absent.
   final styleName = _paragraphStyle(p);
-  final ordered = styleName != null &&
-      (styleName.contains('Number') || styleName.contains('Ordered'));
+  final ordered = styleName != null && (styleName.contains('Number') || styleName.contains('Ordered'));
   return _ListInfo(ordered: ordered, indent: indent);
 }
 
@@ -313,44 +297,28 @@ class _NumberingMap {
     final doc = XmlDocument.parse(xml);
     final numIdToAbstract = <int, int>{};
     for (final num in doc.findAllElements('num', namespace: '*')) {
-      final numIdStr = num.attributes
-          .where((a) => a.localName == 'numId')
-          .map((a) => a.value)
-          .firstOrNull;
+      final numIdStr = num.attributes.where((a) => a.localName == 'numId').map((a) => a.value).firstOrNull;
       final numId = int.tryParse(numIdStr ?? '');
       if (numId == null) continue;
       final abs = num.findElements('abstractNumId', namespace: '*').firstOrNull;
-      final absVal = abs?.attributes
-          .where((a) => a.localName == 'val')
-          .map((a) => a.value)
-          .firstOrNull;
+      final absVal = abs?.attributes.where((a) => a.localName == 'val').map((a) => a.value).firstOrNull;
       final absId = int.tryParse(absVal ?? '');
       if (absId != null) numIdToAbstract[numId] = absId;
     }
     final abstractToFmt = <int, Map<int, _NumFmt>>{};
     for (final abs in doc.findAllElements('abstractNum', namespace: '*')) {
-      final absIdStr = abs.attributes
-          .where((a) => a.localName == 'abstractNumId')
-          .map((a) => a.value)
-          .firstOrNull;
+      final absIdStr = abs.attributes.where((a) => a.localName == 'abstractNumId').map((a) => a.value).firstOrNull;
       final absId = int.tryParse(absIdStr ?? '');
       if (absId == null) continue;
       final levelMap = <int, _NumFmt>{};
       for (final lvl in abs.findElements('lvl', namespace: '*')) {
-        final ilvlStr = lvl.attributes
-            .where((a) => a.localName == 'ilvl')
-            .map((a) => a.value)
-            .firstOrNull;
+        final ilvlStr = lvl.attributes.where((a) => a.localName == 'ilvl').map((a) => a.value).firstOrNull;
         final ilvl = int.tryParse(ilvlStr ?? '');
         if (ilvl == null) continue;
         final numFmt = lvl.findElements('numFmt', namespace: '*').firstOrNull;
-        final fmtVal = numFmt?.attributes
-            .where((a) => a.localName == 'val')
-            .map((a) => a.value)
-            .firstOrNull;
+        final fmtVal = numFmt?.attributes.where((a) => a.localName == 'val').map((a) => a.value).firstOrNull;
         if (fmtVal == null) continue;
-        levelMap[ilvl] =
-            fmtVal == 'bullet' ? _NumFmt.bullet : _NumFmt.ordered;
+        levelMap[ilvl] = fmtVal == 'bullet' ? _NumFmt.bullet : _NumFmt.ordered;
       }
       abstractToFmt[absId] = levelMap;
     }
@@ -374,11 +342,9 @@ String? _hyperlinkTarget(XmlElement hyperlink) {
   return null;
 }
 
-String _escapeText(String s) =>
-    s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+String _escapeText(String s) => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
-String _escapeAttr(String s) =>
-    s.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
+String _escapeAttr(String s) => s.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
 
 extension<T> on Iterable<T> {
   T? get firstOrNull {

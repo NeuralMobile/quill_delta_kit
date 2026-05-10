@@ -37,13 +37,11 @@ void main() {
       final el = dom.Element.tag('div')
         ..append(dom.Element.tag('p')..append(dom.Text('a')))
         ..append(dom.Element.tag('p')..append(dom.Text('b')));
-      expect(
-          DomSerializer(skipRoot: true).serialize(el), '<p>a</p><p>b</p>');
+      expect(DomSerializer(skipRoot: true).serialize(el), '<p>a</p><p>b</p>');
     });
 
     test('attribute values are entity-encoded', () {
-      final el = dom.Element.tag('a')
-        ..attributes['href'] = 'x?a=1&b="2"';
+      final el = dom.Element.tag('a')..attributes['href'] = 'x?a=1&b="2"';
       expect(DomSerializer().serialize(el), '<a href="x?a=1&amp;b=&quot;2&quot;"></a>');
     });
   });

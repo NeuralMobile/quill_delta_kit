@@ -130,10 +130,7 @@ void main() {
       final json = delta.toJson();
       expect(json.length, greaterThanOrEqualTo(1));
       // First op should contain our text.
-      final text = json
-          .where((op) => op['insert'] is String)
-          .map((op) => op['insert'] as String)
-          .join();
+      final text = json.where((op) => op['insert'] is String).map((op) => op['insert'] as String).join();
       expect(text, contains('Hello world'));
     });
 
@@ -144,8 +141,7 @@ void main() {
       final delta = await imp.import(bytes);
       final json = delta.toJson();
       final boldOp = json.firstWhere(
-        (op) => op['attributes'] is Map &&
-            (op['attributes'] as Map)['bold'] == true,
+        (op) => op['attributes'] is Map && (op['attributes'] as Map)['bold'] == true,
         orElse: () => {},
       );
       expect(boldOp['insert'], 'Bold');
@@ -154,8 +150,7 @@ void main() {
     test('format metadata', () {
       expect(imp.format, 'docx');
       expect(imp.extensions, contains('docx'));
-      expect(imp.mimeTypes,
-          contains('application/vnd.openxmlformats-officedocument.wordprocessingml.document'));
+      expect(imp.mimeTypes, contains('application/vnd.openxmlformats-officedocument.wordprocessingml.document'));
     });
   });
 
@@ -178,14 +173,16 @@ void main() {
       // Required parts present.
       final archive = ZipDecoder().decodeBytes(bytes);
       final names = archive.files.map((f) => f.name).toSet();
-      expect(names, containsAll(<String>{
-        '[Content_Types].xml',
-        '_rels/.rels',
-        'word/document.xml',
-        'word/_rels/document.xml.rels',
-        'word/styles.xml',
-        'word/numbering.xml',
-      }));
+      expect(
+          names,
+          containsAll(<String>{
+            '[Content_Types].xml',
+            '_rels/.rels',
+            'word/document.xml',
+            'word/_rels/document.xml.rels',
+            'word/styles.xml',
+            'word/numbering.xml',
+          }));
     });
 
     test('round-trip via importer preserves text', () async {
@@ -203,10 +200,8 @@ void main() {
         ..insert('\n', {'list': 'bullet'});
       final bytes = await exp.export(delta);
       final back = await imp.import(bytes);
-      final text = back.operations
-          .where((op) => op.isInsert && op.data is String)
-          .map((op) => op.data as String)
-          .join();
+      final text =
+          back.operations.where((op) => op.isInsert && op.data is String).map((op) => op.data as String).join();
       expect(text, contains('Title'));
       expect(text, contains('Para with bold and italic'));
       expect(text, contains('item 1'));

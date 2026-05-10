@@ -16,7 +16,10 @@ void main() {
     test('bold', () {
       final html = c.encode(deltaOf([
         {'insert': 'a'},
-        {'insert': 'b', 'attributes': {'bold': true}},
+        {
+          'insert': 'b',
+          'attributes': {'bold': true}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p>a<strong>b</strong></p>');
@@ -36,7 +39,10 @@ void main() {
 
     test('bold + italic combined', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'bold': true, 'italic': true}},
+        {
+          'insert': 'x',
+          'attributes': {'bold': true, 'italic': true}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p><strong><em>x</em></strong></p>');
@@ -44,7 +50,10 @@ void main() {
 
     test('color via canonical rgba', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'color': '#ff0000'}},
+        {
+          'insert': 'x',
+          'attributes': {'color': '#ff0000'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p><span style="color: #ff0000">x</span></p>');
@@ -52,7 +61,10 @@ void main() {
 
     test('color from flutter_quill ARGB', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'color': '#ffaa0000'}},
+        {
+          'insert': 'x',
+          'attributes': {'color': '#ffaa0000'}
+        },
         {'insert': '\n'}
       ]));
       // 8-digit hex = RRGGBBAA per CSS spec; opaque red 0xaa? actually #ffaa0000 with last 2 hex = 0x00 = transparent.
@@ -62,7 +74,10 @@ void main() {
 
     test('background', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'background': '#00ff00'}},
+        {
+          'insert': 'x',
+          'attributes': {'background': '#00ff00'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p><span style="background-color: #00ff00">x</span></p>');
@@ -70,7 +85,10 @@ void main() {
 
     test('font + size', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'font': 'serif', 'size': 'large'}},
+        {
+          'insert': 'x',
+          'attributes': {'font': 'serif', 'size': 'large'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p><span style="font-family: serif; font-size: 18px">x</span></p>');
@@ -78,7 +96,10 @@ void main() {
 
     test('size numeric', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'size': '14'}},
+        {
+          'insert': 'x',
+          'attributes': {'size': '14'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p><span style="font-size: 14px">x</span></p>');
@@ -86,7 +107,10 @@ void main() {
 
     test('script super', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'script': 'super'}},
+        {
+          'insert': 'x',
+          'attributes': {'script': 'super'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p><sup>x</sup></p>');
@@ -94,7 +118,10 @@ void main() {
 
     test('script sub', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'script': 'sub'}},
+        {
+          'insert': 'x',
+          'attributes': {'script': 'sub'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p><sub>x</sub></p>');
@@ -102,7 +129,10 @@ void main() {
 
     test('link', () {
       final html = c.encode(deltaOf([
-        {'insert': 'x', 'attributes': {'link': 'https://example.com'}},
+        {
+          'insert': 'x',
+          'attributes': {'link': 'https://example.com'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, '<p><a href="https://example.com">x</a></p>');

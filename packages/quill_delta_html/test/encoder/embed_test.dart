@@ -10,7 +10,9 @@ void main() {
     test('image basic', () {
       expect(
         c.encode(deltaOf([
-          {'insert': {'image': 'https://x/a.png'}},
+          {
+            'insert': {'image': 'https://x/a.png'}
+          },
           {'insert': '\n'}
         ])),
         '<p><img src="https://x/a.png"></p>',
@@ -32,7 +34,9 @@ void main() {
 
     test('video direct file -> <video>', () {
       final html = c.encode(deltaOf([
-        {'insert': {'video': 'https://x/v.mp4'}},
+        {
+          'insert': {'video': 'https://x/v.mp4'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('<video'));
@@ -41,7 +45,9 @@ void main() {
 
     test('video youtube -> iframe with embed url', () {
       final html = c.encode(deltaOf([
-        {'insert': {'video': 'https://www.youtube.com/watch?v=abc123'}},
+        {
+          'insert': {'video': 'https://www.youtube.com/watch?v=abc123'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('<iframe'));
@@ -50,7 +56,9 @@ void main() {
 
     test('audio (built-in)', () {
       final html = c.encode(deltaOf([
-        {'insert': {'audio': 'https://x/a.mp3'}},
+        {
+          'insert': {'audio': 'https://x/a.mp3'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('<audio'));
@@ -59,7 +67,9 @@ void main() {
 
     test('divider <hr>', () {
       final html = c.encode(deltaOf([
-        {'insert': {'divider': true}},
+        {
+          'insert': {'divider': true}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('<hr>'));
@@ -67,7 +77,9 @@ void main() {
 
     test('formula', () {
       final html = c.encode(deltaOf([
-        {'insert': {'formula': 'e=mc^2'}},
+        {
+          'insert': {'formula': 'e=mc^2'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('class="ql-formula"'));
@@ -76,7 +88,11 @@ void main() {
 
     test('mention', () {
       final html = c.encode(deltaOf([
-        {'insert': {'mention': {'id': '1', 'value': 'Alice', 'denotationChar': '@'}}},
+        {
+          'insert': {
+            'mention': {'id': '1', 'value': 'Alice', 'denotationChar': '@'}
+          }
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('class="mention"'));
@@ -87,7 +103,9 @@ void main() {
 
     test('flutter_quill custom audio wrapper', () {
       final html = c.encode(deltaOf([
-        {'insert': {'custom': '{"audio":"https://x/a.mp3"}'}},
+        {
+          'insert': {'custom': '{"audio":"https://x/a.mp3"}'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('<audio'));
@@ -96,7 +114,11 @@ void main() {
 
     test('unknown embed -> passthrough', () {
       final html = c.encode(deltaOf([
-        {'insert': {'unknownembed': {'foo': 'bar'}}},
+        {
+          'insert': {
+            'unknownembed': {'foo': 'bar'}
+          }
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('data-quill-unknown='));
@@ -105,7 +127,9 @@ void main() {
     test('wrapDocument=true wraps embeds in ql-html-doc div', () {
       final wrapped = QuillHtmlCodec();
       final html = wrapped.encode(deltaOf([
-        {'insert': {'image': 'https://x/a.png'}},
+        {
+          'insert': {'image': 'https://x/a.png'}
+        },
         {'insert': '\n'}
       ]));
       expect(html, startsWith('<div class="ql-html-doc"'));
@@ -116,7 +140,9 @@ void main() {
     test('wrapDocument=true wraps divider', () {
       final wrapped = QuillHtmlCodec();
       final html = wrapped.encode(deltaOf([
-        {'insert': {'divider': true}},
+        {
+          'insert': {'divider': true}
+        },
         {'insert': '\n'}
       ]));
       expect(html, contains('class="ql-html-doc"'));

@@ -30,10 +30,14 @@ class _AuthInjectionDemoState extends State<AuthInjectionDemo> {
     _controller = QuillController(
       document: Document.fromJson(const [
         {'insert': 'These previews receive the bearer token via headers:\n'},
-        {'insert': {'image': 'https://api.private.example.com/img/42.jpg'}},
+        {
+          'insert': {'image': 'https://api.private.example.com/img/42.jpg'}
+        },
         {'insert': '\n'},
         {'insert': 'And here is a video clip:\n'},
-        {'insert': {'video': 'https://api.private.example.com/v/playback.m3u8'}},
+        {
+          'insert': {'video': 'https://api.private.example.com/v/playback.m3u8'}
+        },
         {'insert': '\n'},
       ]),
       selection: const TextSelection.collapsed(offset: 0),
@@ -124,8 +128,7 @@ class _AuthVideoPlaceholder extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.play_circle_outline,
-                color: Colors.white, size: 48),
+            const Icon(Icons.play_circle_outline, color: Colors.white, size: 48),
             const SizedBox(height: 8),
             Text(url,
                 style: const TextStyle(color: Colors.white70, fontSize: 11),

@@ -6,8 +6,7 @@ import 'markdown_embed_adapter.dart';
 /// Delta -> Markdown. Native walker over `splitIntoLines` output. No HTML
 /// pivot, so format-specific decisions (fenced code, GFM tables, task lists)
 /// are made directly.
-final class MarkdownExporter
-    implements DeltaExporter<String, MarkdownOptions> {
+final class MarkdownExporter implements DeltaExporter<String, MarkdownOptions> {
   const MarkdownExporter({
     MarkdownOptions? defaultOptions,
     MarkdownEmbedRegistry? embedRegistry,
@@ -27,8 +26,7 @@ final class MarkdownExporter
   String get extension => 'md';
 
   @override
-  MarkdownOptions get defaultOptions =>
-      _defaultOptions ?? const MarkdownOptions();
+  MarkdownOptions get defaultOptions => _defaultOptions ?? const MarkdownOptions();
 
   @override
   Future<String> export(Delta delta, {MarkdownOptions? options}) async {
@@ -47,11 +45,10 @@ final class MarkdownExporter
 
       // Code block: group consecutive code-block lines into one fence.
       if (_truthy(block['code-block'])) {
-        final lang = block['code-block'] is String &&
-                block['code-block'] != 'true' &&
-                (block['code-block'] as String).isNotEmpty
-            ? block['code-block'] as String
-            : '';
+        final lang =
+            block['code-block'] is String && block['code-block'] != 'true' && (block['code-block'] as String).isNotEmpty
+                ? block['code-block'] as String
+                : '';
         buf.write('```');
         if (opts.fencedCodeBlockInfoString && lang.isNotEmpty) {
           buf.write(lang);
@@ -137,8 +134,7 @@ final class MarkdownExporter
       final attrs = line.blockAttrs ?? const <String, dynamic>{};
       final type = attrs['list']?.toString();
       if (type == null) break;
-      final indent =
-          (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
+      final indent = (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
       buf.write('  ' * indent);
       switch (type) {
         case 'ordered':
@@ -221,12 +217,9 @@ final class MarkdownExporter
     }
   }
 
-  static final _mdEscape =
-      RegExp(r'([\\`*_{}\[\]()#+\-!|<>])');
+  static final _mdEscape = RegExp(r'([\\`*_{}\[\]()#+\-!|<>])');
 
-  static String _escapeMd(String s) =>
-      s.replaceAllMapped(_mdEscape, (m) => '\\${m[0]}');
+  static String _escapeMd(String s) => s.replaceAllMapped(_mdEscape, (m) => '\\${m[0]}');
 
-  static bool _truthy(Object? v) =>
-      v == true || v == 'true' || v == 1 || (v is String && v.isNotEmpty && v != 'false');
+  static bool _truthy(Object? v) => v == true || v == 'true' || v == 1 || (v is String && v.isNotEmpty && v != 'false');
 }

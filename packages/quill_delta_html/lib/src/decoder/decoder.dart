@@ -213,9 +213,7 @@ class HtmlDecoder {
     // Either <pre>text</pre> or <pre><code class="language-x">text</code></pre>.
     String? lang;
     dom.Element source = pre;
-    final inner = pre.children.length == 1 && pre.children.first.localName == 'code'
-        ? pre.children.first
-        : null;
+    final inner = pre.children.length == 1 && pre.children.first.localName == 'code' ? pre.children.first : null;
     if (inner != null) {
       source = inner;
       final cls = inner.attributes['class'] ?? '';
@@ -276,8 +274,7 @@ class HtmlDecoder {
       if (_isPlaceholderLi(child)) {
         for (final node in child.children) {
           if (node.localName == 'ul' || node.localName == 'ol') {
-            _emitList(node, out, inline, blockCtx,
-                ordered: node.localName == 'ol', depth: depth + 1);
+            _emitList(node, out, inline, blockCtx, ordered: node.localName == 'ol', depth: depth + 1);
           }
         }
         continue;
@@ -288,10 +285,7 @@ class HtmlDecoder {
       final liData = child.attributes['data-list'];
       final liChecked = child.attributes['data-checked'];
       final input = _findCheckboxChild(child);
-      final itemIsTask = listIsTask ||
-          liData != null ||
-          liChecked != null ||
-          input != null;
+      final itemIsTask = listIsTask || liData != null || liChecked != null || input != null;
       String listVal;
       if (itemIsTask) {
         bool checked;
@@ -319,8 +313,7 @@ class HtmlDecoder {
       // Recurse into nested lists.
       for (final node in child.nodes) {
         if (node is dom.Element && (node.localName == 'ul' || node.localName == 'ol')) {
-          _emitList(node, out, inline, blockCtx,
-              ordered: node.localName == 'ol', depth: depth + 1);
+          _emitList(node, out, inline, blockCtx, ordered: node.localName == 'ol', depth: depth + 1);
         }
       }
     }
@@ -352,7 +345,10 @@ class HtmlDecoder {
       } else if (node is dom.Element) {
         final n = node.localName;
         if (n == 'ul' || n == 'ol' || n == 'input') continue;
-        if (n == 'label' || n == 'div' || n == 'p' || n == 'span' && node.attributes['class'] == 'todo-list__label__description') {
+        if (n == 'label' ||
+            n == 'div' ||
+            n == 'p' ||
+            n == 'span' && node.attributes['class'] == 'todo-list__label__description') {
           // Transparent containers in list items.
           if (n == 'span') {
             final next = _applyInlineStyle(node, inline);
@@ -454,8 +450,7 @@ class HtmlDecoder {
     return el.localName == 'hr' || el.localName == 'table';
   }
 
-  static final _paddingLeftRe =
-      RegExp(r'^([0-9]+(?:\.[0-9]+)?)(em|px|rem)?$');
+  static final _paddingLeftRe = RegExp(r'^([0-9]+(?:\.[0-9]+)?)(em|px|rem)?$');
 
   /// Direct-child checkbox lookup for task-list detection.
   /// Replaces querySelector('input[type=checkbox]') which traverses the entire
@@ -463,15 +458,13 @@ class HtmlDecoder {
   /// transparent wrappers <label>, <div>, <p>, <span> at depth 1 are searched.
   static dom.Element? _findCheckboxChild(dom.Element parent) {
     for (final child in parent.children) {
-      if (child.localName == 'input' &&
-          child.attributes['type'] == 'checkbox') {
+      if (child.localName == 'input' && child.attributes['type'] == 'checkbox') {
         return child;
       }
       final n = child.localName;
       if (n == 'label' || n == 'div' || n == 'p' || n == 'span') {
         for (final grand in child.children) {
-          if (grand.localName == 'input' &&
-              grand.attributes['type'] == 'checkbox') {
+          if (grand.localName == 'input' && grand.attributes['type'] == 'checkbox') {
             return grand;
           }
         }

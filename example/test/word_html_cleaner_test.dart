@@ -57,7 +57,8 @@ void main() {
     });
 
     test('folds mso-list paragraphs into <ul>', () {
-      const word = "<p style='mso-list:l0 level1 lfo1'>"
+      const word =
+          "<p style='mso-list:l0 level1 lfo1'>"
           "<span style='mso-list:Ignore'>·<span>&nbsp;</span></span>One</p>"
           "<p style='mso-list:l0 level1 lfo1'>"
           "<span style='mso-list:Ignore'>·<span>&nbsp;</span></span>Two</p>";
@@ -70,7 +71,8 @@ void main() {
     });
 
     test('folds mso-list paragraphs into <ol> when marker is numeric', () {
-      const word = "<p style='mso-list:l0 level1 lfo1'>"
+      const word =
+          "<p style='mso-list:l0 level1 lfo1'>"
           "<span style='mso-list:Ignore'>1.<span>&nbsp;</span></span>First</p>"
           "<p style='mso-list:l0 level1 lfo1'>"
           "<span style='mso-list:Ignore'>2.<span>&nbsp;</span></span>Second</p>";
@@ -81,7 +83,8 @@ void main() {
     });
 
     test('nested mso-list levels', () {
-      const word = "<p style='mso-list:l0 level1 lfo1'>"
+      const word =
+          "<p style='mso-list:l0 level1 lfo1'>"
           "<span style='mso-list:Ignore'>1.</span>Outer</p>"
           "<p style='mso-list:l0 level2 lfo1'>"
           "<span style='mso-list:Ignore'>a.</span>Inner</p>"
@@ -103,7 +106,8 @@ void main() {
     });
 
     test('end-to-end: real Word paragraph', () {
-      const word = '<html xmlns:o="urn:schemas-microsoft-com:office:office">'
+      const word =
+          '<html xmlns:o="urn:schemas-microsoft-com:office:office">'
           '<body><!--StartFragment-->'
           '<p class=MsoNormal style="mso-margin-top-alt:auto">'
           '<span lang=EN-US style="font-family:Calibri">'

@@ -13,8 +13,7 @@ class ExportDemo extends StatefulWidget {
   State<ExportDemo> createState() => _ExportDemoState();
 }
 
-class _ExportDemoState extends State<ExportDemo>
-    with SingleTickerProviderStateMixin {
+class _ExportDemoState extends State<ExportDemo> with SingleTickerProviderStateMixin {
   late final QuillController _controller;
   late final TabController _tabs;
   String _html = '';
@@ -49,8 +48,7 @@ class _ExportDemoState extends State<ExportDemo>
     ).export(delta);
     final md = await const MarkdownExporter().export(delta);
     final docx = await const DocxExporter().export(delta);
-    final json = const JsonEncoder.withIndent('  ')
-        .convert(delta.toJson());
+    final json = const JsonEncoder.withIndent('  ').convert(delta.toJson());
     if (!mounted) return;
     setState(() {
       _html = html;
@@ -83,8 +81,7 @@ class _ExportDemoState extends State<ExportDemo>
               padding: const EdgeInsets.all(8),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border:
-                      Border.all(color: Theme.of(context).dividerColor),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: QuillDeltaEditor(
@@ -137,14 +134,29 @@ class _CodeView extends StatelessWidget {
 
 const _seed = [
   {'insert': 'Sample document'},
-  {'insert': '\n', 'attributes': {'header': 1}},
+  {
+    'insert': '\n',
+    'attributes': {'header': 1}
+  },
   {'insert': 'A paragraph with '},
-  {'insert': 'bold', 'attributes': {'bold': true}},
+  {
+    'insert': 'bold',
+    'attributes': {'bold': true}
+  },
   {'insert': ' and '},
-  {'insert': 'italic', 'attributes': {'italic': true}},
+  {
+    'insert': 'italic',
+    'attributes': {'italic': true}
+  },
   {'insert': '.\n'},
   {'insert': 'feature one'},
-  {'insert': '\n', 'attributes': {'list': 'bullet'}},
+  {
+    'insert': '\n',
+    'attributes': {'list': 'bullet'}
+  },
   {'insert': 'feature two'},
-  {'insert': '\n', 'attributes': {'list': 'bullet'}},
+  {
+    'insert': '\n',
+    'attributes': {'list': 'bullet'}
+  },
 ];
