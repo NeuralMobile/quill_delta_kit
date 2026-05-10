@@ -72,6 +72,7 @@ sealed class ToolbarConfig {
     this.backgroundColor,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     this.toolbarSize = 36,
+    this.customButtons = const [],
   });
 
   final ToolbarStyle style;
@@ -80,12 +81,19 @@ sealed class ToolbarConfig {
   final EdgeInsets padding;
   final double toolbarSize;
 
+  /// Extra buttons appended after the built-in set. Use
+  /// `buildImportDocumentButton(...)` (or any other
+  /// [QuillToolbarCustomButtonOptions] factory) to extend the toolbar
+  /// with custom actions.
+  final List<QuillToolbarCustomButtonOptions> customButtons;
+
   const factory ToolbarConfig.top({
     ToolbarStyle style,
     List<ToolbarSection>? sections,
     Color? backgroundColor,
     EdgeInsets padding,
     double toolbarSize,
+    List<QuillToolbarCustomButtonOptions> customButtons,
   }) = TopToolbar;
 
   const factory ToolbarConfig.bottom({
@@ -94,6 +102,7 @@ sealed class ToolbarConfig {
     Color? backgroundColor,
     EdgeInsets padding,
     double toolbarSize,
+    List<QuillToolbarCustomButtonOptions> customButtons,
   }) = BottomToolbar;
 
   const factory ToolbarConfig.floating({
@@ -104,6 +113,7 @@ sealed class ToolbarConfig {
     EdgeInsets padding,
     double toolbarSize,
     EdgeInsets margin,
+    List<QuillToolbarCustomButtonOptions> customButtons,
   }) = FloatingToolbar;
 
   const factory ToolbarConfig.none() = NoToolbar;
@@ -119,6 +129,7 @@ sealed class ToolbarConfig {
     Color? backgroundColor,
     EdgeInsets padding,
     double toolbarSize,
+    List<QuillToolbarCustomButtonOptions> customButtons,
   }) = SelectionToolbar;
 
   /// Fully custom toolbar. The wrapper renders the result of [builder] in
@@ -144,6 +155,7 @@ final class TopToolbar extends ToolbarConfig {
     super.backgroundColor,
     super.padding,
     super.toolbarSize,
+    super.customButtons,
   });
 }
 
@@ -154,6 +166,7 @@ final class BottomToolbar extends ToolbarConfig {
     super.backgroundColor,
     super.padding,
     super.toolbarSize,
+    super.customButtons,
   });
 }
 
@@ -166,6 +179,7 @@ final class FloatingToolbar extends ToolbarConfig {
     super.backgroundColor,
     super.padding,
     super.toolbarSize,
+    super.customButtons,
   });
   final FloatingToolbarPosition position;
   final EdgeInsets margin;
@@ -194,6 +208,7 @@ final class SelectionToolbar extends ToolbarConfig {
     super.backgroundColor,
     super.padding,
     super.toolbarSize,
+    super.customButtons,
   });
   final SelectionAnchor anchor;
 

@@ -16,6 +16,7 @@ export 'src/config/editor_layout.dart';
 export 'src/config/toolbar_config.dart';
 export 'src/embeds/media_embed_builder.dart';
 export 'src/embeds/media_preview_builders.dart';
+export 'src/import/import_toolbar_button.dart';
 export 'src/import/quill_document_importer.dart';
 export 'src/quill_delta_editor.dart';
 export 'src/toolbar/selection_toolbar_overlay.dart';

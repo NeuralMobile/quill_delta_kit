@@ -2,8 +2,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:quill_delta_editor/quill_delta_editor.dart';
 
-/// Import HTML / Markdown / Docx (and friends) into the editor via the
-/// file picker, sample buttons, or a paste-from-clipboard text area.
+/// Two import paths:
+///   1. Toolbar button — installs `buildImportDocumentButton(...)` on the
+///      compact toolbar. Tapping it opens a file picker and INSERTS the
+///      imported content at the editor's cursor (does not replace doc).
+///   2. Side panel — picks a file or pastes text and REPLACES the entire
+///      document.
 class ImportDemo extends StatefulWidget {
   const ImportDemo({super.key});
 
@@ -15,7 +19,9 @@ class _ImportDemoState extends State<ImportDemo> {
   final _controller = QuillController.basic();
   final _importer = QuillDocumentImporter();
   final _pasteController = TextEditingController();
-  String _status = 'Ready. Pick a file, paste text, or use a sample.';
+  String _status =
+      'Cursor-mode: tap the upload icon in the toolbar. '
+      'Replace-mode: use the buttons below.';
 
   @override
   void dispose() {
@@ -24,81 +30,98 @@ class _ImportDemoState extends State<ImportDemo> {
     super.dispose();
   }
 
-  Future<void> _importFile() async {
+  Future<ImportSource?> _pickSource(BuildContext _) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['html', 'htm', 'md', 'markdown', 'docx'],
       withData: true,
     );
-    if (result == null || result.files.isEmpty) return;
+    if (result == null || result.files.isEmpty) return null;
     final f = result.files.single;
     final bytes = f.bytes;
+    if (bytes == null) return null;
     final name = f.name;
-    if (bytes == null) {
-      setState(() => _status = 'No bytes for ${f.name}');
-      return;
-    }
     final ext = name.contains('.')
         ? name.substring(name.lastIndexOf('.') + 1).toLowerCase()
         : '';
+    // Hand text formats over as text so the importer doesn't sniff bytes.
+    if (ext == 'html' || ext == 'htm' || ext == 'md' || ext == 'markdown') {
+      final format = (ext == 'html' || ext == 'htm') ? 'html' : 'markdown';
+      return ImportSource(
+        text: String.fromCharCodes(bytes),
+        filename: name,
+        format: format,
+      );
+    }
+    return ImportSource(bytes: bytes, filename: name);
+  }
+
+  Future<void> _importFileReplace() async {
+    final src = await _pickSource(context);
+    if (src == null) return;
     try {
-      if (ext == 'html' || ext == 'htm' || ext == 'md' || ext == 'markdown') {
-        final format = (ext == 'html' || ext == 'htm') ? 'html' : 'markdown';
+      if (src.text != null) {
         await _importer.importText(
           controller: _controller,
-          text: String.fromCharCodes(bytes),
-          format: format,
+          text: src.text!,
+          format: src.format,
         );
-      } else {
+      } else if (src.bytes != null) {
         await _importer.importBytes(
           controller: _controller,
-          bytes: bytes,
-          filename: name,
+          bytes: src.bytes!,
+          filename: src.filename,
         );
       }
-      setState(() => _status =
-          'Imported ${f.name} (${bytes.length} bytes) as $ext');
+      setState(() => _status = 'Replaced document from ${src.filename}');
     } catch (e) {
-      setState(() => _status = 'Failed to import ${f.name}: $e');
+      setState(() => _status = 'Failed: $e');
     }
   }
 
-  Future<void> _importText(String label, String text, String format) async {
+  Future<void> _replaceFromText(String label, String text, String format) async {
     try {
       await _importer.importText(
         controller: _controller,
         text: text,
         format: format,
       );
-      setState(() => _status = 'Imported sample: $label');
+      setState(() => _status = 'Replaced document from sample: $label');
     } catch (e) {
       setState(() => _status = 'Failed: $e');
     }
   }
 
-  Future<void> _importPasted() async {
+  Future<void> _replaceFromPaste() async {
     final text = _pasteController.text.trim();
     if (text.isEmpty) {
       setState(() => _status = 'Paste-area is empty.');
       return;
     }
     try {
-      await _importer.importText(
-        controller: _controller,
-        text: text,
-      );
-      setState(() => _status = 'Imported pasted text (auto-detected).');
+      await _importer.importText(controller: _controller, text: text);
+      setState(() => _status = 'Replaced document from pasted text.');
     } catch (e) {
-      setState(() => _status = 'Failed to import pasted text: $e');
+      setState(() => _status = 'Failed: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // The toolbar button: picks a file and inserts it at the cursor.
+    final insertButton = buildImportDocumentButton(
+      controller: _controller,
+      pickSource: _pickSource,
+      tooltip: 'Insert document at cursor…',
+      onError: (e, st) =>
+          setState(() => _status = 'Insert-at-cursor failed: $e'),
+    );
+
     return Scaffold(
       appBar: AppBar(title: const Text('Import documents')),
       body: Column(
         children: [
+          // Side panel: REPLACE-mode controls.
           Container(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             padding: const EdgeInsets.all(12),
@@ -108,24 +131,17 @@ class _ImportDemoState extends State<ImportDemo> {
               children: [
                 FilledButton.icon(
                   icon: const Icon(Icons.folder_open),
-                  label: const Text('Pick file'),
-                  onPressed: _importFile,
+                  label: const Text('Replace from file'),
+                  onPressed: _importFileReplace,
                 ),
                 OutlinedButton(
-                  onPressed: () => _importText(
-                    'HTML',
-                    _sampleHtml,
-                    'html',
-                  ),
-                  child: const Text('Sample HTML'),
+                  onPressed: () => _replaceFromText('HTML', _sampleHtml, 'html'),
+                  child: const Text('Replace from sample HTML'),
                 ),
                 OutlinedButton(
-                  onPressed: () => _importText(
-                    'Markdown',
-                    _sampleMarkdown,
-                    'markdown',
-                  ),
-                  child: const Text('Sample Markdown'),
+                  onPressed: () => _replaceFromText(
+                      'Markdown', _sampleMarkdown, 'markdown'),
+                  child: const Text('Replace from sample Markdown'),
                 ),
                 OutlinedButton(
                   onPressed: () => _controller.clear(),
@@ -140,12 +156,12 @@ class _ImportDemoState extends State<ImportDemo> {
               controller: _pasteController,
               maxLines: 3,
               decoration: InputDecoration(
-                labelText: 'Paste HTML or Markdown here',
+                labelText: 'Replace document with pasted HTML/Markdown',
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.upload),
-                  tooltip: 'Import pasted text',
-                  onPressed: _importPasted,
+                  tooltip: 'Replace from pasted text',
+                  onPressed: _replaceFromPaste,
                 ),
               ),
             ),
@@ -167,10 +183,17 @@ class _ImportDemoState extends State<ImportDemo> {
                 child: QuillDeltaEditor(
                   controller: _controller,
                   layout: const EditorLayoutConfig.expanded(
-                    placeholder: 'Imported document appears here…',
+                    placeholder:
+                        'Imported document appears here. Tap the upload '
+                        'icon on the toolbar to inject content at the '
+                        'cursor.',
                   ),
-                  toolbar: const ToolbarConfig.top(
+                  toolbar: ToolbarConfig.top(
                     style: ToolbarStyle.compact,
+                    // Adds the import button to the right of the built-in
+                    // formatting buttons. This is the new "tool" — same
+                    // entry surface as bold/italic, just an action button.
+                    customButtons: [insertButton],
                   ),
                 ),
               ),

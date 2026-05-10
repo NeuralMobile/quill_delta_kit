@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart' show TextSelection;
+import 'package:flutter_quill/flutter_quill.dart' show ChangeSource;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta_editor/quill_delta_editor.dart';
 
@@ -98,6 +100,28 @@ void main() {
           .join();
       expect(text, contains('sniffed bytes'));
       target.dispose();
+    });
+  });
+
+  group('insertTextAtCursor', () {
+    test('splices imported content at the current selection', () async {
+      final controller = QuillController.basic();
+      controller.document.insert(0, 'Before ');
+      controller.updateSelection(
+        const TextSelection.collapsed(offset: 7),
+        ChangeSource.local,
+      );
+      await QuillDocumentImporter().insertTextAtCursor(
+        controller: controller,
+        text: '<p>injected</p>',
+        format: 'html',
+      );
+      final text = controller.document.toPlainText();
+      expect(text, contains('Before'));
+      expect(text, contains('injected'));
+      // Cursor moved past the inserted content.
+      expect(controller.selection.baseOffset, greaterThan(7));
+      controller.dispose();
     });
   });
 

@@ -63,6 +63,7 @@ QuillSimpleToolbarConfig _toolbarConfigFromButtons(
         has(ToolbarButtonId.alignJustify),
     showClearFormat: has(ToolbarButtonId.clearFormat),
     showDividers: false,
+    customButtons: source.customButtons,
     showSearchButton: has(ToolbarButtonId.search),
     showSubscript: false,
     showSuperscript: false,
