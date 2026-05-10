@@ -18,7 +18,7 @@ dependencies:
   flutter_quill: ^11.0.0
   html: ^0.15.4
   quill_delta_html:
-    path: ../
+    path: ../packages/quill_delta_html
   xml: ^6.5.0
 
 dev_dependencies:
