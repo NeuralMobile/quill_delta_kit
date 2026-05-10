@@ -1,34 +1,76 @@
-# quill_delta_html
+# quill_delta_*
 
-Lossless, bidirectional [Quill](https://quilljs.com) Delta <-> HTML conversion. Pure Dart.
+Multi-format converter family for [Quill](https://quilljs.com) Delta + a
+Flutter editor wrapper around [`flutter_quill`](https://pub.dev/packages/flutter_quill).
 
-## Features
+## Packages
 
-- **Bidirectional**: `Delta -> HTML` and `HTML -> Delta` from one schema. No drift.
-- **Lossless**: whitespace, NBSP, ZWSP, multiple newlines, attribute order — all survive round-trip.
-- **Cross-editor**: emits standards-first HTML (semantic tags + inline styles, no `ql-*` classes). Decodes output from CKEditor, TipTap, ProseMirror, Quill JS, Lexical.
-- **flutter_quill 11.x**: matches latest Delta attribute set + `insert.custom` JSON wrapper.
-- **Adapter API**: register custom embed codecs (audio, mention, iframe, oembed, ...).
-- **Iframe smart-routing**: provider sniff (YouTube/Vimeo/Loom/...) -> typed `video` Delta op. Unknown iframes -> custom passthrough. Security policy strips XSS.
+| Package | What it does |
+|---|---|
+| [`quill_delta_core`](packages/quill_delta_core/) | Shared abstractions: `DeltaImporter` / `DeltaExporter`, `ConverterRegistry`, `HtmlPivotImporter`, `EmbedAdapterBase`, CSS/whitespace helpers, line-splitter. Zero HTML/binary deps. |
+| [`quill_delta_html`](packages/quill_delta_html/) | Lossless bidirectional Delta ↔ HTML. Adapter API for embeds. Cross-editor (CKEditor / TipTap / ProseMirror / Quill JS / Lexical) interop. |
+| [`quill_delta_markdown`](packages/quill_delta_markdown/) | Delta ↔ Markdown. Importer pivots via HTML; exporter walks Delta lines natively. |
+| [`quill_delta_docx`](packages/quill_delta_docx/) | Delta ↔ DOCX (OOXML). Image extraction, numbering.xml resolution, hyperlinks, tables, styles. |
+| [`quill_delta_pdf`](packages/quill_delta_pdf/) | Delta → PDF via `package:pdf`. Importer stubbed (no robust pure-Dart PDF reader exists). |
+| [`quill_delta_editor`](packages/quill_delta_editor/) | Flutter wrapper around `flutter_quill` with configurable toolbar (top/bottom/floating/selection/custom), layout modes (scrollable/autoGrow/fixed/expanded/readOnly), pluggable media preview builders, and a `QuillDocumentImporter` toolbar tool. |
 
-## Usage
+## Quick start (HTML codec)
 
 ```dart
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:quill_delta_html/quill_delta_html.dart';
 
-final codec = QuillHtmlCodec(
-  adapters: [
-    AudioAdapter(),
-    IframeAdapter(),
-    MentionAdapter(),
-  ],
-);
-
+final codec = QuillHtmlCodec();
 final html = codec.encode(delta);
-final delta = codec.decode(html);
+final back = codec.decode(html);
 ```
 
-## Coverage matrix
+## Quick start (Flutter editor)
 
-See [docs/coverage.md](docs/coverage.md).
+```dart
+import 'package:quill_delta_editor/quill_delta_editor.dart';
+
+QuillDeltaEditor(
+  controller: controller,
+  layout: const EditorLayoutConfig.autoGrow(maxHeight: 400),
+  toolbar: const ToolbarConfig.top(style: ToolbarStyle.compact),
+)
+```
+
+## Examples
+
+Run the demo app showcasing every layout / toolbar / format / import path:
+
+```sh
+cd packages/quill_delta_editor/example
+flutter run
+```
+
+10 demos: scrollable form, auto-grow, fixed-height list, read-only viewer,
+media embeds, auth-injected previews, custom toolbar, corner floating toolbar,
+selection toolbar (iOS-style), multi-format export, document import.
+
+## Layout
+
+```
+.
+├── packages/
+│   ├── quill_delta_core/        # converter abstractions
+│   ├── quill_delta_html/        # HTML codec + bench
+│   ├── quill_delta_markdown/    # Markdown codec
+│   ├── quill_delta_docx/        # DOCX codec
+│   ├── quill_delta_pdf/         # PDF exporter
+│   ├── quill_delta_editor/      # Flutter wrapper + example app
+│   └── _e2e_tests/              # cross-package integration tests
+├── docs/                        # design docs
+├── tool/                        # publish helpers
+├── pubspec.yaml                 # Dart 3.6 workspace root
+└── README.md
+```
+
+Dart 3.6 native workspace. `dart pub get` at the repo root resolves all packages.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, test layout,
+and the per-package publish flow.
