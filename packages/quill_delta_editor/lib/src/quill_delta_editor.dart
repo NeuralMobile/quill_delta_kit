@@ -5,7 +5,7 @@ import 'config/editor_layout.dart';
 import 'config/toolbar_config.dart';
 import 'embeds/media_embed_builder.dart';
 import 'embeds/media_preview_builders.dart';
-import 'toolbar/selection_toolbar_overlay.dart';
+import 'toolbar/selection_toolbar_controls.dart';
 import 'toolbar/toolbar_renderer.dart';
 
 /// Main editor widget. Wraps `flutter_quill`'s [QuillEditor] +
@@ -128,6 +128,15 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
   /// chosen container (Column, Stack, etc.).
   Widget _buildEditorCore() {
     final layout = widget.layout;
+    final tb = widget.toolbar;
+    // SelectionToolbar plugs into Flutter's TextSelectionControls so the
+    // toolbar position tracks the actual selection rect (iOS-style).
+    final selectionControls = tb is SelectionToolbar
+        ? QuillFormattingSelectionControls(
+            controller: widget.controller,
+            toolbarConfig: tb,
+          )
+        : null;
     final editorConfig = QuillEditorConfig(
       padding: layout.padding,
       placeholder: layout.placeholder,
@@ -144,6 +153,7 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
         FixedHeightLayout(:final height) => height,
         _ => null,
       },
+      textSelectionControls: selectionControls,
     );
 
     final core = QuillEditor(
@@ -205,11 +215,10 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
           margin: margin,
           config: tb,
         ),
-      SelectionToolbar() => SelectionToolbarOverlay(
-          controller: widget.controller,
-          config: tb,
-          child: _expanding ? SizedBox.expand(child: core) : core,
-        ),
+      // SelectionToolbar plumbs its toolbar through textSelectionControls
+      // (set in _buildEditorCore). Rendering happens via the platform
+      // selection-toolbar machinery — no widget-tree wrap needed here.
+      SelectionToolbar() => core,
       CustomToolbar(:final builder, :final placement) =>
         _withCustom(core, builder(context, widget.controller), placement),
     };
