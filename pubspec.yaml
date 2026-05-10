@@ -10,3 +10,4 @@ workspace:
   - packages/quill_delta_markdown
   - packages/quill_delta_docx
   - packages/quill_delta_pdf
+  - packages/_e2e_tests
