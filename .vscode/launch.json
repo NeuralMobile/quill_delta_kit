@@ -31,6 +31,55 @@
       "program": "${workspaceFolder}/packages/quill_delta_editor/example/lib/main.dart",
       "cwd": "${workspaceFolder}/packages/quill_delta_editor/example",
       "deviceId": "chrome"
+    },
+    {
+      "name": "Test: core",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/quill_delta_core/test",
+      "cwd": "${workspaceFolder}/packages/quill_delta_core"
+    },
+    {
+      "name": "Test: html",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/quill_delta_html/test",
+      "cwd": "${workspaceFolder}/packages/quill_delta_html"
+    },
+    {
+      "name": "Test: markdown",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/quill_delta_markdown/test",
+      "cwd": "${workspaceFolder}/packages/quill_delta_markdown"
+    },
+    {
+      "name": "Test: docx",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/quill_delta_docx/test",
+      "cwd": "${workspaceFolder}/packages/quill_delta_docx"
+    },
+    {
+      "name": "Test: pdf",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/quill_delta_pdf/test",
+      "cwd": "${workspaceFolder}/packages/quill_delta_pdf"
+    },
+    {
+      "name": "Test: editor (flutter)",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/quill_delta_editor/test",
+      "cwd": "${workspaceFolder}/packages/quill_delta_editor"
+    },
+    {
+      "name": "Test: e2e",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/_e2e_tests/test",
+      "cwd": "${workspaceFolder}/packages/_e2e_tests"
     }
   ]
 }
