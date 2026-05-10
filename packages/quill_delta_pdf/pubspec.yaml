@@ -1,0 +1,21 @@
+name: quill_delta_pdf
+description: >-
+  Quill Delta -> PDF export and PDF -> Delta import.
+  Stub package for v0.1 — implementation pending.
+version: 0.0.1
+publish_to: none
+repository: https://github.com/yourname/quill_delta_html
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  dart_quill_delta: ^10.8.0
+  quill_delta_core:
+    path: ../quill_delta_core
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0
