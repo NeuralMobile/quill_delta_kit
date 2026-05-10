@@ -31,15 +31,65 @@ String docxToHtml(List<int> bytes) {
           utf8.decode(numberingFile.content as List<int>, allowMalformed: true),
         );
 
+  // Parse word/_rels/document.xml.rels (relationships table) so <a:blip>
+  // r:embed=rId references resolve to media file paths.
+  final relsFile = archive.files
+      .where((f) => f.name == 'word/_rels/document.xml.rels')
+      .firstOrNull;
+  final relationships = relsFile == null
+      ? const _Relationships.empty()
+      : _Relationships.parse(
+          utf8.decode(relsFile.content as List<int>, allowMalformed: true),
+        );
+
+  // Index every embedded media file by its path inside word/ so the blip
+  // resolver can look them up by relationship target.
+  final media = <String, List<int>>{};
+  for (final f in archive.files) {
+    if (f.name.startsWith('word/media/')) {
+      media[f.name.substring('word/'.length)] = (f.content as List<int>);
+    }
+  }
+
   final body = doc.findAllElements('body', namespace: '*').firstOrNull;
   if (body == null) return '';
 
   final buf = StringBuffer();
-  _writeBody(body, buf, numbering);
+  _writeBody(body, buf, numbering, _ImageContext(relationships, media));
   return buf.toString();
 }
 
-void _writeBody(XmlElement body, StringBuffer buf, _NumberingMap numbering) {
+/// Bag passed through the body walker so individual run handlers can
+/// resolve `<a:blip r:embed="rIdN"/>` references to data-URI <img> tags.
+class _ImageContext {
+  const _ImageContext(this.relationships, this.media);
+  final _Relationships relationships;
+  final Map<String, List<int>> media;
+}
+
+class _Relationships {
+  const _Relationships(this.idToTarget);
+  const _Relationships.empty() : idToTarget = const {};
+  final Map<String, String> idToTarget;
+
+  factory _Relationships.parse(String xml) {
+    final doc = XmlDocument.parse(xml);
+    final map = <String, String>{};
+    for (final rel in doc.findAllElements('Relationship', namespace: '*')) {
+      final id = rel.getAttribute('Id');
+      final target = rel.getAttribute('Target');
+      if (id != null && target != null) map[id] = target;
+    }
+    return _Relationships(map);
+  }
+}
+
+void _writeBody(
+  XmlElement body,
+  StringBuffer buf,
+  _NumberingMap numbering,
+  _ImageContext images,
+) {
   // Open <ul>/<ol> stack and parallel <li>-open tracker, mirrors the
   // BlockEncoder algorithm in quill_delta_html so nested lists emit valid
   // HTML (`<li>...<ul>...</ul></li>`) rather than sibling lists.
@@ -101,14 +151,14 @@ void _writeBody(XmlElement body, StringBuffer buf, _NumberingMap numbering) {
           liOpen[liOpen.length - 1] = false;
         }
         buf.write('<li>');
-        _writeRuns(el, buf);
+        _writeRuns(el, buf, images);
         liOpen[liOpen.length - 1] = true;
       } else {
         closeOpenList();
         final styleName = _paragraphStyle(el);
         final tag = _headingTag(styleName) ?? 'p';
         buf.write('<$tag>');
-        _writeRuns(el, buf);
+        _writeRuns(el, buf, images);
         buf.write('</$tag>');
       }
     } else if (name == 'tbl') {
@@ -119,7 +169,7 @@ void _writeBody(XmlElement body, StringBuffer buf, _NumberingMap numbering) {
         for (final cell in row.findElements('tc', namespace: '*')) {
           buf.write('<td>');
           for (final p in cell.findElements('p', namespace: '*')) {
-            _writeRuns(p, buf);
+            _writeRuns(p, buf, images);
             buf.write('<br>');
           }
           buf.write('</td>');
@@ -133,31 +183,35 @@ void _writeBody(XmlElement body, StringBuffer buf, _NumberingMap numbering) {
   closeOpenList();
 }
 
-void _writeRuns(XmlElement paragraph, StringBuffer buf) {
+void _writeRuns(
+  XmlElement paragraph,
+  StringBuffer buf,
+  _ImageContext images,
+) {
   for (final node in paragraph.children) {
     if (node is! XmlElement) continue;
     final n = node.localName;
     if (n == 'r') {
-      _writeRun(node, buf);
+      _writeRun(node, buf, images);
     } else if (n == 'hyperlink') {
       // Hyperlinks wrap runs.
       final href = _hyperlinkTarget(node);
       if (href != null) {
         buf.write('<a href="${_escapeAttr(href)}">');
         for (final r in node.findElements('r', namespace: '*')) {
-          _writeRun(r, buf);
+          _writeRun(r, buf, images);
         }
         buf.write('</a>');
       } else {
         for (final r in node.findElements('r', namespace: '*')) {
-          _writeRun(r, buf);
+          _writeRun(r, buf, images);
         }
       }
     }
   }
 }
 
-void _writeRun(XmlElement run, StringBuffer buf) {
+void _writeRun(XmlElement run, StringBuffer buf, _ImageContext images) {
   final rPr = run.findElements('rPr', namespace: '*').firstOrNull;
   final bold = rPr != null && _hasOnElement(rPr, 'b');
   final italic = rPr != null && _hasOnElement(rPr, 'i');
@@ -220,10 +274,87 @@ void _writeRun(XmlElement run, StringBuffer buf) {
     final _ = br;
     buf.write('<br>');
   }
+  // <w:drawing> nodes carry images (and other DrawingML content). We pull
+  // out picture-bearing blips and emit <img src="data:...">.
+  for (final drawing in run.findElements('drawing', namespace: '*')) {
+    _writeDrawingImage(drawing, buf, images);
+  }
   for (final w in wrappers.reversed) {
     buf.write('</$w>');
   }
   if (hasStyle) buf.write('</span>');
+}
+
+/// Walk a `<w:drawing>` looking for the first `<a:blip r:embed="..."/>`,
+/// resolve the embed id through the document's relationships, and emit an
+/// `<img>` tag with a data-URI src. Width/height come from the optional
+/// `<wp:extent>` element (EMU units; 9525 EMU = 1 px at 96 DPI).
+void _writeDrawingImage(
+  XmlElement drawing,
+  StringBuffer buf,
+  _ImageContext images,
+) {
+  XmlElement? blip;
+  for (final candidate in drawing.descendants.whereType<XmlElement>()) {
+    if (candidate.localName == 'blip') {
+      blip = candidate;
+      break;
+    }
+  }
+  if (blip == null) return;
+  final embedId = blip.attributes
+      .where((a) => a.localName == 'embed')
+      .map((a) => a.value)
+      .firstOrNull;
+  if (embedId == null) return;
+  final target = images.relationships.idToTarget[embedId];
+  if (target == null) return;
+  final bytes = images.media[target];
+  if (bytes == null) return;
+  final mime = _mimeFromPath(target);
+  final dataUri = 'data:$mime;base64,${base64.encode(bytes)}';
+
+  String? width;
+  String? height;
+  for (final ext in drawing.descendants.whereType<XmlElement>()) {
+    if (ext.localName != 'extent') continue;
+    final cx = int.tryParse(ext.getAttribute('cx') ?? '');
+    final cy = int.tryParse(ext.getAttribute('cy') ?? '');
+    if (cx != null) width = (cx / 9525).round().toString();
+    if (cy != null) height = (cy / 9525).round().toString();
+    break;
+  }
+
+  buf.write('<img src="${_escapeAttr(dataUri)}"');
+  if (width != null) buf.write(' width="$width"');
+  if (height != null) buf.write(' height="$height"');
+  buf.write('>');
+}
+
+String _mimeFromPath(String path) {
+  final i = path.lastIndexOf('.');
+  if (i == -1 || i == path.length - 1) return 'application/octet-stream';
+  final ext = path.substring(i + 1).toLowerCase();
+  switch (ext) {
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'gif':
+      return 'image/gif';
+    case 'svg':
+      return 'image/svg+xml';
+    case 'webp':
+      return 'image/webp';
+    case 'bmp':
+      return 'image/bmp';
+    case 'tif':
+    case 'tiff':
+      return 'image/tiff';
+    default:
+      return 'application/octet-stream';
+  }
 }
 
 bool _hasOnElement(XmlElement parent, String name) {

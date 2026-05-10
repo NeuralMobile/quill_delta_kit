@@ -251,11 +251,12 @@ void main() {
   });
 
   group('Embed builders', () {
-    testWidgets('image preview placeholder renders when no custom builder', (tester) async {
+    testWidgets('image with non-URL string falls back to placeholder',
+        (tester) async {
       final controller = QuillController(
         document: Document.fromJson([
           {
-            'insert': {'image': 'https://x.test/a.png'}
+            'insert': {'image': 'attachment-id-42'}
           },
           {'insert': '\n'},
         ]),
@@ -268,7 +269,30 @@ void main() {
       )));
       await tester.pump();
       expect(find.byIcon(Icons.image_outlined), findsOneWidget);
-      expect(find.textContaining('a.png'), findsOneWidget);
+      expect(find.textContaining('attachment-id-42'), findsOneWidget);
+      controller.dispose();
+    });
+
+    testWidgets('image with data: URI renders Image.memory', (tester) async {
+      // 1×1 transparent PNG, base64.
+      const dataUri = 'data:image/png;base64,'
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAfbLI3wAAAABJRU5ErkJggg==';
+      final controller = QuillController(
+        document: Document.fromJson([
+          {
+            'insert': {'image': dataUri}
+          },
+          {'insert': '\n'},
+        ]),
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+      await tester.pumpWidget(_wrap(QuillDeltaEditor(
+        controller: controller,
+        layout: const EditorLayoutConfig.fixed(height: 240),
+        toolbar: const ToolbarConfig.none(),
+      )));
+      await tester.pump();
+      expect(find.byType(Image), findsOneWidget);
       controller.dispose();
     });
 

@@ -1,6 +1,4 @@
-import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quill_delta_docx/quill_delta_docx.dart' show DocxExporter;
 import 'package:quill_delta_editor/quill_delta_editor.dart';
 
 void main() {

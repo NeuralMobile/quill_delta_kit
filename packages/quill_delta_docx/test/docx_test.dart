@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:archive/archive.dart';
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:quill_delta_docx/quill_delta_docx.dart';
@@ -87,6 +89,62 @@ void main() {
       final html = docxToHtml(bytes);
       expect(html, contains('href="#frag"'));
       expect(html, contains('jump'));
+    });
+
+    test('inline image emits <img> with data-URI src', () async {
+      // 1×1 transparent PNG.
+      const pngBytes = [
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+        0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+        0x89, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x44, 0x41,
+        0x54, 0x78, 0x9C, 0x62, 0x00, 0x01, 0x00, 0x00,
+        0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
+        0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
+        0x42, 0x60, 0x82,
+      ];
+      const documentBody = '<w:p><w:r><w:drawing>'
+          '<wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">'
+          '<wp:extent cx="952500" cy="952500"/>'
+          '<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+          '<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+          '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+          '<pic:blipFill>'
+          '<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="rId4"/>'
+          '</pic:blipFill>'
+          '</pic:pic>'
+          '</a:graphicData>'
+          '</a:graphic>'
+          '</wp:inline>'
+          '</w:drawing></w:r></w:p>';
+      const relsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+          '<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image1.png"/>'
+          '</Relationships>';
+      final doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
+          'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+          '<w:body>$documentBody</w:body></w:document>';
+      final archive = Archive();
+      void addStr(String path, String content) {
+        final bytes = utf8.encode(content);
+        archive.addFile(ArchiveFile(path, bytes.length, bytes));
+      }
+      void addBytes(String path, List<int> bytes) {
+        archive.addFile(ArchiveFile(path, bytes.length, bytes));
+      }
+      addStr('word/document.xml', doc);
+      addStr('word/_rels/document.xml.rels', relsXml);
+      addBytes('word/media/image1.png', pngBytes);
+      final docxBytes = ZipEncoder().encode(archive)!;
+
+      final html = docxToHtml(docxBytes);
+      expect(html, contains('<img'));
+      expect(html, contains('data:image/png;base64,'));
+      // 952500 EMU / 9525 = 100 px.
+      expect(html, contains('width="100"'));
+      expect(html, contains('height="100"'));
     });
 
     test('rejects non-docx bytes', () {
