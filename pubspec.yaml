@@ -7,3 +7,4 @@ environment:
 workspace:
   - packages/quill_delta_core
   - packages/quill_delta_html
+  - packages/quill_delta_markdown
