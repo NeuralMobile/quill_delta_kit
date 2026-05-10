@@ -273,6 +273,40 @@ void main() {
       controller.dispose();
     });
 
+    testWidgets('decoded data: URI bytes reused across rebuilds',
+        (tester) async {
+      // The bytes-cache eliminates a per-rebuild base64 decode + restores
+      // hot path in Flutter's ImageCache (MemoryImage keys off Uint8List
+      // identity).
+      const dataUri = 'data:image/png;base64,'
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAfbLI3wAAAABJRU5ErkJggg==';
+      final controller = QuillController(
+        document: Document.fromJson([
+          {
+            'insert': {'image': dataUri}
+          },
+          {'insert': '\n'},
+        ]),
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+      await tester.pumpWidget(_wrap(QuillDeltaEditor(
+        controller: controller,
+        layout: const EditorLayoutConfig.fixed(height: 240),
+        toolbar: const ToolbarConfig.none(),
+      )));
+      await tester.pump();
+      final firstImage =
+          tester.widget<Image>(find.byType(Image)).image as MemoryImage;
+      // Trigger a rebuild and grab the new Image.
+      controller.notifyListeners();
+      await tester.pump();
+      final secondImage =
+          tester.widget<Image>(find.byType(Image)).image as MemoryImage;
+      // Same Uint8List instance => Flutter ImageCache hit, no re-decode.
+      expect(identical(firstImage.bytes, secondImage.bytes), true);
+      controller.dispose();
+    });
+
     testWidgets('image with data: URI renders Image.memory', (tester) async {
       // 1×1 transparent PNG, base64.
       const dataUri = 'data:image/png;base64,'

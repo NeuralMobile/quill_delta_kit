@@ -70,17 +70,33 @@ class _Placeholder extends StatelessWidget {
     // For images, decode `data:` URIs (the path docx imports take when
     // surfacing embedded media as base64 data URIs) and try the network
     // path otherwise. Decoding errors fall back to the textual placeholder.
+    //
+    // Caching note: bytes are kept in [_DataUriCache] so repeated rebuilds
+    // (focus changes, scrolling) reuse the same [Uint8List] instance —
+    // [MemoryImage] keys its [ImageCache] entry off `bytes.hashCode`
+    // (identity for Uint8List), so a stable instance is what keeps the
+    // image hot in Flutter's image cache. `gaplessPlayback: true` keeps
+    // the previously-painted frame visible while any new decode happens,
+    // eliminating the flicker reported during scroll/focus.
     if (kind == 'image' && url.isNotEmpty) {
-      final memBytes = _tryDecodeDataUri(url);
+      final memBytes = _DataUriCache.lookup(url);
       if (memBytes != null) {
         return _wrapImage(
-          Image.memory(memBytes, fit: BoxFit.contain),
+          Image.memory(
+            memBytes,
+            fit: BoxFit.contain,
+            gaplessPlayback: true,
+          ),
           maxWidth: w,
         );
       }
       if (url.startsWith('http://') || url.startsWith('https://')) {
         return _wrapImage(
-          Image.network(url, fit: BoxFit.contain),
+          Image.network(
+            url,
+            fit: BoxFit.contain,
+            gaplessPlayback: true,
+          ),
           maxWidth: w,
         );
       }
@@ -129,9 +145,52 @@ class _Placeholder extends StatelessWidget {
     );
   }
 
-  /// Decode a `data:image/...;base64,...` URI to its bytes, or null when
-  /// [url] isn't a base64 data URI we can render with [Image.memory].
-  static Uint8List? _tryDecodeDataUri(String url) {
+  /// Data URIs run thousands of chars long. Cap the textual fallback so it
+  /// doesn't blow out the placeholder.
+  static String _truncate(String s) =>
+      s.length > 120 ? '${s.substring(0, 120)}…' : s;
+
+  double _defaultHeight(String k) =>
+      switch (k) { 'image' => 120, 'video' => 180, 'audio' => 56, _ => 56 };
+}
+
+/// Process-wide LRU-ish cache of decoded `data:` URI bytes keyed by the
+/// full URI string.
+///
+/// Why this matters: `Image.memory(bytes)` internally creates a
+/// [MemoryImage] whose cache key is `bytes.hashCode`. For [Uint8List]
+/// hashCode is identity-based (not content) so decoding the same URI on
+/// every rebuild produces a fresh `Uint8List` and misses Flutter's
+/// [ImageCache], causing repeated decode work + visible flicker on focus
+/// / scroll rebuilds. Holding a single byte buffer per URI lets the image
+/// cache stay hot.
+///
+/// Capacity is bounded to [_maxEntries] entries; when full, the
+/// oldest-inserted entry is evicted (insertion order in [LinkedHashMap],
+/// which is the default Dart [Map]).
+class _DataUriCache {
+  _DataUriCache._();
+
+  static const int _maxEntries = 64;
+  static final Map<String, Uint8List> _cache = <String, Uint8List>{};
+
+  /// Return the cached byte buffer for [url] if present, otherwise decode
+  /// from the URI, cache the result, and return it. Returns null when
+  /// [url] is not a base64 data URI we can decode.
+  static Uint8List? lookup(String url) {
+    final hit = _cache[url];
+    if (hit != null) return hit;
+    final bytes = _decode(url);
+    if (bytes == null) return null;
+    if (_cache.length >= _maxEntries) {
+      // Drop oldest insertion-order entry.
+      _cache.remove(_cache.keys.first);
+    }
+    _cache[url] = bytes;
+    return bytes;
+  }
+
+  static Uint8List? _decode(String url) {
     if (!url.startsWith('data:')) return null;
     final comma = url.indexOf(',');
     if (comma == -1) return null;
@@ -143,11 +202,4 @@ class _Placeholder extends StatelessWidget {
       return null;
     }
   }
-
-  /// Data URIs run thousands of chars long. Cap the textual fallback so it
-  /// doesn't blow out the placeholder.
-  static String _truncate(String s) =>
-      s.length > 120 ? '${s.substring(0, 120)}…' : s;
-
-  double _defaultHeight(String k) => switch (k) { 'image' => 120, 'video' => 180, 'audio' => 56, _ => 56 };
 }
