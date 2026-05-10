@@ -95,6 +95,28 @@ void main() {
         throwsA(isA<Exception>()),
       );
     });
+
+    test('numbering.xml resolves ordered vs bullet', () async {
+      // Round-trip a Delta with both bullet and ordered lists through
+      // DocxExporter -> DocxImporter. Tests that the importer picks up the
+      // numbering.xml emitted by the exporter and routes lists correctly.
+      final delta = Delta()
+        ..insert('a')
+        ..insert('\n', {'list': 'bullet'})
+        ..insert('b')
+        ..insert('\n', {'list': 'ordered'});
+      final bytes = const DocxExporter().exportSync(delta);
+      final delta2 = await DocxImporter().import(bytes);
+      final json = delta2.toJson();
+      // Find the two list-marker newlines and confirm their type.
+      final listOps = json.where((op) {
+        final attrs = op['attributes'];
+        return attrs is Map && attrs['list'] != null;
+      }).toList();
+      expect(listOps.length, 2);
+      expect((listOps[0]['attributes'] as Map)['list'], 'bullet');
+      expect((listOps[1]['attributes'] as Map)['list'], 'ordered');
+    });
   });
 
   group('DocxImporter', () {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:archive/archive.dart';
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:quill_delta_core/quill_delta_core.dart';
@@ -50,7 +52,10 @@ final class DocxExporter
 
     final archive = Archive();
     void add(String path, String content) {
-      final bytes = content.codeUnits;
+      // UTF-8 encode so non-ASCII XML content (e.g. "•" in numbering.xml,
+      // user text with emoji) survives the ZIP roundtrip. codeUnits would
+      // silently truncate any code unit > 0xFF.
+      final bytes = utf8.encode(content);
       archive.addFile(ArchiveFile(path, bytes.length, bytes));
     }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart';
 
@@ -17,18 +19,28 @@ String docxToHtml(List<int> bytes) {
       'Not a valid .docx: missing word/document.xml',
     ),
   );
-  final xmlString = String.fromCharCodes(docFile.content as List<int>);
+  final xmlString = utf8.decode(docFile.content as List<int>, allowMalformed: true);
   final doc = XmlDocument.parse(xmlString);
+
+  // Parse numbering.xml if present so list detection knows ordered vs bullet
+  // per (numId, ilvl).
+  final numberingFile =
+      archive.files.where((f) => f.name == 'word/numbering.xml').firstOrNull;
+  final numbering = numberingFile == null
+      ? const _NumberingMap.empty()
+      : _NumberingMap.parse(
+          utf8.decode(numberingFile.content as List<int>, allowMalformed: true),
+        );
 
   final body = doc.findAllElements('body', namespace: '*').firstOrNull;
   if (body == null) return '';
 
   final buf = StringBuffer();
-  _writeBody(body, buf);
+  _writeBody(body, buf, numbering);
   return buf.toString();
 }
 
-void _writeBody(XmlElement body, StringBuffer buf) {
+void _writeBody(XmlElement body, StringBuffer buf, _NumberingMap numbering) {
   // Track open list state across consecutive list paragraphs.
   String? openListTag;
   int openIndent = -1;
@@ -46,7 +58,7 @@ void _writeBody(XmlElement body, StringBuffer buf) {
   for (final el in body.childElements) {
     final name = el.localName;
     if (name == 'p') {
-      final listInfo = _detectList(el);
+      final listInfo = _detectList(el, numbering);
       if (listInfo != null) {
         final tag = listInfo.ordered ? 'ol' : 'ul';
         // If switching list type or starting fresh, open.
@@ -232,27 +244,104 @@ class _ListInfo {
   final int indent;
 }
 
-_ListInfo? _detectList(XmlElement p) {
+_ListInfo? _detectList(XmlElement p, _NumberingMap numbering) {
   final pPr = p.findElements('pPr', namespace: '*').firstOrNull;
   if (pPr == null) return null;
   final numPr = pPr.findElements('numPr', namespace: '*').firstOrNull;
   if (numPr == null) return null;
   final ilvl = numPr.findElements('ilvl', namespace: '*').firstOrNull;
-  final numId = numPr.findElements('numId', namespace: '*').firstOrNull;
-  if (numId == null) return null;
+  final numIdEl = numPr.findElements('numId', namespace: '*').firstOrNull;
+  if (numIdEl == null) return null;
   final indentStr = ilvl?.attributes
       .where((a) => a.localName == 'val')
       .map((a) => a.value)
       .firstOrNull;
   final indent = int.tryParse(indentStr ?? '0') ?? 0;
-  // Without parsing numbering.xml we can't know if numId references an
-  // ordered or bullet list. Heuristic: if the paragraph has a "ListNumber"
-  // or "ListParagraph" pStyle, default to bullet; consumer can override
-  // by examining numbering.xml in a richer pass.
+  final numIdStr = numIdEl.attributes
+      .where((a) => a.localName == 'val')
+      .map((a) => a.value)
+      .firstOrNull;
+  final numId = int.tryParse(numIdStr ?? '');
+
+  // Resolve via numbering.xml when available.
+  if (numId != null) {
+    final fmt = numbering.formatFor(numId, indent);
+    if (fmt != null) {
+      return _ListInfo(ordered: fmt == _NumFmt.ordered, indent: indent);
+    }
+  }
+  // Fall back to pStyle heuristic when numbering.xml is absent.
   final styleName = _paragraphStyle(p);
   final ordered = styleName != null &&
       (styleName.contains('Number') || styleName.contains('Ordered'));
   return _ListInfo(ordered: ordered, indent: indent);
+}
+
+enum _NumFmt { bullet, ordered }
+
+class _NumberingMap {
+  const _NumberingMap._(this._numIdToAbstract, this._abstractToFmt);
+  const _NumberingMap.empty()
+      : _numIdToAbstract = const {},
+        _abstractToFmt = const {};
+
+  final Map<int, int> _numIdToAbstract;
+  // abstractNumId -> ilvl -> format
+  final Map<int, Map<int, _NumFmt>> _abstractToFmt;
+
+  factory _NumberingMap.parse(String xml) {
+    final doc = XmlDocument.parse(xml);
+    final numIdToAbstract = <int, int>{};
+    for (final num in doc.findAllElements('num', namespace: '*')) {
+      final numIdStr = num.attributes
+          .where((a) => a.localName == 'numId')
+          .map((a) => a.value)
+          .firstOrNull;
+      final numId = int.tryParse(numIdStr ?? '');
+      if (numId == null) continue;
+      final abs = num.findElements('abstractNumId', namespace: '*').firstOrNull;
+      final absVal = abs?.attributes
+          .where((a) => a.localName == 'val')
+          .map((a) => a.value)
+          .firstOrNull;
+      final absId = int.tryParse(absVal ?? '');
+      if (absId != null) numIdToAbstract[numId] = absId;
+    }
+    final abstractToFmt = <int, Map<int, _NumFmt>>{};
+    for (final abs in doc.findAllElements('abstractNum', namespace: '*')) {
+      final absIdStr = abs.attributes
+          .where((a) => a.localName == 'abstractNumId')
+          .map((a) => a.value)
+          .firstOrNull;
+      final absId = int.tryParse(absIdStr ?? '');
+      if (absId == null) continue;
+      final levelMap = <int, _NumFmt>{};
+      for (final lvl in abs.findElements('lvl', namespace: '*')) {
+        final ilvlStr = lvl.attributes
+            .where((a) => a.localName == 'ilvl')
+            .map((a) => a.value)
+            .firstOrNull;
+        final ilvl = int.tryParse(ilvlStr ?? '');
+        if (ilvl == null) continue;
+        final numFmt = lvl.findElements('numFmt', namespace: '*').firstOrNull;
+        final fmtVal = numFmt?.attributes
+            .where((a) => a.localName == 'val')
+            .map((a) => a.value)
+            .firstOrNull;
+        if (fmtVal == null) continue;
+        levelMap[ilvl] =
+            fmtVal == 'bullet' ? _NumFmt.bullet : _NumFmt.ordered;
+      }
+      abstractToFmt[absId] = levelMap;
+    }
+    return _NumberingMap._(numIdToAbstract, abstractToFmt);
+  }
+
+  _NumFmt? formatFor(int numId, int ilvl) {
+    final abs = _numIdToAbstract[numId];
+    if (abs == null) return null;
+    return _abstractToFmt[abs]?[ilvl];
+  }
 }
 
 String? _hyperlinkTarget(XmlElement hyperlink) {
