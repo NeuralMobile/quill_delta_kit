@@ -1,6 +1,7 @@
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 class AudioAdapter extends EmbedAdapter {
@@ -9,25 +10,24 @@ class AudioAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
     final url = value is String ? value : (value as Map?)?['source']?.toString() ?? '';
-    final node = dom.Element.tag('audio')
-      ..attributes['controls'] = ''
-      ..attributes['src'] = url;
+    final attrs = <String, String>{'controls': '', 'src': url};
     if (siblingAttrs != null) {
       for (final entry in siblingAttrs.entries) {
         final v = entry.value?.toString() ?? '';
         if (v.isEmpty) continue;
         if (entry.key == 'style' || entry.key == 'title' || entry.key == 'preload') {
-          node.attributes[entry.key] = v;
+          attrs[entry.key] = v;
         }
       }
     }
-    parent.append(node);
+    writer.open('audio', attrs);
+    writer.close('audio');
   }
 
   @override

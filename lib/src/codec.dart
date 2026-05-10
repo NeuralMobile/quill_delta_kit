@@ -1,5 +1,4 @@
 import 'package:dart_quill_delta/dart_quill_delta.dart';
-import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as html_parser;
 
 import 'decoder/decoder.dart';
@@ -8,7 +7,7 @@ import 'embeds/registry.dart';
 import 'encoder/block_encoder.dart';
 import 'encoder/line_splitter.dart';
 import 'options.dart';
-import 'util/dom_serializer.dart';
+import 'util/html_writer.dart';
 
 /// Bidirectional Quill Delta <-> HTML codec.
 class QuillHtmlCodec {
@@ -22,16 +21,19 @@ class QuillHtmlCodec {
 
   /// Delta -> HTML.
   String encode(Delta delta) {
-    final root = dom.Element.tag('div');
+    final writer = HtmlWriter();
     if (options.wrapDocument) {
-      root.attributes['class'] = 'ql-html-doc';
-      root.attributes['style'] = 'white-space: pre-wrap';
+      writer.open('div', {
+        'class': 'ql-html-doc',
+        'style': 'white-space: pre-wrap',
+      });
     }
     final lines = splitIntoLines(delta);
-    BlockEncoder(registry, options).encode(lines, root);
-
-    final serializer = DomSerializer(skipRoot: !options.wrapDocument);
-    return serializer.serialize(root);
+    BlockEncoder(registry, options).encode(lines, writer);
+    if (options.wrapDocument) {
+      writer.close('div');
+    }
+    return writer.toString();
   }
 
   /// HTML -> Delta.

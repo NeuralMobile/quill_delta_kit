@@ -1,6 +1,7 @@
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 /// Loom: `loom.com/embed/<id>`, `loom.com/share/<id>`.
@@ -12,19 +13,20 @@ class LoomAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
     final url = value is String ? value : value?.toString() ?? '';
-    final canonical = _toEmbed(url);
-    final el = dom.Element.tag('iframe')
-      ..attributes['src'] = canonical
-      ..attributes['frameborder'] = '0'
-      ..attributes['allowfullscreen'] = '';
-    _applySiblings(el, siblingAttrs);
-    parent.append(el);
+    final attrs = <String, String>{
+      'allowfullscreen': '',
+      'frameborder': '0',
+      'src': _toEmbed(url),
+    };
+    _applySiblings(attrs, siblingAttrs);
+    writer.open('iframe', attrs);
+    writer.close('iframe');
   }
 
   static String _toEmbed(String url) {
@@ -62,18 +64,20 @@ class SpotifyAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
     final url = value is String ? value : value?.toString() ?? '';
-    final el = dom.Element.tag('iframe')
-      ..attributes['src'] = _toEmbed(url)
-      ..attributes['frameborder'] = '0'
-      ..attributes['allow'] = 'autoplay; clipboard-write; encrypted-media; picture-in-picture';
-    _applySiblings(el, siblingAttrs);
-    parent.append(el);
+    final attrs = <String, String>{
+      'allow': 'autoplay; clipboard-write; encrypted-media; picture-in-picture',
+      'frameborder': '0',
+      'src': _toEmbed(url),
+    };
+    _applySiblings(attrs, siblingAttrs);
+    writer.open('iframe', attrs);
+    writer.close('iframe');
   }
 
   static String _toEmbed(String url) {
@@ -106,19 +110,21 @@ class SoundCloudAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
     final url = value is String ? value : value?.toString() ?? '';
-    final el = dom.Element.tag('iframe')
-      ..attributes['src'] = url
-      ..attributes['frameborder'] = '0'
-      ..attributes['scrolling'] = 'no'
-      ..attributes['allow'] = 'autoplay';
-    _applySiblings(el, siblingAttrs);
-    parent.append(el);
+    final attrs = <String, String>{
+      'allow': 'autoplay',
+      'frameborder': '0',
+      'scrolling': 'no',
+      'src': url,
+    };
+    _applySiblings(attrs, siblingAttrs);
+    writer.open('iframe', attrs);
+    writer.close('iframe');
   }
 
   @override
@@ -145,19 +151,20 @@ class TweetAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
     final url = value is String ? value : value?.toString() ?? '';
-    final el = dom.Element.tag('blockquote')
-      ..attributes['class'] = 'twitter-tweet'
-      ..attributes['data-tweet-url'] = url;
-    final a = dom.Element.tag('a')..attributes['href'] = url;
-    a.append(dom.Text(url));
-    el.append(a);
-    parent.append(el);
+    writer.open('blockquote', {
+      'class': 'twitter-tweet',
+      'data-tweet-url': url,
+    });
+    writer.open('a', {'href': url});
+    writer.text(url);
+    writer.close('a');
+    writer.close('blockquote');
   }
 
   @override
@@ -193,18 +200,20 @@ class CodePenAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
     final url = value is String ? value : value?.toString() ?? '';
-    final el = dom.Element.tag('iframe')
-      ..attributes['src'] = _toEmbed(url)
-      ..attributes['frameborder'] = '0'
-      ..attributes['allowfullscreen'] = '';
-    _applySiblings(el, siblingAttrs);
-    parent.append(el);
+    final attrs = <String, String>{
+      'allowfullscreen': '',
+      'frameborder': '0',
+      'src': _toEmbed(url),
+    };
+    _applySiblings(attrs, siblingAttrs);
+    writer.open('iframe', attrs);
+    writer.close('iframe');
   }
 
   static String _toEmbed(String url) {
@@ -226,13 +235,13 @@ class CodePenAdapter extends EmbedAdapter {
   }
 }
 
-void _applySiblings(dom.Element el, Map<String, dynamic>? attrs) {
-  if (attrs == null) return;
-  for (final entry in attrs.entries) {
+void _applySiblings(Map<String, String> attrs, Map<String, dynamic>? siblings) {
+  if (siblings == null) return;
+  for (final entry in siblings.entries) {
     final v = entry.value?.toString() ?? '';
     if (v.isEmpty) continue;
     if (entry.key == 'width' || entry.key == 'height' || entry.key == 'style' || entry.key == 'title') {
-      el.attributes[entry.key] = v;
+      attrs[entry.key] = v;
     }
   }
 }

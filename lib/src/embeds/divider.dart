@@ -1,6 +1,7 @@
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 class DividerAdapter extends EmbedAdapter {
@@ -9,12 +10,12 @@ class DividerAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
-    parent.append(dom.Element.tag('hr'));
+    writer.voidEl('hr');
   }
 
   @override

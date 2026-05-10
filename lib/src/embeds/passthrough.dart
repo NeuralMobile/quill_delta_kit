@@ -3,17 +3,19 @@ import 'dart:convert';
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
-/// Last-resort adapter: encode any unknown embed type as a `<span data-quill-unknown="<base64-json>">`,
-/// decode such spans back to their original Delta op. Survives unknown editors.
+/// Last-resort adapter: encode any unknown embed type as a
+/// `<span data-quill-unknown="<base64-json>">`, decode such spans back to
+/// their original Delta op. Survives unknown editors.
 class PassthroughAdapter extends EmbedAdapter {
   @override
   String get type => '__passthrough__';
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
@@ -23,8 +25,8 @@ class PassthroughAdapter extends EmbedAdapter {
       if (siblingAttrs != null) 'attributes': siblingAttrs,
     });
     final encoded = base64Url.encode(utf8.encode(payload));
-    final el = dom.Element.tag('span')..attributes['data-quill-unknown'] = encoded;
-    parent.append(el);
+    writer.open('span', {'data-quill-unknown': encoded});
+    writer.close('span');
   }
 
   @override

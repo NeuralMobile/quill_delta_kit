@@ -1,6 +1,7 @@
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 /// Detects YouTube iframes and promotes to typed `video` Delta op.
@@ -16,7 +17,7 @@ class YouTubeAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,

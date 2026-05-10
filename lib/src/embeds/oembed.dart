@@ -1,17 +1,18 @@
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 /// CKEditor MediaEmbed: `<figure class="media"><oembed url="..."></oembed></figure>`
-/// or with iframe child: `<figure class="media"><div data-oembed-url="..."><iframe ...></iframe></div></figure>`.
+/// or with iframe child.
 class OEmbedAdapter extends EmbedAdapter {
   @override
   String get type => '__oembed_sniff__';
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
@@ -34,7 +35,6 @@ class OEmbedAdapter extends EmbedAdapter {
     if (element.localName == 'oembed') {
       url = element.attributes['url'];
     } else {
-      // Figure wrapper: look for <oembed> first, then nested data-oembed-url, then iframe.
       final oembed = element.querySelector('oembed');
       if (oembed != null) {
         url = oembed.attributes['url'];

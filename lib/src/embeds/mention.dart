@@ -1,6 +1,7 @@
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 /// Mention embed compatible with `quill-mention` JS module + TipTap mention + CKEditor mention.
@@ -10,7 +11,7 @@ class MentionAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
@@ -19,13 +20,14 @@ class MentionAdapter extends EmbedAdapter {
     final id = m['id']?.toString() ?? '';
     final v = m['value']?.toString() ?? '';
     final char = m['denotationChar']?.toString() ?? '@';
-    final el = dom.Element.tag('span')
-      ..attributes['class'] = 'mention'
-      ..attributes['data-mention-id'] = id
-      ..attributes['data-mention-value'] = v
-      ..attributes['data-denotation-char'] = char;
-    el.append(dom.Text('$char$v'));
-    parent.append(el);
+    writer.open('span', {
+      'class': 'mention',
+      'data-denotation-char': char,
+      'data-mention-id': id,
+      'data-mention-value': v,
+    });
+    writer.text('$char$v');
+    writer.close('span');
   }
 
   @override
@@ -34,8 +36,8 @@ class MentionAdapter extends EmbedAdapter {
     final cls = element.attributes['class'] ?? '';
     if (cls.split(' ').contains('mention')) return true;
     if (element.attributes['data-mention-id'] != null) return true;
-    if (element.attributes['data-mention'] != null) return true; // CKEditor
-    if (element.attributes['data-type'] == 'mention') return true; // TipTap
+    if (element.attributes['data-mention'] != null) return true;
+    if (element.attributes['data-type'] == 'mention') return true;
     return false;
   }
 

@@ -3,16 +3,14 @@ import 'package:html/parser.dart' as html_parser;
 
 import '../options.dart';
 import '../util/dom_serializer.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 /// Table round-trip via custom embed.
 ///
-/// Stores tables as `{"insert":{"table": <serialized HTML>}}`. Round-trip preserves
-/// rows, cols, rowspan, colspan, cell formatting, header rows, captions.
-///
-/// flutter_quill 11.x table support is experimental and shape varies; this adapter
-/// uses a stable HTML-string payload that any consumer can re-parse with their
-/// preferred renderer (or use this codec to round-trip back).
+/// Stores tables as `{"insert":{"table": <serialized HTML>}}`. Round-trip
+/// preserves rows, cols, rowspan, colspan, cell formatting, header rows,
+/// captions.
 class TableAdapter extends EmbedAdapter {
   TableAdapter({this.allowedCellTags = const {'p', 'div', 'br', 'strong', 'em', 'u', 's', 'code', 'a', 'span', 'sub', 'sup'}});
 
@@ -29,7 +27,7 @@ class TableAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
@@ -39,7 +37,9 @@ class TableAdapter extends EmbedAdapter {
     final fragment = html_parser.parseFragment(html);
     final table = fragment.querySelector('table');
     if (table == null) return;
-    parent.append(table);
+    // Re-serialize through our serializer for canonical output (sorted attrs,
+    // entity encoding, void-element handling) then write as raw.
+    writer.raw(DomSerializer().serialize(table));
   }
 
   @override
@@ -47,7 +47,6 @@ class TableAdapter extends EmbedAdapter {
 
   @override
   Map<String, dynamic>? decode(dom.Element element, QuillHtmlOptions options) {
-    // Strip event handlers + script attrs from cells before serializing.
     _sanitize(element);
     final serialized = DomSerializer().serialize(element);
     return {
@@ -59,7 +58,6 @@ class TableAdapter extends EmbedAdapter {
     final stack = <dom.Element>[root];
     while (stack.isNotEmpty) {
       final el = stack.removeLast();
-      // Drop event handler attrs (on*) and javascript: hrefs.
       el.attributes.removeWhere((key, value) {
         final k = key.toString().toLowerCase();
         if (k.startsWith('on')) return true;

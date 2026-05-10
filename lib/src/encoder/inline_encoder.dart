@@ -1,68 +1,54 @@
 import 'dart:convert';
 
-import 'package:html/dom.dart' as dom;
-
 import '../css/color.dart';
 import '../css/size.dart';
 import '../css/style_parser.dart';
 import '../embeds/registry.dart';
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'line_splitter.dart';
 
-/// Emit one [InlineOp] into [parent] as DOM nodes.
+/// Emit one [InlineOp] into [writer] as HTML.
 class InlineEncoder {
   InlineEncoder(this.registry, this.options);
 
   final EmbedRegistry registry;
   final QuillHtmlOptions options;
 
-  void emit(InlineOp op, dom.Element parent) {
+  /// Reusable scratch buffer for the open-tag stack so we don't allocate
+  /// a fresh List per text op. Cleared at start of every emit.
+  final List<String> _stack = <String>[];
+
+  void emit(InlineOp op, HtmlWriter writer) {
     if (op.isEmbed) {
-      _emitEmbed(op, parent);
+      _emitEmbed(op, writer);
       return;
     }
     final text = op.asText;
     if (text.isEmpty) return;
     final attrs = op.attributes ?? const <String, dynamic>{};
 
-    dom.Node node = dom.Text(text);
+    _stack.clear();
 
-    if (_truthy(attrs['code'])) {
-      final el = dom.Element.tag('code');
-      el.append(node);
-      node = el;
-    }
-    if (_truthy(attrs['underline'])) {
-      final el = dom.Element.tag('u');
-      el.append(node);
-      node = el;
-    }
-    if (_truthy(attrs['strike'])) {
-      final el = dom.Element.tag('s');
-      el.append(node);
-      node = el;
-    }
-    if (_truthy(attrs['italic'])) {
-      final el = dom.Element.tag('em');
-      el.append(node);
-      node = el;
-    }
-    if (_truthy(attrs['bold'])) {
-      final el = dom.Element.tag('strong');
-      el.append(node);
-      node = el;
-    }
+    // Order matches the previous DOM-based wrapping which built innermost
+    // first: we now append open tags from innermost to outermost so the
+    // emitted HTML has the same nesting (innermost tags appear first in
+    // the open sequence and get closed last).
+    if (_truthy(attrs['code'])) _stack.add('code');
+    if (_truthy(attrs['underline'])) _stack.add('u');
+    if (_truthy(attrs['strike'])) _stack.add('s');
+    if (_truthy(attrs['italic'])) _stack.add('em');
+    if (_truthy(attrs['bold'])) _stack.add('strong');
+
     final script = attrs['script'];
     if (script == 'super') {
-      final el = dom.Element.tag('sup');
-      el.append(node);
-      node = el;
+      _stack.add('sup');
     } else if (script == 'sub') {
-      final el = dom.Element.tag('sub');
-      el.append(node);
-      node = el;
+      _stack.add('sub');
     }
 
+    // span (color/background/font/size/placeholder) — built into a single attr map.
+    Map<String, String>? spanAttrs;
     final style = StyleMap();
     final color = attrs['color']?.toString();
     if (color != null && color.isNotEmpty) {
@@ -85,28 +71,38 @@ class InlineEncoder {
     if (_truthy(attrs['small'])) {
       style['font-size'] = '${QuillSize.namedToPx['small']!.toInt()}px';
     }
-
-    if (style.isNotEmpty || _truthy(attrs['placeholder'])) {
-      final span = dom.Element.tag('span');
-      if (style.isNotEmpty) span.attributes['style'] = style.toCss();
-      if (_truthy(attrs['placeholder'])) span.attributes['data-placeholder'] = 'true';
-      span.append(node);
-      node = span;
+    final placeholder = _truthy(attrs['placeholder']);
+    if (style.isNotEmpty || placeholder) {
+      spanAttrs = <String, String>{};
+      if (style.isNotEmpty) spanAttrs['style'] = style.toCss();
+      if (placeholder) spanAttrs['data-placeholder'] = 'true';
     }
 
+    // link (outermost wrapper).
+    Map<String, String>? linkAttrs;
     final link = attrs['link']?.toString();
     if (link != null && link.isNotEmpty) {
-      final a = dom.Element.tag('a')..attributes['href'] = link;
-      if (attrs['target'] != null) a.attributes['target'] = attrs['target'].toString();
-      if (attrs['rel'] != null) a.attributes['rel'] = attrs['rel'].toString();
-      a.append(node);
-      node = a;
+      linkAttrs = <String, String>{'href': link};
+      if (attrs['target'] != null) linkAttrs['target'] = attrs['target'].toString();
+      if (attrs['rel'] != null) linkAttrs['rel'] = attrs['rel'].toString();
     }
 
-    parent.append(node);
+    // Write opens: link → span → ...stack(reverse) → text → reverse.
+    if (linkAttrs != null) writer.open('a', linkAttrs);
+    if (spanAttrs != null) writer.open('span', spanAttrs);
+    // Stack is innermost-first; opens must be outermost-first → iterate reverse.
+    for (var i = _stack.length - 1; i >= 0; i--) {
+      writer.open(_stack[i]);
+    }
+    writer.text(text);
+    for (var i = 0; i < _stack.length; i++) {
+      writer.close(_stack[i]);
+    }
+    if (spanAttrs != null) writer.close('span');
+    if (linkAttrs != null) writer.close('a');
   }
 
-  void _emitEmbed(InlineOp op, dom.Element parent) {
+  void _emitEmbed(InlineOp op, HtmlWriter writer) {
     final embed = op.asEmbed;
     if (embed.isEmpty) return;
     final type = embed.keys.first;
@@ -121,7 +117,7 @@ class InlineEncoder {
               registry.forType(inner.key, customSubType: inner.key) ?? registry.forType(inner.key);
           if (adapter != null) {
             adapter.encode(
-              parent: parent,
+              writer: writer,
               value: inner.value,
               siblingAttrs: op.attributes,
               options: options,
@@ -137,7 +133,7 @@ class InlineEncoder {
     final adapter = registry.forType(type);
     if (adapter != null) {
       adapter.encode(
-        parent: parent,
+        writer: writer,
         value: value,
         siblingAttrs: op.attributes,
         options: options,
@@ -147,7 +143,7 @@ class InlineEncoder {
     final fallback = registry.forType('__passthrough__');
     if (fallback != null) {
       fallback.encode(
-        parent: parent,
+        writer: writer,
         value: embed,
         siblingAttrs: op.attributes,
         options: options,

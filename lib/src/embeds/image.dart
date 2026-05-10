@@ -1,6 +1,7 @@
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 class ImageAdapter extends EmbedAdapter {
@@ -9,29 +10,26 @@ class ImageAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
-    final img = dom.Element.tag('img');
-    img.attributes['src'] = value is String ? value : (value as Map?)?['source']?.toString() ?? '';
+    final src = value is String ? value : (value as Map?)?['source']?.toString() ?? '';
+    final attrs = <String, String>{'src': src};
     if (siblingAttrs != null) {
       for (final entry in siblingAttrs.entries) {
         final k = entry.key;
         final v = entry.value?.toString() ?? '';
         if (v.isEmpty) continue;
-        if (k == 'width' || k == 'height' || k == 'alt' || k == 'title') {
-          img.attributes[k] = v;
-        } else if (k == 'style') {
-          img.attributes['style'] = v;
+        if (k == 'width' || k == 'height' || k == 'alt' || k == 'title' || k == 'style') {
+          attrs[k] = v;
         } else {
-          // Preserve unknown attrs prefixed with data- so round-trip survives.
-          img.attributes['data-quill-$k'] = v;
+          attrs['data-quill-$k'] = v;
         }
       }
     }
-    parent.append(img);
+    writer.voidEl('img', attrs);
   }
 
   @override

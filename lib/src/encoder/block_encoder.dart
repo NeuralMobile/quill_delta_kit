@@ -1,12 +1,11 @@
-import 'package:html/dom.dart' as dom;
-
 import '../css/style_parser.dart';
 import '../embeds/registry.dart';
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'inline_encoder.dart';
 import 'line_splitter.dart';
 
-/// Group consecutive [Line]s into block-level HTML nodes appended to [root].
+/// Group consecutive [Line]s into block-level HTML written to [writer].
 class BlockEncoder {
   BlockEncoder(this.registry, this.options);
 
@@ -15,45 +14,45 @@ class BlockEncoder {
 
   late final InlineEncoder _inline = InlineEncoder(registry, options);
 
-  void encode(List<Line> lines, dom.Element root) {
+  void encode(List<Line> lines, HtmlWriter writer) {
     var i = 0;
     while (i < lines.length) {
       final line = lines[i];
       final block = line.blockAttrs ?? const <String, dynamic>{};
 
       // 1) Code block: group consecutive code-block lines.
-      // Per Quill spec, inline formatting is dropped inside code blocks.
       if (block['code-block'] != null && block['code-block'] != false) {
-        final pre = dom.Element.tag('pre');
-        final code = dom.Element.tag('code');
         final lang = block['code-block'];
+        writer.open('pre');
         if (lang is String && lang.isNotEmpty && lang != 'true') {
-          code.attributes['class'] = 'language-$lang';
+          writer.open('code', {'class': 'language-$lang'});
+        } else {
+          writer.open('code');
         }
-        pre.append(code);
         var first = true;
         while (i < lines.length) {
           final l = lines[i];
           final cb = l.blockAttrs?['code-block'];
           if (cb == null || cb == false) break;
-          if (!first) code.append(dom.Text('\n'));
+          if (!first) writer.text('\n');
           first = false;
           for (final op in l.ops) {
             if (op.isText) {
-              code.append(dom.Text(op.asText));
+              writer.text(op.asText);
             } else {
-              _inline.emit(op, code);
+              _inline.emit(op, writer);
             }
           }
           i++;
         }
-        root.append(pre);
+        writer.close('code');
+        writer.close('pre');
         continue;
       }
 
       // 2) List block: group consecutive list lines (handles indent nesting).
       if (block['list'] != null) {
-        final consumed = _emitListGroup(lines, i, root);
+        final consumed = _emitListGroup(lines, i, writer);
         i += consumed;
         continue;
       }
@@ -62,35 +61,35 @@ class BlockEncoder {
       final header = block['header'];
       if (header is num) {
         final tag = 'h${header.toInt().clamp(1, 6)}';
-        final el = dom.Element.tag(tag);
-        _applyLineStyles(el, block);
+        final styleAttrs = _lineStyleAttrs(block);
+        writer.open(tag, styleAttrs);
         for (final op in line.ops) {
-          _inline.emit(op, el);
+          _inline.emit(op, writer);
         }
-        if (line.ops.isEmpty) el.append(dom.Element.tag('br'));
-        root.append(el);
+        if (line.ops.isEmpty) writer.voidEl('br');
+        writer.close(tag);
         i++;
         continue;
       }
 
       // 4) Blockquote: group consecutive blockquote lines.
       if (block['blockquote'] != null && block['blockquote'] != false) {
-        final bq = dom.Element.tag('blockquote');
+        writer.open('blockquote');
         while (i < lines.length) {
           final l = lines[i];
           final bb = l.blockAttrs ?? const <String, dynamic>{};
           if (bb['blockquote'] == null || bb['blockquote'] == false) break;
           if (bb['list'] != null || bb['code-block'] != null || bb['header'] != null) break;
-          final p = dom.Element.tag('p');
-          _applyLineStyles(p, bb);
+          final styleAttrs = _lineStyleAttrs(bb);
+          writer.open('p', styleAttrs);
           for (final op in l.ops) {
-            _inline.emit(op, p);
+            _inline.emit(op, writer);
           }
-          if (l.ops.isEmpty) p.append(dom.Element.tag('br'));
-          bq.append(p);
+          if (l.ops.isEmpty) writer.voidEl('br');
+          writer.close('p');
           i++;
         }
-        root.append(bq);
+        writer.close('blockquote');
         continue;
       }
 
@@ -98,25 +97,27 @@ class BlockEncoder {
       if (line.ops.length == 1 && line.ops.first.isEmbed) {
         final embed = line.ops.first.asEmbed;
         if (embed.isNotEmpty && _isBlockLevelEmbed(embed.keys.first)) {
-          _inline.emit(line.ops.first, root);
+          _inline.emit(line.ops.first, writer);
           i++;
           continue;
         }
       }
 
       // 6) Plain paragraph (with possible align/indent/direction/line-height).
-      final p = dom.Element.tag('p');
-      _applyLineStyles(p, block);
+      final styleAttrs = _lineStyleAttrs(block);
+      writer.open('p', styleAttrs);
       for (final op in line.ops) {
-        _inline.emit(op, p);
+        _inline.emit(op, writer);
       }
-      if (line.ops.isEmpty) p.append(dom.Element.tag('br'));
-      root.append(p);
+      if (line.ops.isEmpty) writer.voidEl('br');
+      writer.close('p');
       i++;
     }
   }
 
-  void _applyLineStyles(dom.Element el, Map<String, dynamic> block) {
+  /// Build the (sorted) attribute map for a paragraph/header from line block
+  /// attrs. Returns null when no styling applies.
+  Map<String, String>? _lineStyleAttrs(Map<String, dynamic> block) {
     final style = StyleMap();
     final align = block['align']?.toString();
     if (align != null && align.isNotEmpty) {
@@ -126,36 +127,47 @@ class BlockEncoder {
     if (indent is num && indent > 0) {
       style['padding-left'] = '${indent * 2}em';
     }
-    final dir = block['direction']?.toString();
-    if (dir == 'rtl' || dir == 'ltr') {
-      el.attributes['dir'] = dir!;
-    }
     final lh = block['line-height'];
     if (lh != null) {
       style['line-height'] = lh.toString();
     }
-    if (style.isNotEmpty) el.attributes['style'] = style.toCss();
+    final dir = block['direction']?.toString();
+    final hasDir = dir == 'rtl' || dir == 'ltr';
+    if (style.isEmpty && !hasDir) return null;
+    final out = <String, String>{};
+    if (hasDir) out['dir'] = dir!;
+    if (style.isNotEmpty) out['style'] = style.toCss();
+    return out;
   }
 
   /// Emit a contiguous list group; supports nested indents.
-  /// Returns number of lines consumed.
   ///
-  /// Maintains an ancestor stack [containers] holding the open <ul>/<ol>
-  /// at each depth so we never re-scan DOM nodes. Index 0 is the outer list.
-  /// Each item with indent N attaches to containers[N], creating missing
-  /// inner levels by appending a fresh nested <ul>/<ol> to the previous
-  /// level's last <li>.
-  int _emitListGroup(List<Line> lines, int start, dom.Element root) {
-    final firstType = lines[start].blockAttrs?['list']?.toString();
+  /// Maintains parallel stacks [openLists] (currently-open `<ul>`/`<ol>` tag
+  /// names) and [liOpen] (whether a `<li>` is currently open at that depth).
+  /// On each item:
+  ///   - de-nest: close excess `<li>`s and lists down to the target depth.
+  ///   - nest: open new `<ul>`/`<ol>` (and a host `<li>` if absent at parent
+  ///     depth) up to the target depth.
+  ///   - close any open `<li>` at the target depth, then write a fresh
+  ///     `<li>` carrying this item's content.
+  /// The current `<li>` is left OPEN so the next item (potentially deeper)
+  /// can nest inside it; closes happen during de-nest or at end of group.
+  /// Returns number of lines consumed.
+  int _emitListGroup(List<Line> lines, int start, HtmlWriter writer) {
+    final firstAttrs = lines[start].blockAttrs ?? const <String, dynamic>{};
+    final firstType = firstAttrs['list']?.toString();
     if (firstType == null) return 0;
-    final outer = _listTag(firstType);
-    final outerEl = dom.Element.tag(outer);
-    if (firstType == 'checked' || firstType == 'unchecked') {
-      outerEl.attributes['data-checked'] = firstType == 'checked' ? 'true' : 'false';
-    }
-    root.append(outerEl);
+    final outerTag = _listTag(firstType);
+    final outerAttrs = (firstType == 'checked' || firstType == 'unchecked')
+        ? <String, String>{
+            'data-checked': firstType == 'checked' ? 'true' : 'false',
+          }
+        : null;
+    writer.open(outerTag, outerAttrs);
 
-    final containers = <dom.Element>[outerEl];
+    final openLists = <String>[outerTag];
+    final liOpen = <bool>[false];
+
     int consumed = 0;
     while (start + consumed < lines.length) {
       final line = lines[start + consumed];
@@ -163,54 +175,80 @@ class BlockEncoder {
       final type = attrs['list']?.toString();
       if (type == null) break;
       final tag = _listTag(type);
-      if ((tag == 'ol') != (outer == 'ol')) break;
+      if ((tag == 'ol') != (outerTag == 'ol')) break;
 
       consumed++;
       final indent =
           (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
-      _appendListItem(containers, outer, line, type, indent);
+      final targetDepth = indent + 1;
+
+      // De-nest: close lists deeper than target.
+      while (openLists.length > targetDepth) {
+        if (liOpen.last) {
+          writer.close('li');
+          liOpen[liOpen.length - 1] = false;
+        }
+        writer.close(openLists.last);
+        openLists.removeLast();
+        liOpen.removeLast();
+        // Close the host <li> at the now-current depth (the one that hosted
+        // the list we just closed).
+        if (liOpen.isNotEmpty && liOpen.last) {
+          writer.close('li');
+          liOpen[liOpen.length - 1] = false;
+        }
+      }
+
+      // Nest: open lists up to target.
+      while (openLists.length < targetDepth) {
+        // At parent depth, we need an open <li> to host the nested list.
+        if (!liOpen.last) {
+          // Synthetic empty <li> placeholder.
+          writer.open('li');
+          liOpen[liOpen.length - 1] = true;
+        }
+        writer.open(outerTag);
+        openLists.add(outerTag);
+        liOpen.add(false);
+      }
+
+      // Close any prior <li> at the target depth before opening a fresh one.
+      if (liOpen.last) {
+        writer.close('li');
+        liOpen[liOpen.length - 1] = false;
+      }
+
+      // Open this item's <li>.
+      Map<String, String>? liAttrs;
+      if (type == 'checked' || type == 'unchecked') {
+        liAttrs = <String, String>{
+          'data-checked': type == 'checked' ? 'true' : 'false',
+          'data-list': type,
+        };
+      }
+      writer.open('li', liAttrs);
+      for (final op in line.ops) {
+        _inline.emit(op, writer);
+      }
+      if (line.ops.isEmpty) writer.voidEl('br');
+      // Leave <li> open; next iteration or post-loop close handles it.
+      liOpen[liOpen.length - 1] = true;
+    }
+
+    // Unwind everything still open.
+    while (openLists.isNotEmpty) {
+      if (liOpen.last) {
+        writer.close('li');
+      }
+      writer.close(openLists.last);
+      openLists.removeLast();
+      liOpen.removeLast();
+      if (liOpen.isNotEmpty && liOpen.last) {
+        writer.close('li');
+        liOpen[liOpen.length - 1] = false;
+      }
     }
     return consumed;
-  }
-
-  void _appendListItem(
-    List<dom.Element> containers,
-    String listTag,
-    Line line,
-    String type,
-    int indent,
-  ) {
-    // Trim ancestors deeper than current indent (de-nesting).
-    while (containers.length > indent + 1) {
-      containers.removeLast();
-    }
-    // Open new nested levels up to indent.
-    while (containers.length <= indent) {
-      final parent = containers.last;
-      var hostLi = parent.children.isNotEmpty &&
-              parent.children.last.localName == 'li'
-          ? parent.children.last
-          : null;
-      if (hostLi == null) {
-        hostLi = dom.Element.tag('li');
-        parent.append(hostLi);
-      }
-      final nested = dom.Element.tag(listTag);
-      hostLi.append(nested);
-      containers.add(nested);
-    }
-
-    final target = containers[indent];
-    final li = dom.Element.tag('li');
-    if (type == 'checked' || type == 'unchecked') {
-      li.attributes['data-list'] = type;
-      li.attributes['data-checked'] = type == 'checked' ? 'true' : 'false';
-    }
-    for (final op in line.ops) {
-      _inline.emit(op, li);
-    }
-    if (line.ops.isEmpty) li.append(dom.Element.tag('br'));
-    target.append(li);
   }
 
   String _listTag(String type) {

@@ -1,6 +1,7 @@
 import 'package:html/dom.dart' as dom;
 
 import '../options.dart';
+import '../util/html_writer.dart';
 import 'embed_adapter.dart';
 
 const _directVideoExt = {'.mp4', '.webm', '.ogg', '.ogv', '.mov', '.m4v'};
@@ -16,7 +17,7 @@ class VideoAdapter extends EmbedAdapter {
 
   @override
   void encode({
-    required dom.Element parent,
+    required HtmlWriter writer,
     required Object? value,
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
@@ -26,33 +27,37 @@ class VideoAdapter extends EmbedAdapter {
     final isYoutube = _yt.hasMatch(url);
     final isVimeo = _vm.hasMatch(url);
 
-    dom.Element node;
+    final String tag;
+    final Map<String, String> attrs;
     if (isDirect) {
-      node = dom.Element.tag('video')
-        ..attributes['controls'] = ''
-        ..attributes['src'] = url;
+      tag = 'video';
+      attrs = <String, String>{'controls': '', 'src': url};
     } else if (isYoutube || isVimeo) {
-      node = dom.Element.tag('iframe')
-        ..attributes['src'] = isYoutube ? _toYouTubeEmbed(url) : _toVimeoEmbed(url)
-        ..attributes['frameborder'] = '0'
-        ..attributes['allowfullscreen'] = '';
+      tag = 'iframe';
+      attrs = <String, String>{
+        'src': isYoutube ? _toYouTubeEmbed(url) : _toVimeoEmbed(url),
+        'frameborder': '0',
+        'allowfullscreen': '',
+      };
     } else {
-      // Unknown — emit iframe so HTML is browser-renderable.
-      node = dom.Element.tag('iframe')
-        ..attributes['src'] = url
-        ..attributes['frameborder'] = '0'
-        ..attributes['allowfullscreen'] = '';
+      tag = 'iframe';
+      attrs = <String, String>{
+        'src': url,
+        'frameborder': '0',
+        'allowfullscreen': '',
+      };
     }
     if (siblingAttrs != null) {
       for (final entry in siblingAttrs.entries) {
         final v = entry.value?.toString() ?? '';
         if (v.isEmpty) continue;
         if (entry.key == 'width' || entry.key == 'height' || entry.key == 'style' || entry.key == 'title') {
-          node.attributes[entry.key] = v;
+          attrs[entry.key] = v;
         }
       }
     }
-    parent.append(node);
+    writer.open(tag, attrs);
+    writer.close(tag);
   }
 
   @override
