@@ -130,15 +130,17 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
   /// chosen container (Column, Stack, etc.).
   Widget _buildEditorCore() {
     final layout = widget.layout;
+    // AutoGrow: editor must scroll internally once content exceeds
+    // [maxHeight]. With scrollable=false the editor would render
+    // unbounded and overflow the parent. Combining scrollable=true +
+    // expands=false + min/maxHeight gives the right "grow to content,
+    // then scroll" behavior.
     final editorConfig = QuillEditorConfig(
       padding: layout.padding,
       placeholder: layout.placeholder,
       autoFocus: layout.autoFocus,
       embedBuilders: _resolvedEmbedBuilders(),
-      scrollable: switch (layout) {
-        ScrollableLayout() || FixedHeightLayout() || ExpandedLayout() => true,
-        AutoGrowLayout() => false,
-      },
+      scrollable: true,
       expands: layout is ExpandedLayout,
       minHeight: layout is AutoGrowLayout ? layout.minHeight : null,
       maxHeight: switch (layout) {
