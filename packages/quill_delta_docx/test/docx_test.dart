@@ -137,14 +137,84 @@ void main() {
     });
   });
 
-  group('DocxExporter stub', () {
-    test('throws UnimplementedError', () async {
-      final exp = const DocxExporter();
+  group('DocxExporter', () {
+    final exp = const DocxExporter();
+
+    test('format metadata', () {
       expect(exp.format, 'docx');
-      await expectLater(
-        () => exp.export(Delta()..insert('x\n')),
-        throwsA(isA<UnimplementedError>()),
-      );
+      expect(exp.extension, 'docx');
+    });
+
+    test('produces a valid ZIP with required parts', () async {
+      final bytes = await exp.export(Delta()..insert('Hello\n'));
+      expect(bytes, isNotEmpty);
+      // ZIP local file header signature.
+      expect(bytes[0], 0x50);
+      expect(bytes[1], 0x4B);
+      expect(bytes[2], 0x03);
+      expect(bytes[3], 0x04);
+      // Required parts present.
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final names = archive.files.map((f) => f.name).toSet();
+      expect(names, containsAll(<String>{
+        '[Content_Types].xml',
+        '_rels/.rels',
+        'word/document.xml',
+        'word/_rels/document.xml.rels',
+        'word/styles.xml',
+        'word/numbering.xml',
+      }));
+    });
+
+    test('round-trip via importer preserves text', () async {
+      final delta = Delta()
+        ..insert('Title')
+        ..insert('\n', {'header': 1})
+        ..insert('Para with ')
+        ..insert('bold', {'bold': true})
+        ..insert(' and ')
+        ..insert('italic', {'italic': true})
+        ..insert('.\n')
+        ..insert('item 1')
+        ..insert('\n', {'list': 'bullet'})
+        ..insert('item 2')
+        ..insert('\n', {'list': 'bullet'});
+      final bytes = await exp.export(delta);
+      final back = await imp.import(bytes);
+      final text = back.operations
+          .where((op) => op.isInsert && op.data is String)
+          .map((op) => op.data as String)
+          .join();
+      expect(text, contains('Title'));
+      expect(text, contains('Para with bold and italic'));
+      expect(text, contains('item 1'));
+      expect(text, contains('item 2'));
+    });
+
+    test('hyperlink relationship written', () async {
+      final delta = Delta()
+        ..insert('see ')
+        ..insert('here', {'link': 'https://example.com'})
+        ..insert('\n');
+      final bytes = await exp.export(delta);
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final rels = archive.findFile('word/_rels/document.xml.rels')!;
+      final relsXml = String.fromCharCodes(rels.content as List<int>);
+      expect(relsXml, contains('https://example.com'));
+      expect(relsXml, contains('hyperlink'));
+    });
+
+    test('color and size emit as half-points / hex', () async {
+      final delta = Delta()
+        ..insert('big red', {'color': '#ff0000', 'size': '24'})
+        ..insert('\n');
+      final bytes = await exp.export(delta);
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final doc = archive.findFile('word/document.xml')!;
+      final docXml = String.fromCharCodes(doc.content as List<int>);
+      expect(docXml, contains('w:color w:val="FF0000"'));
+      // 24px ≈ 18pt → 36 half-points.
+      expect(docXml, contains('w:sz w:val="36"'));
     });
   });
 }

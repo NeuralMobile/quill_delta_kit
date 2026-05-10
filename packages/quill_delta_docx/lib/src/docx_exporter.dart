@@ -1,12 +1,22 @@
+import 'package:archive/archive.dart';
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:quill_delta_core/quill_delta_core.dart';
 
+import 'ooxml_builder.dart';
+import 'ooxml_parts.dart';
+
 /// Delta -> .docx bytes.
 ///
-/// Stub for v0.1. Writing OOXML round-trip is a large task — track-changes,
-/// images, tables, styles, numbering definitions, sections, comments,
-/// content-types.xml, _rels, themes — we ship the importer first and
-/// implement the exporter incrementally.
+/// Produces a valid OOXML package with:
+///   - `[Content_Types].xml`
+///   - `_rels/.rels`
+///   - `word/document.xml`
+///   - `word/_rels/document.xml.rels` (hyperlink relationships)
+///   - `word/styles.xml`
+///   - `word/numbering.xml`
+///
+/// Out of scope for v0.1: images, comments, track changes, footnotes,
+/// embedded objects, themes, fontTable, sections.
 final class DocxExporter
     implements DeltaExporter<List<int>, DocxOptions> {
   const DocxExporter({DocxOptions? defaultOptions})
@@ -29,10 +39,28 @@ final class DocxExporter
 
   @override
   Future<List<int>> export(Delta delta, {DocxOptions? options}) async {
-    throw UnimplementedError(
-      'DocxExporter is not implemented in v0.1. '
-      'Track via the package issue tracker. '
-      'For now use HtmlExporter then a third-party HTML -> DOCX tool.',
-    );
+    return exportSync(delta, options: options);
+  }
+
+  /// Synchronous variant. ZIP construction is fully synchronous.
+  List<int> exportSync(Delta delta, {DocxOptions? options}) {
+    final result = buildOoxmlBody(delta);
+    final documentXml = buildDocumentXml(result.bodyXml);
+    final documentRelsXml = buildDocumentRelsXml(result.hyperlinks);
+
+    final archive = Archive();
+    void add(String path, String content) {
+      final bytes = content.codeUnits;
+      archive.addFile(ArchiveFile(path, bytes.length, bytes));
+    }
+
+    add('[Content_Types].xml', contentTypesXml);
+    add('_rels/.rels', rootRelsXml);
+    add('word/document.xml', documentXml);
+    add('word/_rels/document.xml.rels', documentRelsXml);
+    add('word/styles.xml', stylesXml);
+    add('word/numbering.xml', numberingXml);
+
+    return ZipEncoder().encode(archive)!;
   }
 }
