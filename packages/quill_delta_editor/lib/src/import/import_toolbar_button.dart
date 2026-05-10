@@ -56,7 +56,10 @@ QuillToolbarCustomButtonOptions buildImportDocumentButton({
 }) {
   final imp = importer ?? QuillDocumentImporter();
   return QuillToolbarCustomButtonOptions(
-    icon: icon ?? const Icon(Icons.attach_file),
+    // post_add reads as "add a document" — a sheet of paper with a plus.
+    // Clearer than the previous paperclip (Icons.attach_file) which
+    // suggests file-attachment to an email, not in-place insertion.
+    icon: icon ?? const Icon(Icons.post_add),
     tooltip: tooltip,
     childBuilder: null,
     onPressed: () async {
