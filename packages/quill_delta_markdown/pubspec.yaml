@@ -3,8 +3,8 @@ description: >-
   Quill Delta <-> Markdown conversion. Pure Dart. Importer pivots through
   HTML; exporter walks Delta lines natively.
 version: 0.1.0
-repository: https://github.com/yourname/quill_delta_html
-issue_tracker: https://github.com/yourname/quill_delta_html/issues
+repository: https://github.com/NeuralMobile/quill_delta_kit
+issue_tracker: https://github.com/NeuralMobile/quill_delta_kit/issues
 topics:
   - quill
   - delta

@@ -3,8 +3,8 @@ description: >-
   Core types and Delta utilities for the quill_delta_* converter family.
   Pure Dart, zero HTML/binary dependencies.
 version: 0.1.0
-repository: https://github.com/yourname/quill_delta_html
-issue_tracker: https://github.com/yourname/quill_delta_html/issues
+repository: https://github.com/NeuralMobile/quill_delta_kit
+issue_tracker: https://github.com/NeuralMobile/quill_delta_kit/issues
 topics:
   - quill
   - delta

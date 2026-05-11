@@ -4,8 +4,8 @@ description: >-
   Cross-editor (CKEditor, TipTap, ProseMirror, Quill JS, Lexical) interop
   with adapter API for custom embeds.
 version: 0.1.0
-repository: https://github.com/yourname/quill_delta_html
-issue_tracker: https://github.com/yourname/quill_delta_html/issues
+repository: https://github.com/NeuralMobile/quill_delta_kit
+issue_tracker: https://github.com/NeuralMobile/quill_delta_kit/issues
 topics:
   - quill
   - delta

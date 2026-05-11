@@ -6,8 +6,8 @@ description: >-
   preview builders for auth-injected URLs.
 version: 0.1.0
 publish_to: none
-repository: https://github.com/yourname/quill_delta_html
-issue_tracker: https://github.com/yourname/quill_delta_html/issues
+repository: https://github.com/NeuralMobile/quill_delta_kit
+issue_tracker: https://github.com/NeuralMobile/quill_delta_kit/issues
 topics:
   - quill
   - flutter
