@@ -5,25 +5,65 @@ import 'quill_document_importer.dart';
 
 /// Lightweight source descriptor returned by a file picker callback.
 ///
-/// Provide exactly one of [bytes] (for binary formats like .docx) or
-/// [text] (for text formats like .html / .md). [filename] / [mime] /
-/// [format] are optional hints used by the converter registry to pick
-/// the right importer.
-class ImportSource {
-  const ImportSource({
-    this.bytes,
-    this.text,
-    this.filename,
-    this.mime,
-    this.format,
-  }) : assert(bytes != null || text != null,
-            'ImportSource needs either bytes or text');
+/// Concrete variants:
+/// - [ImportSourceBytes] — binary formats (.docx, future .pdf)
+/// - [ImportSourceText] — text formats (.html, .md, plain)
+///
+/// [filename] / [mime] / [format] are optional hints used by the
+/// converter registry to pick the right importer.
+sealed class ImportSource {
+  const ImportSource({this.filename, this.mime, this.format});
 
-  final List<int>? bytes;
-  final String? text;
+  /// Original filename, if known. Used by the registry for extension
+  /// sniffing when [format] is unset.
   final String? filename;
+
+  /// Explicit MIME type hint. Takes precedence over filename sniffing.
   final String? mime;
+
+  /// Explicit format identifier (`'html'`, `'markdown'`, `'docx'`, …).
+  /// Takes precedence over MIME / filename.
   final String? format;
+
+  /// Construct a bytes-backed import source. Use for binary formats.
+  const factory ImportSource.bytes({
+    required List<int> bytes,
+    String? filename,
+    String? mime,
+    String? format,
+  }) = ImportSourceBytes;
+
+  /// Construct a text-backed import source. Use for HTML, Markdown, plain.
+  const factory ImportSource.text({
+    required String text,
+    String? filename,
+    String? mime,
+    String? format,
+  }) = ImportSourceText;
+}
+
+/// Binary import source (.docx, future .pdf, etc.).
+final class ImportSourceBytes extends ImportSource {
+  const ImportSourceBytes({
+    required this.bytes,
+    super.filename,
+    super.mime,
+    super.format,
+  });
+
+  final List<int> bytes;
+}
+
+/// Text import source (.html, .md, plain text, …).
+final class ImportSourceText extends ImportSource {
+  const ImportSourceText({
+    required this.text,
+    super.filename,
+    super.mime,
+    super.format,
+  });
+
+  final String text;
 }
 
 /// Callback the toolbar button invokes when the user taps it. Return null
@@ -71,21 +111,22 @@ QuillToolbarCustomButtonOptions buildImportDocumentButton({
       final source = await pickSource(_pickerContext);
       if (source == null) return;
       try {
-        if (source.text != null) {
-          await imp.insertTextAtCursor(
-            controller: controller,
-            text: source.text!,
-            format: source.format,
-            mime: source.mime,
-          );
-        } else if (source.bytes != null) {
-          await imp.insertBytesAtCursor(
-            controller: controller,
-            bytes: source.bytes!,
-            format: source.format,
-            mime: source.mime,
-            filename: source.filename,
-          );
+        switch (source) {
+          case ImportSourceText():
+            await imp.insertTextAtCursor(
+              controller: controller,
+              text: source.text,
+              format: source.format,
+              mime: source.mime,
+            );
+          case ImportSourceBytes():
+            await imp.insertBytesAtCursor(
+              controller: controller,
+              bytes: source.bytes,
+              format: source.format,
+              mime: source.mime,
+              filename: source.filename,
+            );
         }
       } catch (e, st) {
         if (onError != null) {

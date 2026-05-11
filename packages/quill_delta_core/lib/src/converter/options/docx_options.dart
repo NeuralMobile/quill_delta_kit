@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../converter_options.dart';
 
 /// How embedded images are stored inside the produced .docx archive.
@@ -16,6 +18,7 @@ enum DocxImageEmbed {
 enum DocxPageSize { a4, letter, legal }
 
 /// Options for the Docx importer and exporter.
+@immutable
 class DocxOptions extends ConverterOptions {
   const DocxOptions({
     this.preserveTrackChanges = false,
@@ -51,4 +54,52 @@ class DocxOptions extends ConverterOptions {
   /// When true (default), merged table cells are expanded; merge metadata
   /// is lost. When false, merge info is stored in a passthrough attribute.
   final bool expandMergedCells;
+
+  DocxOptions copyWith({
+    bool? preserveTrackChanges,
+    DocxImageEmbed? imageEmbed,
+    DocxPageSize? pageSize,
+    bool? extractCommentsAsSideNotes,
+    String? defaultFontFamily,
+    double? defaultFontSizePt,
+    bool? expandMergedCells,
+    UnknownEmbedFallback? unknownEmbedFallback,
+  }) {
+    return DocxOptions(
+      preserveTrackChanges: preserveTrackChanges ?? this.preserveTrackChanges,
+      imageEmbed: imageEmbed ?? this.imageEmbed,
+      pageSize: pageSize ?? this.pageSize,
+      extractCommentsAsSideNotes: extractCommentsAsSideNotes ?? this.extractCommentsAsSideNotes,
+      defaultFontFamily: defaultFontFamily ?? this.defaultFontFamily,
+      defaultFontSizePt: defaultFontSizePt ?? this.defaultFontSizePt,
+      expandMergedCells: expandMergedCells ?? this.expandMergedCells,
+      unknownEmbedFallback: unknownEmbedFallback ?? this.unknownEmbedFallback,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is DocxOptions &&
+        preserveTrackChanges == other.preserveTrackChanges &&
+        imageEmbed == other.imageEmbed &&
+        pageSize == other.pageSize &&
+        extractCommentsAsSideNotes == other.extractCommentsAsSideNotes &&
+        defaultFontFamily == other.defaultFontFamily &&
+        defaultFontSizePt == other.defaultFontSizePt &&
+        expandMergedCells == other.expandMergedCells &&
+        unknownEmbedFallback == other.unknownEmbedFallback;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        preserveTrackChanges,
+        imageEmbed,
+        pageSize,
+        extractCommentsAsSideNotes,
+        defaultFontFamily,
+        defaultFontSizePt,
+        expandMergedCells,
+        unknownEmbedFallback,
+      );
 }

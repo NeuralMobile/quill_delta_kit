@@ -1,17 +1,9 @@
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 
+import '../errors.dart';
 import 'converter_options.dart';
 import 'delta_exporter.dart';
 import 'delta_importer.dart';
-
-/// Thrown when no converter can be found for the requested format / MIME /
-/// extension.
-class ConverterNotFound implements Exception {
-  const ConverterNotFound(this.message);
-  final String message;
-  @override
-  String toString() => 'ConverterNotFound: $message';
-}
 
 /// Manages a collection of [DeltaImporter]s and [DeltaExporter]s.
 ///

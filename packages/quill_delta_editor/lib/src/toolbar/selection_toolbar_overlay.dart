@@ -25,12 +25,16 @@ class SelectionToolbarOverlay extends StatefulWidget {
     required this.config,
     required this.editorKey,
     required this.child,
+    this.overrideToolbarConfig,
+    this.toolbarConfigBuilder,
   });
 
   final QuillController controller;
   final SelectionToolbar config;
   final GlobalKey<QuillEditorState> editorKey;
   final Widget child;
+  final QuillSimpleToolbarConfig? overrideToolbarConfig;
+  final QuillSimpleToolbarConfig Function(QuillSimpleToolbarConfig preset)? toolbarConfigBuilder;
 
   @override
   State<SelectionToolbarOverlay> createState() => _SelectionToolbarOverlayState();
@@ -159,6 +163,8 @@ class _SelectionToolbarOverlayState extends State<SelectionToolbarOverlay> {
             child: buildSimpleToolbar(
               controller: widget.controller,
               config: widget.config,
+              overrideConfig: widget.overrideToolbarConfig,
+              builder: widget.toolbarConfigBuilder,
             ),
           ),
         ),

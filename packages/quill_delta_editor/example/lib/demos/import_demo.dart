@@ -47,31 +47,32 @@ class _ImportDemoState extends State<ImportDemo> {
     // Hand text formats over as text so the importer doesn't sniff bytes.
     if (ext == 'html' || ext == 'htm' || ext == 'md' || ext == 'markdown') {
       final format = (ext == 'html' || ext == 'htm') ? 'html' : 'markdown';
-      return ImportSource(
+      return ImportSource.text(
         text: String.fromCharCodes(bytes),
         filename: name,
         format: format,
       );
     }
-    return ImportSource(bytes: bytes, filename: name);
+    return ImportSource.bytes(bytes: bytes, filename: name);
   }
 
   Future<void> _importFileReplace() async {
     final src = await _pickSource(context);
     if (src == null) return;
     try {
-      if (src.text != null) {
-        await _importer.importText(
-          controller: _controller,
-          text: src.text!,
-          format: src.format,
-        );
-      } else if (src.bytes != null) {
-        await _importer.importBytes(
-          controller: _controller,
-          bytes: src.bytes!,
-          filename: src.filename,
-        );
+      switch (src) {
+        case ImportSourceText():
+          await _importer.importText(
+            controller: _controller,
+            text: src.text,
+            format: src.format,
+          );
+        case ImportSourceBytes():
+          await _importer.importBytes(
+            controller: _controller,
+            bytes: src.bytes,
+            filename: src.filename,
+          );
       }
       setState(() => _status = 'Replaced document from ${src.filename}');
     } catch (e) {

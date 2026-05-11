@@ -54,7 +54,18 @@ class QuillDeltaEditor extends StatefulWidget {
     this.focusNode,
     this.scrollController,
     this.onSelectionChanged,
-  });
+    this.editorConfig,
+    this.editorConfigBuilder,
+    this.toolbarConfig,
+    this.toolbarConfigBuilder,
+  })  : assert(
+          editorConfig == null || editorConfigBuilder == null,
+          'Use editorConfig OR editorConfigBuilder, not both.',
+        ),
+        assert(
+          toolbarConfig == null || toolbarConfigBuilder == null,
+          'Use toolbarConfig OR toolbarConfigBuilder, not both.',
+        );
 
   /// flutter_quill document controller. Caller owns lifecycle.
   final QuillController controller;
@@ -72,6 +83,42 @@ class QuillDeltaEditor extends StatefulWidget {
   final FocusNode? focusNode;
   final ScrollController? scrollController;
   final void Function(TextSelection)? onSelectionChanged;
+
+  /// Full pass-through [QuillEditorConfig]. When non-null, **replaces** the
+  /// layout-derived config in full — the only thing the wrapper still
+  /// controls is the outer container chrome (e.g. wrapping the editor in
+  /// `SizedBox(height:)` for [FixedHeightLayout] or `Expanded` for
+  /// [ExpandedLayout]). Use this for raw drop-in equivalence with
+  /// flutter_quill's [QuillEditor].
+  ///
+  /// Mutually exclusive with [editorConfigBuilder].
+  final QuillEditorConfig? editorConfig;
+
+  /// Layered pass-through. Receives the layout-derived [QuillEditorConfig]
+  /// and returns the final config. Best when you want to keep most of the
+  /// preset (padding, placeholder, scrollable, minHeight, maxHeight,
+  /// embedBuilders, …) and override just a handful of fields using
+  /// [QuillEditorConfig.copyWith].
+  ///
+  /// Mutually exclusive with [editorConfig].
+  final QuillEditorConfig Function(QuillEditorConfig preset)? editorConfigBuilder;
+
+  /// Full pass-through [QuillSimpleToolbarConfig]. When non-null,
+  /// **replaces** the preset-derived toolbar config in full. Use to access
+  /// flutter_quill toolbar fields the preset does not expose
+  /// (iconTheme, dialogTheme, decoration, embedButtons, linkDialogAction,
+  /// alternative link/header dialog styles, …).
+  ///
+  /// Mutually exclusive with [toolbarConfigBuilder].
+  final QuillSimpleToolbarConfig? toolbarConfig;
+
+  /// Layered toolbar pass-through. Receives the preset-derived
+  /// [QuillSimpleToolbarConfig] and returns the final one. Pair with
+  /// `QuillSimpleToolbarConfigCopyWithX.copyWith` to flip individual fields
+  /// without re-listing the entire config.
+  ///
+  /// Mutually exclusive with [toolbarConfig].
+  final QuillSimpleToolbarConfig Function(QuillSimpleToolbarConfig preset)? toolbarConfigBuilder;
 
   @override
   State<QuillDeltaEditor> createState() => _QuillDeltaEditorState();
@@ -130,12 +177,41 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
   /// chosen container (Column, Stack, etc.).
   Widget _buildEditorCore() {
     final layout = widget.layout;
-    // AutoGrow: editor must scroll internally once content exceeds
-    // [maxHeight]. With scrollable=false the editor would render
-    // unbounded and overflow the parent. Combining scrollable=true +
-    // expands=false + min/maxHeight gives the right "grow to content,
-    // then scroll" behavior.
-    final editorConfig = QuillEditorConfig(
+    final core = QuillEditor(
+      key: _quillEditorKey,
+      focusNode: _focusNode,
+      scrollController: _scrollController,
+      controller: widget.controller,
+      config: _resolvedEditorConfig(),
+    );
+
+    return switch (layout) {
+      FixedHeightLayout(:final height) => SizedBox(height: height, child: core),
+      _ => core,
+    };
+  }
+
+  /// Compute the [QuillEditorConfig] applied to the inner [QuillEditor].
+  ///
+  /// Precedence (highest first):
+  ///   1. [widget.editorConfig] — caller supplied a full override.
+  ///   2. [widget.editorConfigBuilder] — caller layers on top of preset.
+  ///   3. preset derived from [widget.layout].
+  ///
+  /// AutoGrow note: editor must scroll internally once content exceeds
+  /// `maxHeight`. With `scrollable=false` the editor renders unbounded and
+  /// overflows the parent. `scrollable=true + expands=false +
+  /// min/maxHeight` gives "grow to content, then scroll".
+  QuillEditorConfig _resolvedEditorConfig() {
+    if (widget.editorConfig != null) return widget.editorConfig!;
+    final preset = _presetEditorConfig();
+    final builder = widget.editorConfigBuilder;
+    return builder != null ? builder(preset) : preset;
+  }
+
+  QuillEditorConfig _presetEditorConfig() {
+    final layout = widget.layout;
+    return QuillEditorConfig(
       padding: layout.padding,
       placeholder: layout.placeholder,
       autoFocus: layout.autoFocus,
@@ -149,19 +225,6 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
         _ => null,
       },
     );
-
-    final core = QuillEditor(
-      key: _quillEditorKey,
-      focusNode: _focusNode,
-      scrollController: _scrollController,
-      controller: widget.controller,
-      config: editorConfig,
-    );
-
-    return switch (layout) {
-      FixedHeightLayout(:final height) => SizedBox(height: height, child: core),
-      _ => core,
-    };
   }
 
   /// True when the layout asks the widget to fill its parent's vertical
@@ -182,10 +245,7 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
       TopToolbar() => Column(
           mainAxisSize: _expanding ? MainAxisSize.max : MainAxisSize.min,
           children: [
-            _toolbarChrome(
-              buildSimpleToolbar(controller: widget.controller, config: tb),
-              tb,
-            ),
+            _toolbarChrome(_buildSimpleToolbar(tb), tb),
             if (_expanding) Expanded(child: core) else core,
           ],
         ),
@@ -193,19 +253,13 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
           mainAxisSize: _expanding ? MainAxisSize.max : MainAxisSize.min,
           children: [
             if (_expanding) Expanded(child: core) else core,
-            _toolbarChrome(
-              buildSimpleToolbar(controller: widget.controller, config: tb),
-              tb,
-            ),
+            _toolbarChrome(_buildSimpleToolbar(tb), tb),
           ],
         ),
       FloatingToolbar(:final position, :final margin) => _withFloating(
           context: context,
           editor: core,
-          toolbar: buildSimpleToolbar(
-            controller: widget.controller,
-            config: tb,
-          ),
+          toolbar: _buildSimpleToolbar(tb),
           position: position,
           margin: margin,
           config: tb,
@@ -218,6 +272,8 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
           controller: widget.controller,
           config: tb,
           editorKey: _quillEditorKey,
+          overrideToolbarConfig: widget.toolbarConfig,
+          toolbarConfigBuilder: widget.toolbarConfigBuilder,
           child: _expanding ? SizedBox.expand(child: core) : core,
         ),
       CustomToolbar(:final builder, :final placement) =>
@@ -317,6 +373,15 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
           ],
         ),
     };
+  }
+
+  Widget _buildSimpleToolbar(ToolbarConfig config) {
+    return buildSimpleToolbar(
+      controller: widget.controller,
+      config: config,
+      overrideConfig: widget.toolbarConfig,
+      builder: widget.toolbarConfigBuilder,
+    );
   }
 
   List<EmbedBuilder> _resolvedEmbedBuilders() {

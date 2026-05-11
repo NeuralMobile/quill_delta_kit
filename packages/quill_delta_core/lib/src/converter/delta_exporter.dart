@@ -25,5 +25,7 @@ abstract class DeltaExporter<TOut, TOpts extends ConverterOptions> {
 
   /// Convert [delta] to [TOut]. When [options] is omitted, [defaultOptions]
   /// is used.
+  ///
+  /// Throws [ExportException] when serialisation fails.
   Future<TOut> export(Delta delta, {TOpts? options});
 }

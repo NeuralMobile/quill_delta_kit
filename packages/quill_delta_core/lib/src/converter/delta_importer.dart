@@ -33,6 +33,11 @@ abstract class DeltaImporter<TIn, TOpts extends ConverterOptions> {
   /// Convert [input] to a [Delta]. When [options] is omitted,
   /// [defaultOptions] is used.
   ///
-  /// Throws [FormatException] if [input] cannot be parsed.
+  /// Throws:
+  /// - [MalformedDocumentException] when the input is recognisably the right
+  ///   format but structurally invalid.
+  /// - [UnsupportedFormatException] when the importer recognises a feature
+  ///   it does not yet handle.
+  /// - [ImportException] for any other failure surfaced during parsing.
   Future<Delta> import(TIn input, {TOpts? options});
 }

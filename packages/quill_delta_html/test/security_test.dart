@@ -22,11 +22,11 @@ void main() {
 
     test('strict allowedHosts blocks unknown host', () {
       final c = QuillHtmlCodec(
-        options: const QuillHtmlOptions(
+        options: QuillHtmlOptions(
           wrapDocument: false,
           iframePolicy: IframePolicy(
-            allowedSchemes: {'https'},
-            allowedHosts: {'youtube.com', 'www.youtube.com', 'vimeo.com', 'player.vimeo.com'},
+            allowedSchemes: const {'https'},
+            allowedHosts: const {'youtube.com', 'www.youtube.com', 'vimeo.com', 'player.vimeo.com'},
           ),
         ),
       );

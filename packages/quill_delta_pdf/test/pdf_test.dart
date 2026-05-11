@@ -11,10 +11,10 @@ void main() {
       expect(i.mimeTypes, contains('application/pdf'));
     });
 
-    test('throws UnimplementedError', () async {
+    test('throws UnsupportedFormatException', () async {
       await expectLater(
         () => const PdfImporter().import([0x25, 0x50, 0x44, 0x46]),
-        throwsA(isA<UnimplementedError>()),
+        throwsA(isA<UnsupportedFormatException>()),
       );
     });
   });

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
 /// Toolbar visual density.
@@ -29,9 +29,13 @@ enum ToolbarButtonId {
   italic,
   underline,
   strike,
+  small,
   inlineCode,
+  subscript,
+  superscript,
   fontFamily,
   fontSize,
+  lineHeight,
   color,
   background,
   link,
@@ -49,12 +53,16 @@ enum ToolbarButtonId {
   alignJustify,
   indent,
   outdent,
+  direction,
   image,
   video,
   divider,
   formula,
   clearFormat,
   search,
+  clipboardCut,
+  clipboardCopy,
+  clipboardPaste,
 }
 
 /// One logical group of buttons rendered as a contiguous toolbar segment.
@@ -73,6 +81,8 @@ sealed class ToolbarConfig {
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     this.toolbarSize = 36,
     this.customButtons = const [],
+    this.multiRowsDisplay = false,
+    this.sectionDividerColor = Colors.transparent,
   });
 
   final ToolbarStyle style;
@@ -87,6 +97,14 @@ sealed class ToolbarConfig {
   /// with custom actions.
   final List<QuillToolbarCustomButtonOptions> customButtons;
 
+  /// Render the toolbar across multiple rows when content overflows. Default
+  /// `false` keeps the single-row horizontally-scrolling toolbar.
+  final bool multiRowsDisplay;
+
+  /// Color drawn between toolbar sections. Default [Colors.transparent]
+  /// preserves the wrapper's flat look; set explicitly to expose dividers.
+  final Color? sectionDividerColor;
+
   const factory ToolbarConfig.top({
     ToolbarStyle style,
     List<ToolbarSection>? sections,
@@ -94,6 +112,8 @@ sealed class ToolbarConfig {
     EdgeInsets padding,
     double toolbarSize,
     List<QuillToolbarCustomButtonOptions> customButtons,
+    bool multiRowsDisplay,
+    Color? sectionDividerColor,
   }) = TopToolbar;
 
   const factory ToolbarConfig.bottom({
@@ -103,6 +123,8 @@ sealed class ToolbarConfig {
     EdgeInsets padding,
     double toolbarSize,
     List<QuillToolbarCustomButtonOptions> customButtons,
+    bool multiRowsDisplay,
+    Color? sectionDividerColor,
   }) = BottomToolbar;
 
   const factory ToolbarConfig.floating({
@@ -114,6 +136,8 @@ sealed class ToolbarConfig {
     double toolbarSize,
     EdgeInsets margin,
     List<QuillToolbarCustomButtonOptions> customButtons,
+    bool multiRowsDisplay,
+    Color? sectionDividerColor,
   }) = FloatingToolbar;
 
   const factory ToolbarConfig.none() = NoToolbar;
@@ -130,6 +154,8 @@ sealed class ToolbarConfig {
     EdgeInsets padding,
     double toolbarSize,
     List<QuillToolbarCustomButtonOptions> customButtons,
+    bool multiRowsDisplay,
+    Color? sectionDividerColor,
   }) = SelectionToolbar;
 
   /// Fully custom toolbar. The wrapper renders the result of [builder] in
@@ -156,6 +182,8 @@ final class TopToolbar extends ToolbarConfig {
     super.padding,
     super.toolbarSize,
     super.customButtons,
+    super.multiRowsDisplay,
+    super.sectionDividerColor,
   });
 }
 
@@ -167,6 +195,8 @@ final class BottomToolbar extends ToolbarConfig {
     super.padding,
     super.toolbarSize,
     super.customButtons,
+    super.multiRowsDisplay,
+    super.sectionDividerColor,
   });
 }
 
@@ -180,6 +210,8 @@ final class FloatingToolbar extends ToolbarConfig {
     super.padding,
     super.toolbarSize,
     super.customButtons,
+    super.multiRowsDisplay,
+    super.sectionDividerColor,
   });
   final FloatingToolbarPosition position;
   final EdgeInsets margin;
@@ -209,6 +241,8 @@ final class SelectionToolbar extends ToolbarConfig {
     super.padding,
     super.toolbarSize,
     super.customButtons,
+    super.multiRowsDisplay,
+    super.sectionDividerColor,
   });
   final SelectionAnchor anchor;
 

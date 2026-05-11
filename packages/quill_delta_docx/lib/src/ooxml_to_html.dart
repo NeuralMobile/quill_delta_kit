@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:archive/archive.dart';
+import 'package:quill_delta_core/quill_delta_core.dart';
 import 'package:xml/xml.dart';
 
 /// Convert .docx bytes -> minimal HTML string.
@@ -12,10 +13,21 @@ import 'package:xml/xml.dart';
 /// Out of scope: tables, images, comments, track changes, footnotes,
 /// section properties, theme-aware fonts. Those land in follow-ups.
 String docxToHtml(List<int> bytes) {
-  final archive = ZipDecoder().decodeBytes(bytes);
+  late final Archive archive;
+  try {
+    archive = ZipDecoder().decodeBytes(bytes);
+  } catch (e, st) {
+    throw MalformedDocumentException(
+      'docx',
+      'Could not unzip .docx archive.',
+      cause: e,
+      causeStack: st,
+    );
+  }
   final docFile = archive.files.firstWhere(
     (f) => f.name == 'word/document.xml',
-    orElse: () => throw const FormatException(
+    orElse: () => throw const MalformedDocumentException(
+      'docx',
       'Not a valid .docx: missing word/document.xml',
     ),
   );

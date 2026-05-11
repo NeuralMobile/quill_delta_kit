@@ -4,7 +4,8 @@
 ///
 /// The package reserves the namespace and ships:
 ///   - [PdfOptions] so callers can wire up options ahead of implementation
-///   - [PdfImporter] / [PdfExporter] stubs that throw [UnimplementedError]
+///   - [PdfImporter] (throws [UnsupportedFormatException]) and
+///     [PdfExporter] (working v0.1 implementation)
 ///
 /// The full implementation is tracked in the issue tracker. PDF round trip
 /// is fundamentally lossy (PDF has no native concept of inline marks like

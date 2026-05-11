@@ -11,8 +11,7 @@
 library quill_delta_core;
 
 export 'src/converter/converter_options.dart';
-export 'src/converter/converter_registry.dart'
-    show ConverterRegistry, ConverterNotFound, sniffMagicBytes, sniffExtension;
+export 'src/converter/converter_registry.dart' show ConverterRegistry, sniffMagicBytes, sniffExtension;
 export 'src/converter/delta_exporter.dart';
 export 'src/converter/delta_importer.dart';
 export 'src/converter/embed_adapter_base.dart';
@@ -23,4 +22,5 @@ export 'src/converter/options/markdown_options.dart';
 export 'src/css/color.dart';
 export 'src/css/size.dart';
 export 'src/delta/line_splitter.dart';
+export 'src/errors.dart';
 export 'src/schema/attributes.dart';

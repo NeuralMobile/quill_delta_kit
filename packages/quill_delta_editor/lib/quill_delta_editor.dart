@@ -20,3 +20,20 @@ export 'src/import/import_toolbar_button.dart';
 export 'src/import/quill_document_importer.dart';
 export 'src/quill_delta_editor.dart';
 export 'src/toolbar/selection_toolbar_overlay.dart';
+export 'src/toolbar/toolbar_config_copy_with.dart';
+
+// flutter_quill config types so callers can build override configs without
+// a second import.
+export 'package:flutter_quill/flutter_quill.dart'
+    show
+        QuillEditorConfig,
+        QuillSimpleToolbarConfig,
+        QuillSimpleToolbarButtonOptions,
+        QuillToolbarCustomButtonOptions,
+        QuillIconTheme,
+        QuillDialogTheme,
+        LinkStyleType,
+        HeaderStyleType,
+        DefaultStyles,
+        DefaultListBlockStyle,
+        DefaultTextBlockStyle;

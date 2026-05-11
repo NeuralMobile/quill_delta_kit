@@ -41,7 +41,7 @@ class QuillDocumentImporter {
 
   /// Build a [ConverterRegistry] preloaded with HTML, Markdown, and Docx
   /// importers. PDF intentionally absent (the importer is a stub that
-  /// throws [UnimplementedError]; surface that only when explicitly
+  /// throws [UnsupportedFormatException]; surface that only when explicitly
   /// requested).
   static ConverterRegistry defaultRegistry() => ConverterRegistry(
         importers: [

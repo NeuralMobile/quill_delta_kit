@@ -11,7 +11,9 @@ environment:
 resolution: workspace
 
 dependencies:
+  collection: ^1.18.0
   dart_quill_delta: ^10.8.0
+  meta: ^1.16.0
   # `test` is a runtime dep because the test contract suite (exposed via
   # `quill_delta_core_test_contract.dart`) is consumed by other format
   # packages' tests. Format packages don't need `test` as a separate dep.

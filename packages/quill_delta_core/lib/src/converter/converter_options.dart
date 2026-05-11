@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 /// Behaviour when a [Delta] embed type has no registered serializer for the
 /// target format.
 enum UnknownEmbedFallback {
@@ -17,6 +19,7 @@ enum UnknownEmbedFallback {
 ///
 /// All subclasses must be const-constructible so callers can declare
 /// compile-time defaults.
+@immutable
 abstract class ConverterOptions {
   const ConverterOptions({
     this.unknownEmbedFallback = UnknownEmbedFallback.passthrough,

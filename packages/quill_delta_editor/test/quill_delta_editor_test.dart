@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart' show Document, FlutterQuillLocalizations, QuillSimpleToolbar;
+import 'package:flutter_quill/flutter_quill.dart'
+    show Document, FlutterQuillLocalizations, QuillEditor, QuillSimpleToolbar;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta_editor/quill_delta_editor.dart';
 
@@ -356,6 +357,118 @@ void main() {
       expect(receivedUrl, 'https://x.test/auth.png');
       expect(find.byKey(const Key('CUSTOM_IMG')), findsOneWidget);
       controller.dispose();
+    });
+  });
+
+  group('Drop-in pass-through overrides', () {
+    testWidgets('editorConfigBuilder receives preset and overrides padding',
+        (tester) async {
+      QuillEditorConfig? received;
+      final controller = QuillController.basic();
+      await tester.pumpWidget(_wrap(QuillDeltaEditor(
+        controller: controller,
+        layout: const EditorLayoutConfig.fixed(height: 240),
+        toolbar: const ToolbarConfig.none(),
+        editorConfigBuilder: (preset) {
+          received = preset;
+          return preset.copyWith(
+            padding: const EdgeInsets.all(99),
+            customStyles: const DefaultStyles(),
+          );
+        },
+      )));
+      await tester.pump();
+      expect(received, isNotNull);
+      expect(received!.padding, const EdgeInsets.all(12));
+      controller.dispose();
+    });
+
+    testWidgets('editorConfig override replaces preset wholly', (tester) async {
+      final controller = QuillController.basic();
+      const override = QuillEditorConfig(
+        padding: EdgeInsets.all(7),
+        scrollable: true,
+      );
+      await tester.pumpWidget(_wrap(QuillDeltaEditor(
+        controller: controller,
+        layout: const EditorLayoutConfig.fixed(height: 240),
+        toolbar: const ToolbarConfig.none(),
+        editorConfig: override,
+      )));
+      await tester.pump();
+      final qe = tester.widget<QuillEditor>(find.byType(QuillEditor));
+      expect(qe.config.padding, const EdgeInsets.all(7));
+      controller.dispose();
+    });
+
+    testWidgets('toolbarConfigBuilder flips showSubscript on preset',
+        (tester) async {
+      await tester.runAsync(() async {
+        QuillSimpleToolbarConfig? received;
+        final controller = QuillController.basic();
+        await tester.pumpWidget(_wrap(QuillDeltaEditor(
+          controller: controller,
+          layout: const EditorLayoutConfig.fixed(height: 200),
+          toolbar: const ToolbarConfig.top(style: ToolbarStyle.minimal),
+          toolbarConfigBuilder: (preset) {
+            received = preset;
+            return preset.copyWith(showSubscript: true, showDirection: true);
+          },
+        )));
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(received, isNotNull);
+        expect(received!.showSubscript, false);
+        final tb = tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
+        expect(tb.config.showSubscript, true);
+        expect(tb.config.showDirection, true);
+        controller.dispose();
+      });
+    });
+
+    testWidgets('toolbarConfig direct override replaces preset', (tester) async {
+      await tester.runAsync(() async {
+        final controller = QuillController.basic();
+        const override = QuillSimpleToolbarConfig(
+          showBoldButton: false,
+          showItalicButton: false,
+          showSubscript: true,
+        );
+        await tester.pumpWidget(_wrap(QuillDeltaEditor(
+          controller: controller,
+          layout: const EditorLayoutConfig.fixed(height: 200),
+          toolbar: const ToolbarConfig.top(),
+          toolbarConfig: override,
+        )));
+        await tester.pump(const Duration(milliseconds: 50));
+        final tb = tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
+        expect(tb.config.showBoldButton, false);
+        expect(tb.config.showSubscript, true);
+        controller.dispose();
+      });
+    });
+
+    testWidgets('full button set toggles every newly-added enum entry',
+        (tester) async {
+      // Regression: ToolbarStyle.full returns every ToolbarButtonId value;
+      // each new id (direction/subscript/superscript/lineHeight/small/
+      // clipboard*) must thread through to a flutter_quill showXxx flag.
+      await tester.runAsync(() async {
+        final controller = QuillController.basic();
+        await tester.pumpWidget(_wrap(QuillDeltaEditor(
+          controller: controller,
+          layout: const EditorLayoutConfig.fixed(height: 200),
+          toolbar: const ToolbarConfig.top(style: ToolbarStyle.full),
+        )));
+        await tester.pump(const Duration(milliseconds: 50));
+        final tb = tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
+        expect(tb.config.showDirection, true);
+        expect(tb.config.showSubscript, true);
+        expect(tb.config.showSuperscript, true);
+        expect(tb.config.showLineHeightButton, true);
+        expect(tb.config.showSmallButton, true);
+        expect(tb.config.showDividers, true);
+        controller.dispose();
+      });
     });
   });
 }

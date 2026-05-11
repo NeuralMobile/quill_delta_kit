@@ -138,11 +138,11 @@ void main() {
   });
 
   group('PDF importer stub', () {
-    test('rejects with UnimplementedError on real PDF bytes', () async {
+    test('rejects with UnsupportedFormatException on real PDF bytes', () async {
       final pdfBytes = await exp.export(Delta()..insert('x\n'));
       await expectLater(
         () => const PdfImporter().import(pdfBytes),
-        throwsA(isA<UnimplementedError>()),
+        throwsA(isA<UnsupportedFormatException>()),
       );
     });
   });
