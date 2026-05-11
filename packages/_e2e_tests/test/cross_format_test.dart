@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dart_quill_delta/dart_quill_delta.dart';
-import 'package:quill_delta_core/quill_delta_core.dart';
 import 'package:quill_delta_docx/quill_delta_docx.dart';
 import 'package:quill_delta_html/quill_delta_html.dart';
 import 'package:quill_delta_markdown/quill_delta_markdown.dart';

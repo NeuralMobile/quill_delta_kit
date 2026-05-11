@@ -13,7 +13,7 @@ void main() {
   final exp = const PdfExporter();
   // For structural inspection we disable compression so /Type entries are in
   // plain text rather than inside FlateDecode object streams.
-  const _uncompressed = PdfOptions(compress: false);
+  const uncompressed = PdfOptions(compress: false);
 
   group('PDF byte structure', () {
     test('header is %PDF-1.x', () async {
@@ -39,14 +39,14 @@ void main() {
     });
 
     test('declares at least one page object', () async {
-      final bytes = await exp.export(Delta()..insert('x\n'), options: _uncompressed);
+      final bytes = await exp.export(Delta()..insert('x\n'), options: uncompressed);
       final body = _asLatin1(bytes);
       expect(body, contains('/Pages'));
       expect(RegExp(r'/Page\b').hasMatch(body), true);
     });
 
     test('catalog object present', () async {
-      final bytes = await exp.export(Delta()..insert('x\n'), options: _uncompressed);
+      final bytes = await exp.export(Delta()..insert('x\n'), options: uncompressed);
       final body = _asLatin1(bytes);
       expect(body, contains('/Catalog'));
     });
@@ -94,7 +94,7 @@ void main() {
       for (var i = 0; i < 200; i++) {
         delta.insert('Paragraph $i.\n');
       }
-      final bytes = await exp.export(delta, options: _uncompressed);
+      final bytes = await exp.export(delta, options: uncompressed);
       final body = _asLatin1(bytes);
       // pw.MultiPage breaks into multiple page objects.
       final pageCount = RegExp(r'/Page\b').allMatches(body).length;
@@ -107,7 +107,7 @@ void main() {
         ..insert('see ')
         ..insert('here', {'link': 'https://example.com'})
         ..insert('\n');
-      final bytes = await exp.export(delta, options: _uncompressed);
+      final bytes = await exp.export(delta, options: uncompressed);
       final body = _asLatin1(bytes);
       expect(body, contains('/URI'));
       expect(body, contains('example.com'));

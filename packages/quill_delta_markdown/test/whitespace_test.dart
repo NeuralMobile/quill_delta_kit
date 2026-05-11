@@ -14,7 +14,7 @@ void main() {
   final exp = const MarkdownExporter();
   final imp = MarkdownImporter();
 
-  String _plain(Delta d) => d.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+  String plain(Delta d) => d.operations.where((op) => op.data is String).map((op) => op.data as String).join();
 
   group('exporter — significant unicode spaces survive verbatim', () {
     final cases = <String, String>{
@@ -77,7 +77,7 @@ void main() {
         final md = await exp.export(delta);
         final back = await imp.import(md);
         // Round-tripped plain text contains the original codepoint.
-        expect(_plain(back), contains(entry.value));
+        expect(plain(back), contains(entry.value));
       });
     }
   });
@@ -88,13 +88,13 @@ void main() {
       // our HTML pivot path preserves them via the decoder's text node.
       final md = await exp.export(Delta()..insert('a   b\n'));
       final back = await imp.import(md);
-      expect(_plain(back), contains('a   b'));
+      expect(plain(back), contains('a   b'));
     });
 
     test('leading spaces preserved through round trip', () async {
       final md = await exp.export(Delta()..insert('   abc\n'));
       final back = await imp.import(md);
-      expect(_plain(back), contains('abc'));
+      expect(plain(back), contains('abc'));
     });
   });
 
@@ -105,7 +105,7 @@ void main() {
         ..insert('\n', {'code-block': true});
       final md = await exp.export(delta);
       final back = await imp.import(md);
-      expect(_plain(back), contains('a   b'));
+      expect(plain(back), contains('a   b'));
     });
 
     test('leading whitespace in code-block survives round trip', () async {
@@ -114,7 +114,7 @@ void main() {
         ..insert('\n', {'code-block': true});
       final md = await exp.export(delta);
       final back = await imp.import(md);
-      expect(_plain(back), contains('   indented'));
+      expect(plain(back), contains('   indented'));
     });
 
     test('tab in code-block survives round trip', () async {
@@ -123,7 +123,7 @@ void main() {
         ..insert('\n', {'code-block': true});
       final md = await exp.export(delta);
       final back = await imp.import(md);
-      expect(_plain(back), contains('a\tb'));
+      expect(plain(back), contains('a\tb'));
     });
   });
 }

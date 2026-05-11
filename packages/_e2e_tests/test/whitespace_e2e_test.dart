@@ -10,9 +10,9 @@ import 'package:test/test.dart';
 /// Three formats round-trip via Delta (html, markdown, docx). PDF is one-way
 /// and has its own per-format whitespace tests.
 void main() {
-  String _plain(Delta d) => d.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+  String plain(Delta d) => d.operations.where((op) => op.data is String).map((op) => op.data as String).join();
 
-  Future<Delta> _viaHtml(Delta d) async {
+  Future<Delta> viaHtml(Delta d) async {
     final html = await HtmlExporter(
       defaultOptions: const HtmlOptions(wrapDocument: false),
     ).export(d);
@@ -21,12 +21,12 @@ void main() {
     ).import(html);
   }
 
-  Future<Delta> _viaMarkdown(Delta d) async {
+  Future<Delta> viaMarkdown(Delta d) async {
     final md = await const MarkdownExporter().export(d);
     return MarkdownImporter().import(md);
   }
 
-  Future<Delta> _viaDocx(Delta d) async {
+  Future<Delta> viaDocx(Delta d) async {
     final bytes = await const DocxExporter().export(d);
     return DocxImporter().import(bytes);
   }
@@ -51,15 +51,15 @@ void main() {
         final delta = Delta()..insert('${entry.value}\n');
 
         test('html round trip', () async {
-          expect(_plain(await _viaHtml(delta)), contains(entry.value));
+          expect(plain(await viaHtml(delta)), contains(entry.value));
         });
 
         test('markdown round trip', () async {
-          expect(_plain(await _viaMarkdown(delta)), contains(entry.value));
+          expect(plain(await viaMarkdown(delta)), contains(entry.value));
         });
 
         test('docx round trip', () async {
-          expect(_plain(await _viaDocx(delta)), contains(entry.value));
+          expect(plain(await viaDocx(delta)), contains(entry.value));
         });
       });
     }
@@ -80,15 +80,15 @@ void main() {
         final delta = Delta()..insert('${entry.value}\n');
 
         test('html round trip preserves', () async {
-          expect(_plain(await _viaHtml(delta)), contains(entry.value));
+          expect(plain(await viaHtml(delta)), contains(entry.value));
         });
 
         test('docx round trip preserves', () async {
-          expect(_plain(await _viaDocx(delta)), contains(entry.value));
+          expect(plain(await viaDocx(delta)), contains(entry.value));
         });
 
         test('markdown round trip strips edge spaces (CommonMark)', () async {
-          final back = _plain(await _viaMarkdown(delta));
+          final back = plain(await viaMarkdown(delta));
           expect(back, contains('abc'));
           // The trimmed-edge whitespace is gone after markdown round trip.
           expect(back.contains(entry.value), false);
@@ -112,15 +112,15 @@ void main() {
           ..insert('\n', {'code-block': true});
 
         test('html', () async {
-          expect(_plain(await _viaHtml(delta)), contains(entry.value));
+          expect(plain(await viaHtml(delta)), contains(entry.value));
         });
 
         test('markdown', () async {
-          expect(_plain(await _viaMarkdown(delta)), contains(entry.value));
+          expect(plain(await viaMarkdown(delta)), contains(entry.value));
         });
 
         test('docx', () async {
-          expect(_plain(await _viaDocx(delta)), contains(entry.value));
+          expect(plain(await viaDocx(delta)), contains(entry.value));
         });
       });
     }
@@ -131,7 +131,7 @@ void main() {
       final delta = Delta()
         ..insert('a   b', {'bold': true})
         ..insert('\n');
-      final back = await _viaHtml(delta);
+      final back = await viaHtml(delta);
       final boldOp = back.operations.firstWhere(
         (op) => op.attributes != null && op.attributes!['bold'] == true,
         orElse: () => Operation.insert(''),
@@ -143,7 +143,7 @@ void main() {
       final delta = Delta()
         ..insert('a   b', {'bold': true})
         ..insert('\n');
-      final back = await _viaDocx(delta);
+      final back = await viaDocx(delta);
       final boldOp = back.operations.firstWhere(
         (op) => op.attributes != null && op.attributes!['bold'] == true,
         orElse: () => Operation.insert(''),
@@ -156,9 +156,9 @@ void main() {
       final delta = Delta()
         ..insert(text, {'italic': true})
         ..insert('\n');
-      for (final via in [_viaHtml, _viaMarkdown, _viaDocx]) {
+      for (final via in [viaHtml, viaMarkdown, viaDocx]) {
         final back = await via(delta);
-        expect(_plain(back), contains(text));
+        expect(plain(back), contains(text));
       }
     });
   });

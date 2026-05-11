@@ -15,9 +15,9 @@ import 'package:test/test.dart';
 /// the document is well-formed".
 void main() {
   final exp = const PdfExporter();
-  const _u = PdfOptions(compress: false);
+  const u = PdfOptions(compress: false);
 
-  String _body(List<int> bytes) => latin1.decode(bytes, allowInvalid: true);
+  String body0(List<int> bytes) => latin1.decode(bytes, allowInvalid: true);
 
   group('PdfExporter does not crash on whitespace inputs', () {
     final cases = <String, String>{
@@ -40,12 +40,12 @@ void main() {
       test(entry.key, () async {
         final bytes = await exp.export(
           Delta()..insert('${entry.value}\n'),
-          options: _u,
+          options: u,
         );
         // Header + EOF -> well-formed PDF.
         expect(bytes[0], 0x25); // %
         expect(bytes[1], 0x50); // P
-        final tail = _body(bytes.sublist(bytes.length - 32));
+        final tail = body0(bytes.sublist(bytes.length - 32));
         expect(tail, contains('%%EOF'));
       });
     }
@@ -55,9 +55,9 @@ void main() {
     test('multiple internal spaces emitted in content stream', () async {
       final bytes = await exp.export(
         Delta()..insert('hello   world\n'),
-        options: _u,
+        options: u,
       );
-      final body = _body(bytes);
+      final body = body0(bytes);
       // package:pdf writes (hello   world) Tj in the content stream when
       // compression is disabled. The literal substring should appear.
       expect(body, contains('hello'));
@@ -71,8 +71,8 @@ void main() {
         ..insert('a b\n')
         ..insert('next line\n')
         ..insert('final line\n');
-      final bytes = await exp.export(delta, options: _u);
-      final body = _body(bytes);
+      final bytes = await exp.export(delta, options: u);
+      final body = body0(bytes);
       expect(body, contains('next'));
       expect(body, contains('final'));
       expect(body, contains('%%EOF'));
