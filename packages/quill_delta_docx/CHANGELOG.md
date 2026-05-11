@@ -1,3 +1,9 @@
+## 0.1.1 - 2026-05-11
+
+* Bump `archive` constraint to `^4.0.0` (track latest stable).
+* Widen `xml` constraint to `>=6.5.0 <8.0.0` (xml 7 supported; xml 6 still
+  resolves transitively through `package:pdf`).
+
 ## 0.1.0 - 2026-05-11
 
 Initial release.
