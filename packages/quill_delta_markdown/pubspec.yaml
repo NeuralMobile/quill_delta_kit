@@ -4,6 +4,13 @@ description: >-
   HTML; exporter walks Delta lines natively.
 version: 0.1.0
 repository: https://github.com/yourname/quill_delta_html
+issue_tracker: https://github.com/yourname/quill_delta_html/issues
+topics:
+  - quill
+  - delta
+  - markdown
+  - editor
+  - converter
 
 environment:
   sdk: ^3.6.0
