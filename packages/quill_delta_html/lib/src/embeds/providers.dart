@@ -171,7 +171,9 @@ class TweetAdapter extends EmbedAdapter {
   bool matches(dom.Element element) {
     final cls = element.attributes['class'] ?? '';
     if (element.localName == 'blockquote' &&
-        cls.split(' ').contains('twitter-tweet')) return true;
+        cls.split(' ').contains('twitter-tweet')) {
+      return true;
+    }
     if (element.localName == 'iframe') {
       final src = element.attributes['src'] ?? '';
       return _re.hasMatch(src) && src.contains('/embed');

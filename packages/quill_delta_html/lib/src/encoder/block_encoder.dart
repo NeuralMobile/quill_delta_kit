@@ -82,7 +82,9 @@ class BlockEncoder {
           if (bb['blockquote'] == null || bb['blockquote'] == false) break;
           if (bb['list'] != null ||
               bb['code-block'] != null ||
-              bb['header'] != null) break;
+              bb['header'] != null) {
+            break;
+          }
           final styleAttrs = _lineStyleAttrs(bb);
           writer.open('p', styleAttrs);
           for (final op in l.ops) {

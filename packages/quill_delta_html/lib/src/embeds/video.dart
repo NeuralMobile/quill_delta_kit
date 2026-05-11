@@ -88,7 +88,9 @@ class VideoAdapter extends EmbedAdapter {
       if (k == 'src' ||
           k == 'controls' ||
           k == 'frameborder' ||
-          k == 'allowfullscreen') continue;
+          k == 'allowfullscreen') {
+        continue;
+      }
       if (k == 'width' || k == 'height' || k == 'style' || k == 'title') {
         attrs[k] = entry.value;
       }

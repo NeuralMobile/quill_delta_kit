@@ -409,10 +409,12 @@ class HtmlDecoder {
     final textDecoration =
         style['text-decoration'] ?? style['text-decoration-line'];
     if (textDecoration != null) {
-      if (textDecoration.contains('underline'))
+      if (textDecoration.contains('underline')) {
         next = next.with_('underline', true);
-      if (textDecoration.contains('line-through'))
+      }
+      if (textDecoration.contains('line-through')) {
         next = next.with_('strike', true);
+      }
     }
     final verticalAlign = style['vertical-align'];
     if (verticalAlign == 'super' || verticalAlign == 'sub') {

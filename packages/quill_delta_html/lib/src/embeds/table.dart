@@ -78,8 +78,9 @@ class TableAdapter extends EmbedAdapter {
         if (k.startsWith('on')) return true;
         if (k == 'href' || k == 'src') {
           final v = value.toLowerCase().trim();
-          if (v.startsWith('javascript:') || v.startsWith('data:text/html'))
+          if (v.startsWith('javascript:') || v.startsWith('data:text/html')) {
             return true;
+          }
         }
         return false;
       });

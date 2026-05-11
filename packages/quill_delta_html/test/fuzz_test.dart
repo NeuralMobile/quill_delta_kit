@@ -90,10 +90,12 @@ Map<String, dynamic>? _randomInlineAttrs(Random rng) {
     final size = ['small', 'large', 'huge', '14', '16', '20'][rng.nextInt(6)];
     attrs['size'] = size;
   }
-  if (rng.nextDouble() < 0.05)
+  if (rng.nextDouble() < 0.05) {
     attrs['script'] = rng.nextBool() ? 'super' : 'sub';
-  if (rng.nextDouble() < 0.05)
+  }
+  if (rng.nextDouble() < 0.05) {
     attrs['link'] = 'https://example.com/${rng.nextInt(1000)}';
+  }
   return attrs.isEmpty ? null : attrs;
 }
 

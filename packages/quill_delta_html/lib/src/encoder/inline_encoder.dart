@@ -82,8 +82,9 @@ class InlineEncoder {
     final link = attrs['link']?.toString();
     if (link != null && link.isNotEmpty) {
       linkAttrs = <String, String>{'href': link};
-      if (attrs['target'] != null)
+      if (attrs['target'] != null) {
         linkAttrs['target'] = attrs['target'].toString();
+      }
       if (attrs['rel'] != null) linkAttrs['rel'] = attrs['rel'].toString();
     }
 
