@@ -41,3 +41,25 @@ abstract class DeltaImporter<TIn, TOpts extends ConverterOptions> {
   /// - [ImportException] for any other failure surfaced during parsing.
   Future<Delta> import(TIn input, {TOpts? options});
 }
+
+/// Marker interface for [DeltaImporter]s whose work is fully synchronous and
+/// can therefore expose a non-async entry point.
+///
+/// HTML / Markdown / DOCX import all parse in-memory without I/O and run
+/// well under sync semantics; PDF import does not (and may never).
+///
+/// Callers that need throughput on tight loops (golden-file diff tests,
+/// migration scripts) should prefer [importSync] over [DeltaImporter.import]
+/// to skip Future allocation and microtask scheduling overhead.
+abstract interface class SyncDeltaImporter<TIn, TOpts extends ConverterOptions>
+    implements DeltaImporter<TIn, TOpts> {
+  /// Synchronous import. Same contract as [DeltaImporter.import].
+  Delta importSync(TIn input, {TOpts? options});
+}
+
+/// Marker interface for [DeltaExporter]s whose work is fully synchronous.
+/// Pairs with [SyncDeltaImporter].
+abstract interface class SyncDeltaExporter<TOut, TOpts extends ConverterOptions> {
+  /// Synchronous export. Same contract as [DeltaExporter.export].
+  TOut exportSync(Delta delta, {TOpts? options});
+}

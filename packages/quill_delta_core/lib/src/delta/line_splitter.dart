@@ -1,6 +1,16 @@
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 
 /// One Delta op, possibly with a substring of the original insert text.
+///
+/// **Attribute shape contract.** [attributes] is the same
+/// `Map<String, dynamic>` shape used by upstream `dart_quill_delta` —
+/// keys are Quill attribute names ('bold', 'italic', 'color', 'header',
+/// 'list', …) and values follow Quill's per-attribute conventions
+/// (`true`/`null` for toggles, hex / `rgb()` / `rgba()` strings for colors,
+/// integer-coercible values for header levels, …). The map's `dynamic`
+/// value type mirrors upstream; callers should read via guarded `is`
+/// checks before downcasting (`attrs?['bold'] == true`,
+/// `attrs?['header'] is num`).
 class InlineOp {
   InlineOp({required this.data, this.attributes});
 
@@ -15,6 +25,10 @@ class InlineOp {
 }
 
 /// One line = a sequence of inline ops + the block attributes from the trailing `\n`.
+///
+/// [blockAttrs] follows the same dynamic-valued shape as [InlineOp.attributes]
+/// but is filtered to block-level keys (header, list, blockquote, code-block,
+/// indent, align, direction, line-height).
 class Line {
   Line({required this.ops, this.blockAttrs});
 

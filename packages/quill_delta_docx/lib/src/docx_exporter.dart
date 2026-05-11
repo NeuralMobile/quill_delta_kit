@@ -19,7 +19,8 @@ import 'ooxml_parts.dart';
 ///
 /// Out of scope for v0.1: images, comments, track changes, footnotes,
 /// embedded objects, themes, fontTable, sections.
-final class DocxExporter implements DeltaExporter<List<int>, DocxOptions> {
+final class DocxExporter
+    implements DeltaExporter<List<int>, DocxOptions>, SyncDeltaExporter<List<int>, DocxOptions> {
   const DocxExporter({DocxOptions? defaultOptions}) : _defaultOptions = defaultOptions;
 
   final DocxOptions? _defaultOptions;
@@ -42,6 +43,7 @@ final class DocxExporter implements DeltaExporter<List<int>, DocxOptions> {
   }
 
   /// Synchronous variant. ZIP construction is fully synchronous.
+  @override
   List<int> exportSync(Delta delta, {DocxOptions? options}) {
     final result = buildOoxmlBody(delta);
     final documentXml = buildDocumentXml(result.bodyXml);

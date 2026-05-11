@@ -11,6 +11,13 @@ import '../util/html_writer.dart';
 ///     StringBuffer) — there is no intermediate DOM tree.
 ///   - Decode: a parsed HTML element from `package:html`.
 ///
+/// **Value & attribute contract.** [encode]'s `value` parameter is the raw
+/// embed payload as it appears inside the Delta op
+/// (`op['insert'][<type>]`) — the shape is adapter-specific (string for
+/// image src, `Map<String, dynamic>` for table data, …) and adapters
+/// should validate via `is` before downcasting. [siblingAttrs] mirrors the
+/// `Map<String, dynamic>` shape used by upstream `dart_quill_delta`.
+///
 /// Multiple adapters can register; encoder routes by [type], decoder by
 /// [matches].
 abstract class EmbedAdapter {

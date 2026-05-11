@@ -9,7 +9,7 @@ import '../embeds/registry.dart';
 /// HTML string -> Delta. The only format-specific importer that uses
 /// [HtmlDecoder] directly; all other text importers pivot through this via
 /// [HtmlPivotImporter].
-final class HtmlImporter implements DeltaImporter<String, HtmlOptions> {
+final class HtmlImporter implements SyncDeltaImporter<String, HtmlOptions> {
   HtmlImporter({
     EmbedRegistry? registry,
     List<EmbedAdapter> adapters = const [],
@@ -43,6 +43,7 @@ final class HtmlImporter implements DeltaImporter<String, HtmlOptions> {
 
   /// Synchronous variant for callers that need direct sync access (the codec
   /// shim and existing call sites). The async [import] wraps this.
+  @override
   Delta importSync(String input, {HtmlOptions? options}) {
     final opts = options ?? defaultOptions;
     final doc = html_parser.parse(input);

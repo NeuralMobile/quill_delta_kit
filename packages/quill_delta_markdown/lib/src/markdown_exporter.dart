@@ -6,7 +6,8 @@ import 'markdown_embed_adapter.dart';
 /// Delta -> Markdown. Native walker over `splitIntoLines` output. No HTML
 /// pivot, so format-specific decisions (fenced code, GFM tables, task lists)
 /// are made directly.
-final class MarkdownExporter implements DeltaExporter<String, MarkdownOptions> {
+final class MarkdownExporter
+    implements DeltaExporter<String, MarkdownOptions>, SyncDeltaExporter<String, MarkdownOptions> {
   const MarkdownExporter({
     MarkdownOptions? defaultOptions,
     MarkdownEmbedRegistry? embedRegistry,
@@ -34,6 +35,7 @@ final class MarkdownExporter implements DeltaExporter<String, MarkdownOptions> {
   }
 
   /// Synchronous variant.
+  @override
   String exportSync(Delta delta, {MarkdownOptions? options}) {
     final opts = options ?? defaultOptions;
     final lines = splitIntoLines(delta);

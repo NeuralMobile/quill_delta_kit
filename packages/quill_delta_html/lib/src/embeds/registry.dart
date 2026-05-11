@@ -29,27 +29,33 @@ class EmbedRegistry {
   final List<EmbedAdapter> _adapters;
 
   /// Built-in default adapters (order matters — most specific first).
-  static List<EmbedAdapter> defaults() => [
-        ImageAdapter(),
-        VideoAdapter(),
-        AudioAdapter(),
-        DividerAdapter(),
-        FormulaAdapter(),
-        MentionAdapter(),
-        TableAdapter(),
-        // Iframe-aware provider sniffers (most specific first).
-        YouTubeAdapter(),
-        VimeoAdapter(),
-        LoomAdapter(),
-        SpotifyAdapter(),
-        SoundCloudAdapter(),
-        CodePenAdapter(),
-        TweetAdapter(),
-        OEmbedAdapter(),
-        // Generic iframe last, before passthrough.
-        IframeAdapter(),
-        PassthroughAdapter(),
-      ];
+  ///
+  /// Returns the shared module-level instance — adapters are stateless so
+  /// no isolation concern, and callers paying for repeated [defaults] reads
+  /// (e.g. per-encoder instantiation in hot tests) skip the allocation.
+  static List<EmbedAdapter> defaults() => _defaults;
+
+  static final List<EmbedAdapter> _defaults = List<EmbedAdapter>.unmodifiable([
+    ImageAdapter(),
+    VideoAdapter(),
+    AudioAdapter(),
+    DividerAdapter(),
+    FormulaAdapter(),
+    MentionAdapter(),
+    TableAdapter(),
+    // Iframe-aware provider sniffers (most specific first).
+    YouTubeAdapter(),
+    VimeoAdapter(),
+    LoomAdapter(),
+    SpotifyAdapter(),
+    SoundCloudAdapter(),
+    CodePenAdapter(),
+    TweetAdapter(),
+    OEmbedAdapter(),
+    // Generic iframe last, before passthrough.
+    IframeAdapter(),
+    PassthroughAdapter(),
+  ]);
 
   Iterable<EmbedAdapter> get all => _adapters;
 

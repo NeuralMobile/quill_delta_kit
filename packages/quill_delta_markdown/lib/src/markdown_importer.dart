@@ -5,7 +5,8 @@ import 'package:quill_delta_html/quill_delta_html.dart' show HtmlImporter;
 
 /// Markdown -> HTML -> Delta. Uses `package:markdown` for the MD → HTML
 /// stage, then defers to [HtmlImporter].
-final class MarkdownImporter extends HtmlPivotImporter<String, MarkdownOptions> {
+final class MarkdownImporter extends HtmlPivotImporter<String, MarkdownOptions>
+    implements SyncDeltaImporter<String, MarkdownOptions> {
   MarkdownImporter({
     DeltaImporter<String, HtmlOptions>? htmlImporter,
     MarkdownOptions? defaultOptions,
@@ -22,6 +23,35 @@ final class MarkdownImporter extends HtmlPivotImporter<String, MarkdownOptions> 
   Future<Delta> import(String input, {MarkdownOptions? options}) async {
     final delta = await super.import(input, options: options);
     return _normalizeTrailing(delta);
+  }
+
+  /// Synchronous variant. Both stages (`package:markdown` → HTML, then
+  /// HTML → Delta) are fully sync; this entry point skips the Future.
+  ///
+  /// Requires the injected [htmlImporter] to implement [SyncDeltaImporter]
+  /// (the default [HtmlImporter] does). Mock importers that don't will
+  /// trigger a runtime [UnsupportedError].
+  @override
+  Delta importSync(String input, {MarkdownOptions? options}) {
+    final opts = options ?? defaultOptions;
+    final html = _toHtmlSync(input, opts);
+    final inner = htmlImporter;
+    if (inner is! SyncDeltaImporter<String, HtmlOptions>) {
+      throw UnsupportedError(
+        'MarkdownImporter.importSync requires a SyncDeltaImporter inner; got ${inner.runtimeType}.',
+      );
+    }
+    return _normalizeTrailing(inner.importSync(html));
+  }
+
+  String _toHtmlSync(String input, MarkdownOptions options) {
+    final extensions =
+        options.flavour == MarkdownFlavour.gfm ? md.ExtensionSet.gitHubFlavored : md.ExtensionSet.commonMark;
+    return md.markdownToHtml(
+      input,
+      extensionSet: extensions,
+      inlineSyntaxes: options.flavour == MarkdownFlavour.gfm ? [md.InlineHtmlSyntax()] : const [],
+    );
   }
 
   /// `package:markdown` wraps paragraphs in `<p>...</p>` with trailing
@@ -76,13 +106,5 @@ final class MarkdownImporter extends HtmlPivotImporter<String, MarkdownOptions> 
   MarkdownOptions get defaultOptions => _defaultOptions ?? const MarkdownOptions();
 
   @override
-  Future<String> toHtml(String input, MarkdownOptions options) async {
-    final extensions =
-        options.flavour == MarkdownFlavour.gfm ? md.ExtensionSet.gitHubFlavored : md.ExtensionSet.commonMark;
-    return md.markdownToHtml(
-      input,
-      extensionSet: extensions,
-      inlineSyntaxes: options.flavour == MarkdownFlavour.gfm ? [md.InlineHtmlSyntax()] : const [],
-    );
-  }
+  Future<String> toHtml(String input, MarkdownOptions options) async => _toHtmlSync(input, options);
 }

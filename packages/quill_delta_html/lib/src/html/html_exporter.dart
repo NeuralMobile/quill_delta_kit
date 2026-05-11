@@ -7,7 +7,7 @@ import '../encoder/block_encoder.dart';
 import '../util/html_writer.dart';
 
 /// Delta -> HTML string.
-final class HtmlExporter implements DeltaExporter<String, HtmlOptions> {
+final class HtmlExporter implements DeltaExporter<String, HtmlOptions>, SyncDeltaExporter<String, HtmlOptions> {
   HtmlExporter({
     EmbedRegistry? registry,
     List<EmbedAdapter> adapters = const [],
@@ -39,6 +39,7 @@ final class HtmlExporter implements DeltaExporter<String, HtmlOptions> {
 
   /// Synchronous variant. Encoding is fully sync internally; this exposes
   /// that fact for callers who want to skip the Future.
+  @override
   String exportSync(Delta delta, {HtmlOptions? options}) {
     final opts = options ?? defaultOptions;
     final writer = HtmlWriter();
