@@ -145,7 +145,8 @@ void main() {
         ..insert('\n', {'list': 'bullet'})
         ..insert('print')
         ..insert('\n', {'code-block': 'dart'}));
-      expect(md, '# Title\n\nBody para.\n\n- first\n- second\n\n```dart\nprint\n```\n');
+      expect(md,
+          '# Title\n\nBody para.\n\n- first\n- second\n\n```dart\nprint\n```\n');
     });
   });
 
@@ -217,7 +218,10 @@ void main() {
       const text = 'Hello — world… "quoted" 🌍';
       final md = await exp.export(Delta()..insert('$text\n'));
       final back = await imp.import(md);
-      final restored = back.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+      final restored = back.operations
+          .where((op) => op.data is String)
+          .map((op) => op.data as String)
+          .join();
       expect(restored.trim(), text);
     });
 
@@ -228,7 +232,10 @@ void main() {
         ..insert('Para three.\n');
       final md = await exp.export(delta);
       final back = await imp.import(md);
-      final text = back.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+      final text = back.operations
+          .where((op) => op.data is String)
+          .map((op) => op.data as String)
+          .join();
       expect(text, contains('Para one'));
       expect(text, contains('Para two'));
       expect(text, contains('Para three'));

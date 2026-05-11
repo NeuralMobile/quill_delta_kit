@@ -45,12 +45,15 @@ final class MarkdownImporter extends HtmlPivotImporter<String, MarkdownOptions>
   }
 
   String _toHtmlSync(String input, MarkdownOptions options) {
-    final extensions =
-        options.flavour == MarkdownFlavour.gfm ? md.ExtensionSet.gitHubFlavored : md.ExtensionSet.commonMark;
+    final extensions = options.flavour == MarkdownFlavour.gfm
+        ? md.ExtensionSet.gitHubFlavored
+        : md.ExtensionSet.commonMark;
     return md.markdownToHtml(
       input,
       extensionSet: extensions,
-      inlineSyntaxes: options.flavour == MarkdownFlavour.gfm ? [md.InlineHtmlSyntax()] : const [],
+      inlineSyntaxes: options.flavour == MarkdownFlavour.gfm
+          ? [md.InlineHtmlSyntax()]
+          : const [],
     );
   }
 
@@ -77,7 +80,9 @@ final class MarkdownImporter extends HtmlPivotImporter<String, MarkdownOptions>
       return v is String && v.endsWith('\n');
     }
 
-    while (ops.length > 1 && isBareNewline(ops.last) && endsWithNewline(ops[ops.length - 2])) {
+    while (ops.length > 1 &&
+        isBareNewline(ops.last) &&
+        endsWithNewline(ops[ops.length - 2])) {
       ops.removeLast();
     }
 
@@ -103,8 +108,10 @@ final class MarkdownImporter extends HtmlPivotImporter<String, MarkdownOptions>
   Set<String> get extensions => const {'md', 'markdown', 'mdown', 'mkd'};
 
   @override
-  MarkdownOptions get defaultOptions => _defaultOptions ?? const MarkdownOptions();
+  MarkdownOptions get defaultOptions =>
+      _defaultOptions ?? const MarkdownOptions();
 
   @override
-  Future<String> toHtml(String input, MarkdownOptions options) async => _toHtmlSync(input, options);
+  Future<String> toHtml(String input, MarkdownOptions options) async =>
+      _toHtmlSync(input, options);
 }

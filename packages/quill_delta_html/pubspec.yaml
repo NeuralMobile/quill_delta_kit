@@ -21,8 +21,7 @@ resolution: workspace
 dependencies:
   dart_quill_delta: ^10.8.0
   html: ^0.15.4
-  quill_delta_core:
-    path: ../quill_delta_core
+  quill_delta_core: ^0.1.0
 
 dev_dependencies:
   benchmark_harness: ^2.3.1

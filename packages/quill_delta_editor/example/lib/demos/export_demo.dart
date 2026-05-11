@@ -13,7 +13,8 @@ class ExportDemo extends StatefulWidget {
   State<ExportDemo> createState() => _ExportDemoState();
 }
 
-class _ExportDemoState extends State<ExportDemo> with SingleTickerProviderStateMixin {
+class _ExportDemoState extends State<ExportDemo>
+    with SingleTickerProviderStateMixin {
   late final QuillController _controller;
   late final TabController _tabs;
   String _html = '';

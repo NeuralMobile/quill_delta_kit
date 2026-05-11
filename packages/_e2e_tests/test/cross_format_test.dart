@@ -8,7 +8,10 @@ import 'package:quill_delta_pdf/quill_delta_pdf.dart';
 import 'package:test/test.dart';
 
 /// Pull plain text out of a Delta. Compares ignoring whitespace differences.
-String _plain(Delta d) => d.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+String _plain(Delta d) => d.operations
+    .where((op) => op.data is String)
+    .map((op) => op.data as String)
+    .join();
 
 /// Whitespace-collapsed comparison.
 String _norm(String s) => s.replaceAll(RegExp(r'\s+'), ' ').trim();
@@ -110,13 +113,15 @@ void main() {
     });
 
     test('docx filename ext -> DocxImporter', () async {
-      final bytes = await const DocxExporter().export(Delta()..insert('docfile\n'));
+      final bytes =
+          await const DocxExporter().export(Delta()..insert('docfile\n'));
       final delta = await registry.importAuto(bytes, filename: 'sample.docx');
       expect(_plain(delta), contains('docfile'));
     });
 
     test('magic-byte sniff PK\\x03\\x04 -> docx', () async {
-      final bytes = await const DocxExporter().export(Delta()..insert('zipped\n'));
+      final bytes =
+          await const DocxExporter().export(Delta()..insert('zipped\n'));
       final delta = await registry.importAuto(bytes);
       expect(_plain(delta), contains('zipped'));
     });
@@ -169,7 +174,8 @@ void main() {
 
     test('docx -> pdf via Delta intermediate', () async {
       // Build a minimal docx.
-      final docxBytes = await const DocxExporter().export(Delta()..insert('Pipeline\n'));
+      final docxBytes =
+          await const DocxExporter().export(Delta()..insert('Pipeline\n'));
       final delta = await DocxImporter().import(docxBytes);
       final pdfBytes = await const PdfExporter().export(
         delta,

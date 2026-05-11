@@ -82,7 +82,8 @@ class InlineEncoder {
     final link = attrs['link']?.toString();
     if (link != null && link.isNotEmpty) {
       linkAttrs = <String, String>{'href': link};
-      if (attrs['target'] != null) linkAttrs['target'] = attrs['target'].toString();
+      if (attrs['target'] != null)
+        linkAttrs['target'] = attrs['target'].toString();
       if (attrs['rel'] != null) linkAttrs['rel'] = attrs['rel'].toString();
     }
 
@@ -112,7 +113,9 @@ class InlineEncoder {
       try {
         final inner = _decodeCustom(value);
         if (inner != null) {
-          final adapter = registry.forType(inner.key, customSubType: inner.key) ?? registry.forType(inner.key);
+          final adapter =
+              registry.forType(inner.key, customSubType: inner.key) ??
+                  registry.forType(inner.key);
           if (adapter != null) {
             adapter.encode(
               writer: writer,

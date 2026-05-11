@@ -10,13 +10,14 @@ environment:
   sdk: ^3.6.0
   flutter: ">=3.16.0"
 
+resolution: workspace
+
 dependencies:
   file_picker: ^8.1.6
   flutter:
     sdk: flutter
   flutter_quill: ^11.0.0
-  quill_delta_editor:
-    path: ../
+  quill_delta_editor: any
 
 dev_dependencies:
   flutter_test:

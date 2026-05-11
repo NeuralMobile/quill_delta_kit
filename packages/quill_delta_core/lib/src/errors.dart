@@ -35,7 +35,8 @@ sealed class DeltaConversionException implements Exception {
 /// truncated ZIP, invalid OOXML, …). Use [ImportException] directly for
 /// anything else (network failure, I/O error, plugin missing on platform).
 class ImportException extends DeltaConversionException {
-  const ImportException(this.format, super.message, {super.cause, super.causeStack});
+  const ImportException(this.format, super.message,
+      {super.cause, super.causeStack});
 
   /// The format identifier (`'html'`, `'markdown'`, `'docx'`, …) the
   /// importer was working on.
@@ -62,7 +63,8 @@ final class MalformedDocumentException extends ImportException {
 
 /// Raised by a [DeltaExporter] when serialisation fails.
 final class ExportException extends DeltaConversionException {
-  const ExportException(this.format, super.message, {super.cause, super.causeStack});
+  const ExportException(this.format, super.message,
+      {super.cause, super.causeStack});
 
   /// Target format identifier.
   final String format;

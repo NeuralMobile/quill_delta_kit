@@ -101,7 +101,8 @@ class QuillDeltaEditor extends StatefulWidget {
   /// [QuillEditorConfig.copyWith].
   ///
   /// Mutually exclusive with [editorConfig].
-  final QuillEditorConfig Function(QuillEditorConfig preset)? editorConfigBuilder;
+  final QuillEditorConfig Function(QuillEditorConfig preset)?
+      editorConfigBuilder;
 
   /// Full pass-through [QuillSimpleToolbarConfig]. When non-null,
   /// **replaces** the preset-derived toolbar config in full. Use to access
@@ -118,7 +119,8 @@ class QuillDeltaEditor extends StatefulWidget {
   /// without re-listing the entire config.
   ///
   /// Mutually exclusive with [toolbarConfig].
-  final QuillSimpleToolbarConfig Function(QuillSimpleToolbarConfig preset)? toolbarConfigBuilder;
+  final QuillSimpleToolbarConfig Function(QuillSimpleToolbarConfig preset)?
+      toolbarConfigBuilder;
 
   @override
   State<QuillDeltaEditor> createState() => _QuillDeltaEditorState();
@@ -126,10 +128,12 @@ class QuillDeltaEditor extends StatefulWidget {
 
 class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
   late final FocusNode _focusNode = widget.focusNode ?? FocusNode();
-  late final ScrollController _scrollController = widget.scrollController ?? ScrollController();
+  late final ScrollController _scrollController =
+      widget.scrollController ?? ScrollController();
   // Used by SelectionToolbarOverlay to reach the RenderEditor for endpoint
   // measurement.
-  final GlobalKey<QuillEditorState> _quillEditorKey = GlobalKey<QuillEditorState>();
+  final GlobalKey<QuillEditorState> _quillEditorKey =
+      GlobalKey<QuillEditorState>();
 
   bool get _ownFocus => widget.focusNode == null;
   bool get _ownScroll => widget.scrollController == null;
@@ -312,16 +316,20 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
     required EdgeInsets margin,
     required ToolbarConfig config,
   }) {
-    final isTop = position == FloatingToolbarPosition.topCenter || position == FloatingToolbarPosition.topRight;
-    final isBottom =
-        position == FloatingToolbarPosition.bottomCenter || position == FloatingToolbarPosition.bottomRight;
-    final isLeftish = position == FloatingToolbarPosition.topCenter || position == FloatingToolbarPosition.bottomCenter;
-    final isRightish = position == FloatingToolbarPosition.topRight || position == FloatingToolbarPosition.bottomRight;
+    final isTop = position == FloatingToolbarPosition.topCenter ||
+        position == FloatingToolbarPosition.topRight;
+    final isBottom = position == FloatingToolbarPosition.bottomCenter ||
+        position == FloatingToolbarPosition.bottomRight;
+    final isLeftish = position == FloatingToolbarPosition.topCenter ||
+        position == FloatingToolbarPosition.bottomCenter;
+    final isRightish = position == FloatingToolbarPosition.topRight ||
+        position == FloatingToolbarPosition.bottomRight;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.hasBoundedWidth
-            ? (constraints.maxWidth - margin.horizontal).clamp(120.0, double.infinity)
+            ? (constraints.maxWidth - margin.horizontal)
+                .clamp(120.0, double.infinity)
             : double.infinity;
         return Stack(
           children: [
@@ -350,7 +358,8 @@ class _QuillDeltaEditorState extends State<QuillDeltaEditor> {
     );
   }
 
-  Widget _withCustom(Widget editor, Widget toolbar, ToolbarPlacement placement) {
+  Widget _withCustom(
+      Widget editor, Widget toolbar, ToolbarPlacement placement) {
     return switch (placement) {
       ToolbarPlacement.top => Column(
           mainAxisSize: _expanding ? MainAxisSize.max : MainAxisSize.min,

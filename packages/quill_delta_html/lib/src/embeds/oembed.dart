@@ -39,7 +39,9 @@ class OEmbedAdapter extends EmbedAdapter {
       if (oembed != null) {
         url = oembed.attributes['url'];
       }
-      url ??= element.querySelector('[data-oembed-url]')?.attributes['data-oembed-url'];
+      url ??= element
+          .querySelector('[data-oembed-url]')
+          ?.attributes['data-oembed-url'];
       url ??= element.querySelector('iframe')?.attributes['src'];
     }
     if (url == null || url.isEmpty) return null;

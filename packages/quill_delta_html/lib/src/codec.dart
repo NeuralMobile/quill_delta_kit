@@ -22,8 +22,12 @@ class QuillHtmlCodec {
   final EmbedRegistry registry;
 
   /// Delta -> HTML.
-  String encode(Delta delta) => HtmlExporter(registry: registry, defaultOptions: options).exportSync(delta);
+  String encode(Delta delta) =>
+      HtmlExporter(registry: registry, defaultOptions: options)
+          .exportSync(delta);
 
   /// HTML -> Delta.
-  Delta decode(String html) => HtmlImporter(registry: registry, defaultOptions: options).importSync(html);
+  Delta decode(String html) =>
+      HtmlImporter(registry: registry, defaultOptions: options)
+          .importSync(html);
 }

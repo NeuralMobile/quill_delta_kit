@@ -72,9 +72,11 @@ extension QuillSimpleToolbarConfigCopyWithX on QuillSimpleToolbarConfig {
     double? toolbarRunSpacing,
   }) {
     return QuillSimpleToolbarConfig(
-      toolbarSectionSpacing: toolbarSectionSpacing ?? this.toolbarSectionSpacing,
+      toolbarSectionSpacing:
+          toolbarSectionSpacing ?? this.toolbarSectionSpacing,
       toolbarIconAlignment: toolbarIconAlignment ?? this.toolbarIconAlignment,
-      toolbarIconCrossAlignment: toolbarIconCrossAlignment ?? this.toolbarIconCrossAlignment,
+      toolbarIconCrossAlignment:
+          toolbarIconCrossAlignment ?? this.toolbarIconCrossAlignment,
       buttonOptions: buttonOptions ?? this.buttonOptions,
       customButtons: customButtons ?? this.customButtons,
       multiRowsDisplay: multiRowsDisplay ?? this.multiRowsDisplay,
@@ -89,7 +91,8 @@ extension QuillSimpleToolbarConfigCopyWithX on QuillSimpleToolbarConfig {
       showStrikeThrough: showStrikeThrough ?? this.showStrikeThrough,
       showInlineCode: showInlineCode ?? this.showInlineCode,
       showColorButton: showColorButton ?? this.showColorButton,
-      showBackgroundColorButton: showBackgroundColorButton ?? this.showBackgroundColorButton,
+      showBackgroundColorButton:
+          showBackgroundColorButton ?? this.showBackgroundColorButton,
       showClearFormat: showClearFormat ?? this.showClearFormat,
       showAlignmentButtons: showAlignmentButtons ?? this.showAlignmentButtons,
       showLeftAlignment: showLeftAlignment ?? this.showLeftAlignment,

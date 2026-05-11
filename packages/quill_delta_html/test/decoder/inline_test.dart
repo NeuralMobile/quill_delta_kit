@@ -96,7 +96,9 @@ void main() {
     });
 
     test('inline color via style', () {
-      final ops = c.decode('<p><span style="color: rgb(255,0,0)">x</span></p>').toJson();
+      final ops = c
+          .decode('<p><span style="color: rgb(255,0,0)">x</span></p>')
+          .toJson();
       expect(ops, [
         {
           'insert': 'x',
@@ -107,18 +109,25 @@ void main() {
     });
 
     test('inline background', () {
-      expect(c.decode('<p><span style="background-color:#0f0">x</span></p>').toJson(), [
-        {
-          'insert': 'x',
-          'attributes': {'background': '#00ff00'}
-        },
-        {'insert': '\n'}
-      ]);
+      expect(
+          c
+              .decode('<p><span style="background-color:#0f0">x</span></p>')
+              .toJson(),
+          [
+            {
+              'insert': 'x',
+              'attributes': {'background': '#00ff00'}
+            },
+            {'insert': '\n'}
+          ]);
     });
 
     test('font + size from style', () {
       expect(
-        c.decode('<p><span style="font-family: Arial; font-size: 18px">x</span></p>').toJson(),
+        c
+            .decode(
+                '<p><span style="font-family: Arial; font-size: 18px">x</span></p>')
+            .toJson(),
         [
           {
             'insert': 'x',
@@ -130,7 +139,9 @@ void main() {
     });
 
     test('legacy <font face size color>', () {
-      final ops = c.decode('<p><font face="serif" size="14" color="red">x</font></p>').toJson();
+      final ops = c
+          .decode('<p><font face="serif" size="14" color="red">x</font></p>')
+          .toJson();
       expect(ops, [
         {
           'insert': 'x',
@@ -141,17 +152,20 @@ void main() {
     });
 
     test('font-weight: bold via style', () {
-      expect(c.decode('<p><span style="font-weight: bold">x</span></p>').toJson(), [
-        {
-          'insert': 'x',
-          'attributes': {'bold': true}
-        },
-        {'insert': '\n'}
-      ]);
+      expect(
+          c.decode('<p><span style="font-weight: bold">x</span></p>').toJson(),
+          [
+            {
+              'insert': 'x',
+              'attributes': {'bold': true}
+            },
+            {'insert': '\n'}
+          ]);
     });
 
     test('font-weight 700 numeric', () {
-      expect(c.decode('<p><span style="font-weight: 700">x</span></p>').toJson(), [
+      expect(
+          c.decode('<p><span style="font-weight: 700">x</span></p>').toJson(), [
         {
           'insert': 'x',
           'attributes': {'bold': true}
@@ -161,23 +175,33 @@ void main() {
     });
 
     test('text-decoration underline', () {
-      expect(c.decode('<p><span style="text-decoration: underline">x</span></p>').toJson(), [
-        {
-          'insert': 'x',
-          'attributes': {'underline': true}
-        },
-        {'insert': '\n'}
-      ]);
+      expect(
+          c
+              .decode(
+                  '<p><span style="text-decoration: underline">x</span></p>')
+              .toJson(),
+          [
+            {
+              'insert': 'x',
+              'attributes': {'underline': true}
+            },
+            {'insert': '\n'}
+          ]);
     });
 
     test('text-decoration line-through', () {
-      expect(c.decode('<p><span style="text-decoration: line-through">x</span></p>').toJson(), [
-        {
-          'insert': 'x',
-          'attributes': {'strike': true}
-        },
-        {'insert': '\n'}
-      ]);
+      expect(
+          c
+              .decode(
+                  '<p><span style="text-decoration: line-through">x</span></p>')
+              .toJson(),
+          [
+            {
+              'insert': 'x',
+              'attributes': {'strike': true}
+            },
+            {'insert': '\n'}
+          ]);
     });
 
     test('CKEditor highlight via <mark>', () {

@@ -29,7 +29,9 @@ class HtmlDecoder {
     final children = body.children;
     if (children.length == 1 &&
         children.first.localName == 'div' &&
-        (children.first.attributes['class'] ?? '').split(' ').contains('ql-html-doc')) {
+        (children.first.attributes['class'] ?? '')
+            .split(' ')
+            .contains('ql-html-doc')) {
       return children.first;
     }
     return body;
@@ -90,7 +92,8 @@ class HtmlDecoder {
         out.flushLine(block);
         return;
       case 'blockquote':
-        final block = _readLineStyles(el, base: blockCtx)..['blockquote'] = true;
+        final block = _readLineStyles(el, base: blockCtx)
+          ..['blockquote'] = true;
         // If contains block-level children, recurse normally; otherwise treat as one line.
         if (_hasBlockChild(el)) {
           _walkChildren(el, out, inline, block);
@@ -213,7 +216,10 @@ class HtmlDecoder {
     // Either <pre>text</pre> or <pre><code class="language-x">text</code></pre>.
     String? lang;
     dom.Element source = pre;
-    final inner = pre.children.length == 1 && pre.children.first.localName == 'code' ? pre.children.first : null;
+    final inner =
+        pre.children.length == 1 && pre.children.first.localName == 'code'
+            ? pre.children.first
+            : null;
     if (inner != null) {
       source = inner;
       final cls = inner.attributes['class'] ?? '';
@@ -274,7 +280,8 @@ class HtmlDecoder {
       if (_isPlaceholderLi(child)) {
         for (final node in child.children) {
           if (node.localName == 'ul' || node.localName == 'ol') {
-            _emitList(node, out, inline, blockCtx, ordered: node.localName == 'ol', depth: depth + 1);
+            _emitList(node, out, inline, blockCtx,
+                ordered: node.localName == 'ol', depth: depth + 1);
           }
         }
         continue;
@@ -285,7 +292,8 @@ class HtmlDecoder {
       final liData = child.attributes['data-list'];
       final liChecked = child.attributes['data-checked'];
       final input = _findCheckboxChild(child);
-      final itemIsTask = listIsTask || liData != null || liChecked != null || input != null;
+      final itemIsTask =
+          listIsTask || liData != null || liChecked != null || input != null;
       String listVal;
       if (itemIsTask) {
         bool checked;
@@ -312,8 +320,10 @@ class HtmlDecoder {
 
       // Recurse into nested lists.
       for (final node in child.nodes) {
-        if (node is dom.Element && (node.localName == 'ul' || node.localName == 'ol')) {
-          _emitList(node, out, inline, blockCtx, ordered: node.localName == 'ol', depth: depth + 1);
+        if (node is dom.Element &&
+            (node.localName == 'ul' || node.localName == 'ol')) {
+          _emitList(node, out, inline, blockCtx,
+              ordered: node.localName == 'ol', depth: depth + 1);
         }
       }
     }
@@ -348,7 +358,8 @@ class HtmlDecoder {
         if (n == 'label' ||
             n == 'div' ||
             n == 'p' ||
-            n == 'span' && node.attributes['class'] == 'todo-list__label__description') {
+            n == 'span' &&
+                node.attributes['class'] == 'todo-list__label__description') {
           // Transparent containers in list items.
           if (n == 'span') {
             final next = _applyInlineStyle(node, inline);
@@ -387,17 +398,21 @@ class HtmlDecoder {
       next = next.with_('size', QuillSize.fromCss(fontSize));
     }
     final fontWeight = style['font-weight'];
-    if (fontWeight == 'bold' || (fontWeight != null && (int.tryParse(fontWeight) ?? 0) >= 600)) {
+    if (fontWeight == 'bold' ||
+        (fontWeight != null && (int.tryParse(fontWeight) ?? 0) >= 600)) {
       next = next.with_('bold', true);
     }
     final fontStyle = style['font-style'];
     if (fontStyle == 'italic') {
       next = next.with_('italic', true);
     }
-    final textDecoration = style['text-decoration'] ?? style['text-decoration-line'];
+    final textDecoration =
+        style['text-decoration'] ?? style['text-decoration-line'];
     if (textDecoration != null) {
-      if (textDecoration.contains('underline')) next = next.with_('underline', true);
-      if (textDecoration.contains('line-through')) next = next.with_('strike', true);
+      if (textDecoration.contains('underline'))
+        next = next.with_('underline', true);
+      if (textDecoration.contains('line-through'))
+        next = next.with_('strike', true);
     }
     final verticalAlign = style['vertical-align'];
     if (verticalAlign == 'super' || verticalAlign == 'sub') {
@@ -410,7 +425,8 @@ class HtmlDecoder {
   }
 
   /// Read block-level styles (align, indent via padding-left, direction, line-height) from element.
-  Map<String, dynamic> _readLineStyles(dom.Element el, {required Map<String, dynamic> base}) {
+  Map<String, dynamic> _readLineStyles(dom.Element el,
+      {required Map<String, dynamic> base}) {
     final out = Map<String, dynamic>.of(base);
     final style = StyleMap.parse(el.attributes['style']);
     final align = style['text-align'];
@@ -458,13 +474,15 @@ class HtmlDecoder {
   /// transparent wrappers <label>, <div>, <p>, <span> at depth 1 are searched.
   static dom.Element? _findCheckboxChild(dom.Element parent) {
     for (final child in parent.children) {
-      if (child.localName == 'input' && child.attributes['type'] == 'checkbox') {
+      if (child.localName == 'input' &&
+          child.attributes['type'] == 'checkbox') {
         return child;
       }
       final n = child.localName;
       if (n == 'label' || n == 'div' || n == 'p' || n == 'span') {
         for (final grand in child.children) {
-          if (grand.localName == 'input' && grand.attributes['type'] == 'checkbox') {
+          if (grand.localName == 'input' &&
+              grand.attributes['type'] == 'checkbox') {
             return grand;
           }
         }
@@ -474,7 +492,22 @@ class HtmlDecoder {
   }
 
   bool _hasBlockChild(dom.Element el) {
-    const blocks = {'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'li', 'hr'};
+    const blocks = {
+      'p',
+      'div',
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'blockquote',
+      'pre',
+      'ul',
+      'ol',
+      'li',
+      'hr'
+    };
     for (final c in el.children) {
       if (blocks.contains(c.localName)) return true;
     }
@@ -501,7 +534,8 @@ class _DeltaBuilder {
 
   /// Close the current line with the given block attrs.
   void flushLine(Map<String, dynamic> blockAttrs) {
-    final attrs = blockAttrs.isEmpty ? null : Map<String, dynamic>.of(blockAttrs);
+    final attrs =
+        blockAttrs.isEmpty ? null : Map<String, dynamic>.of(blockAttrs);
     _delta.insert('\n', attrs);
   }
 

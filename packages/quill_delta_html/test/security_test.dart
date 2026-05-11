@@ -15,7 +15,8 @@ void main() {
 
     test('default policy rejects data: iframe src', () {
       final c = frag();
-      const html = '<iframe src="data:text/html,<script>alert(1)</script>"></iframe>';
+      const html =
+          '<iframe src="data:text/html,<script>alert(1)</script>"></iframe>';
       final ops = c.decode(html).toJson();
       expect(ops.where((o) => o['insert'] is Map).toList(), isEmpty);
     });
@@ -26,7 +27,12 @@ void main() {
           wrapDocument: false,
           iframePolicy: IframePolicy(
             allowedSchemes: const {'https'},
-            allowedHosts: const {'youtube.com', 'www.youtube.com', 'vimeo.com', 'player.vimeo.com'},
+            allowedHosts: const {
+              'youtube.com',
+              'www.youtube.com',
+              'vimeo.com',
+              'player.vimeo.com'
+            },
           ),
         ),
       );

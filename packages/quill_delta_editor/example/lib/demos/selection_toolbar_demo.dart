@@ -28,8 +28,9 @@ class _SelectionToolbarDemoState extends State<SelectionToolbarDemo> {
         },
         {'insert': ' — like the iOS context menu.\n\n'},
         {
-          'insert': 'Tap somewhere with no selection to dismiss it. Drag-select '
-              'across multiple lines to keep it open.\n'
+          'insert':
+              'Tap somewhere with no selection to dismiss it. Drag-select '
+                  'across multiple lines to keep it open.\n'
         },
       ]),
       selection: const TextSelection.collapsed(offset: 0),

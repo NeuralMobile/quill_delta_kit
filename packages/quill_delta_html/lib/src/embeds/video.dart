@@ -22,7 +22,8 @@ class VideoAdapter extends EmbedAdapter {
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
-    final url = value is String ? value : (value as Map?)?['source']?.toString() ?? '';
+    final url =
+        value is String ? value : (value as Map?)?['source']?.toString() ?? '';
     final isDirect = _isDirectVideoUrl(url);
     final isYoutube = _yt.hasMatch(url);
     final isVimeo = _vm.hasMatch(url);
@@ -51,7 +52,10 @@ class VideoAdapter extends EmbedAdapter {
       for (final entry in siblingAttrs.entries) {
         final v = entry.value?.toString() ?? '';
         if (v.isEmpty) continue;
-        if (entry.key == 'width' || entry.key == 'height' || entry.key == 'style' || entry.key == 'title') {
+        if (entry.key == 'width' ||
+            entry.key == 'height' ||
+            entry.key == 'style' ||
+            entry.key == 'title') {
           attrs[entry.key] = v;
         }
       }
@@ -81,7 +85,10 @@ class VideoAdapter extends EmbedAdapter {
     final attrs = <String, dynamic>{};
     for (final entry in element.attributes.entries) {
       final k = entry.key.toString();
-      if (k == 'src' || k == 'controls' || k == 'frameborder' || k == 'allowfullscreen') continue;
+      if (k == 'src' ||
+          k == 'controls' ||
+          k == 'frameborder' ||
+          k == 'allowfullscreen') continue;
       if (k == 'width' || k == 'height' || k == 'style' || k == 'title') {
         attrs[k] = entry.value;
       }
@@ -114,7 +121,9 @@ class VideoAdapter extends EmbedAdapter {
     if (uri.queryParameters['v'] != null) return uri.queryParameters['v'];
     final segs = uri.pathSegments.where((s) => s.isNotEmpty).toList();
     if (segs.isEmpty) return null;
-    if (segs.first == 'embed' || segs.first == 'shorts' || segs.first == 'live') {
+    if (segs.first == 'embed' ||
+        segs.first == 'shorts' ||
+        segs.first == 'live') {
       return segs.length > 1 ? segs[1] : null;
     }
     return null;
@@ -124,7 +133,8 @@ class VideoAdapter extends EmbedAdapter {
     final uri = Uri.tryParse(url);
     if (uri == null) return url;
     if (uri.host.startsWith('player.')) return url;
-    final id = uri.pathSegments.lastWhere((s) => s.isNotEmpty, orElse: () => '');
+    final id =
+        uri.pathSegments.lastWhere((s) => s.isNotEmpty, orElse: () => '');
     if (id.isEmpty) return url;
     return 'https://player.vimeo.com/video/$id';
   }

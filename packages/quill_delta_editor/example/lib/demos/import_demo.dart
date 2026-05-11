@@ -19,8 +19,7 @@ class _ImportDemoState extends State<ImportDemo> {
   final _controller = QuillController.basic();
   final _importer = QuillDocumentImporter();
   final _pasteController = TextEditingController();
-  String _status =
-      'Cursor-mode: tap the upload icon in the toolbar. '
+  String _status = 'Cursor-mode: tap the upload icon in the toolbar. '
       'Replace-mode: use the buttons below.';
 
   @override
@@ -80,7 +79,8 @@ class _ImportDemoState extends State<ImportDemo> {
     }
   }
 
-  Future<void> _replaceFromText(String label, String text, String format) async {
+  Future<void> _replaceFromText(
+      String label, String text, String format) async {
     try {
       await _importer.importText(
         controller: _controller,
@@ -136,12 +136,13 @@ class _ImportDemoState extends State<ImportDemo> {
                   onPressed: _importFileReplace,
                 ),
                 OutlinedButton(
-                  onPressed: () => _replaceFromText('HTML', _sampleHtml, 'html'),
+                  onPressed: () =>
+                      _replaceFromText('HTML', _sampleHtml, 'html'),
                   child: const Text('Replace from sample HTML'),
                 ),
                 OutlinedButton(
-                  onPressed: () => _replaceFromText(
-                      'Markdown', _sampleMarkdown, 'markdown'),
+                  onPressed: () =>
+                      _replaceFromText('Markdown', _sampleMarkdown, 'markdown'),
                   child: const Text('Replace from sample Markdown'),
                 ),
                 OutlinedButton(

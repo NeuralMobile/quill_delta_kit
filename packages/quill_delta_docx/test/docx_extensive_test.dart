@@ -33,7 +33,10 @@ void main() {
         '<w:p><w:r><w:t xml:space="preserve">  spaced  </w:t></w:r></w:p>',
       );
       final delta = await imp.import(bytes);
-      final text = delta.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+      final text = delta.operations
+          .where((op) => op.data is String)
+          .map((op) => op.data as String)
+          .join();
       expect(text, contains('  spaced  '));
     });
 
@@ -42,7 +45,10 @@ void main() {
         '<w:p><w:r><w:t>a &amp; b &lt; c &gt; d</w:t></w:r></w:p>',
       );
       final delta = await imp.import(bytes);
-      final text = delta.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+      final text = delta.operations
+          .where((op) => op.data is String)
+          .map((op) => op.data as String)
+          .join();
       expect(text, contains('a & b < c > d'));
     });
 
@@ -72,7 +78,8 @@ void main() {
         '</w:r></w:p>',
       );
       final delta = await imp.import(bytes);
-      final op = delta.operations.firstWhere((o) => o.data == 'x', orElse: () => Operation.insert(''));
+      final op = delta.operations
+          .firstWhere((o) => o.data == 'x', orElse: () => Operation.insert(''));
       // 40 half-points = 20pt = 26.67px. Allow ±1 for rounding.
       expect(op.attributes?['color'].toString().toLowerCase(), '#ff8800');
       final size = int.parse(op.attributes!['size'] as String);
@@ -88,7 +95,10 @@ void main() {
         '</w:p>',
       );
       final delta = await imp.import(bytes);
-      final text = delta.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+      final text = delta.operations
+          .where((op) => op.data is String)
+          .map((op) => op.data as String)
+          .join();
       expect(text.replaceAll('\n', ''), 'foobarbaz');
     });
 
@@ -219,7 +229,8 @@ void main() {
           ..insert('x')
           ..insert('\n', {'align': align}));
         final archive = ZipDecoder().decodeBytes(bytes);
-        final doc = utf8.decode(archive.findFile('word/document.xml')!.content as List<int>);
+        final doc = utf8.decode(
+            archive.findFile('word/document.xml')!.content as List<int>);
         final mapped = align == 'justify' ? 'both' : align;
         expect(doc, contains('w:val="$mapped"'));
       }
@@ -229,7 +240,10 @@ void main() {
       final delta = Delta()..insert('Hello 🌍 café — œuf\n');
       final bytes = await exp.export(delta);
       final back = await imp.import(bytes);
-      final text = back.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+      final text = back.operations
+          .where((op) => op.data is String)
+          .map((op) => op.data as String)
+          .join();
       expect(text, contains('🌍'));
       expect(text, contains('café'));
       expect(text, contains('œuf'));
@@ -241,7 +255,9 @@ void main() {
         ..insert('\n');
       final bytes = await exp.export(delta);
       final archive = ZipDecoder().decodeBytes(bytes);
-      final rels = utf8.decode(archive.findFile('word/_rels/document.xml.rels')!.content as List<int>);
+      final rels = utf8.decode(archive
+          .findFile('word/_rels/document.xml.rels')!
+          .content as List<int>);
       expect(rels, contains('https://example.com/path?q=1'));
     });
 
@@ -268,7 +284,10 @@ void main() {
         ..insert('\n', {'code-block': 'dart'});
       final bytes = await exp.export(delta);
       final back = await imp.import(bytes);
-      final text = back.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+      final text = back.operations
+          .where((op) => op.data is String)
+          .map((op) => op.data as String)
+          .join();
       for (final needle in [
         'Top heading',
         'bold',
@@ -284,7 +303,8 @@ void main() {
       }
     });
 
-    test('large document (200 paragraphs) produces well-formed bytes', () async {
+    test('large document (200 paragraphs) produces well-formed bytes',
+        () async {
       final delta = Delta();
       for (var i = 0; i < 200; i++) {
         delta.insert('Paragraph $i with some text. ');
@@ -297,7 +317,10 @@ void main() {
       expect(bytes[1], 0x4B);
       // Round trip retains every paragraph index marker.
       final back = await imp.import(bytes);
-      final text = back.operations.where((op) => op.data is String).map((op) => op.data as String).join();
+      final text = back.operations
+          .where((op) => op.data is String)
+          .map((op) => op.data as String)
+          .join();
       expect(text, contains('Paragraph 0'));
       expect(text, contains('Paragraph 199'));
     });
@@ -323,7 +346,8 @@ void main() {
     test('content-types.xml registers required overrides', () async {
       final bytes = await exp.export(Delta()..insert('x\n'));
       final archive = ZipDecoder().decodeBytes(bytes);
-      final ct = utf8.decode(archive.findFile('[Content_Types].xml')!.content as List<int>);
+      final ct = utf8.decode(
+          archive.findFile('[Content_Types].xml')!.content as List<int>);
       expect(ct, contains('wordprocessingml.document.main'));
       expect(ct, contains('/word/document.xml'));
       expect(ct, contains('/word/styles.xml'));
@@ -333,15 +357,18 @@ void main() {
     test('root rels points at document.xml', () async {
       final bytes = await exp.export(Delta()..insert('x\n'));
       final archive = ZipDecoder().decodeBytes(bytes);
-      final root = utf8.decode(archive.findFile('_rels/.rels')!.content as List<int>);
+      final root =
+          utf8.decode(archive.findFile('_rels/.rels')!.content as List<int>);
       expect(root, contains('Target="word/document.xml"'));
       expect(root, contains('officeDocument'));
     });
 
-    test('numbering.xml contains both numId 1 (bullet) and 2 (ordered)', () async {
+    test('numbering.xml contains both numId 1 (bullet) and 2 (ordered)',
+        () async {
       final bytes = await exp.export(Delta()..insert('x\n'));
       final archive = ZipDecoder().decodeBytes(bytes);
-      final num = utf8.decode(archive.findFile('word/numbering.xml')!.content as List<int>);
+      final num = utf8
+          .decode(archive.findFile('word/numbering.xml')!.content as List<int>);
       expect(num, contains('w:numId="1"'));
       expect(num, contains('w:numId="2"'));
       expect(num, contains('numFmt w:val="bullet"'));

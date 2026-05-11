@@ -87,12 +87,14 @@ class FormulaAdapter extends EmbedAdapter {
     final dataValue = el.attributes['data-value'];
     if (dataValue != null && dataValue.isNotEmpty) return dataValue;
 
-    final annotation = el.querySelector('annotation[encoding="application/x-tex"]');
+    final annotation =
+        el.querySelector('annotation[encoding="application/x-tex"]');
     if (annotation != null && annotation.text.trim().isNotEmpty) {
       return annotation.text.trim();
     }
 
-    final katexAnnotation = el.querySelector('.katex annotation') ?? el.querySelector('annotation');
+    final katexAnnotation =
+        el.querySelector('.katex annotation') ?? el.querySelector('annotation');
     if (katexAnnotation != null && katexAnnotation.text.trim().isNotEmpty) {
       return katexAnnotation.text.trim();
     }

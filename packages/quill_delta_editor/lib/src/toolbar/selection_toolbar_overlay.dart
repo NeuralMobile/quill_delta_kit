@@ -34,10 +34,12 @@ class SelectionToolbarOverlay extends StatefulWidget {
   final GlobalKey<QuillEditorState> editorKey;
   final Widget child;
   final QuillSimpleToolbarConfig? overrideToolbarConfig;
-  final QuillSimpleToolbarConfig Function(QuillSimpleToolbarConfig preset)? toolbarConfigBuilder;
+  final QuillSimpleToolbarConfig Function(QuillSimpleToolbarConfig preset)?
+      toolbarConfigBuilder;
 
   @override
-  State<SelectionToolbarOverlay> createState() => _SelectionToolbarOverlayState();
+  State<SelectionToolbarOverlay> createState() =>
+      _SelectionToolbarOverlayState();
 }
 
 class _SelectionToolbarOverlayState extends State<SelectionToolbarOverlay> {
@@ -156,7 +158,8 @@ class _SelectionToolbarOverlayState extends State<SelectionToolbarOverlay> {
         child: Material(
           elevation: 6,
           borderRadius: BorderRadius.circular(8),
-          color: widget.config.backgroundColor ?? Theme.of(overlayContext).colorScheme.surface,
+          color: widget.config.backgroundColor ??
+              Theme.of(overlayContext).colorScheme.surface,
           clipBehavior: Clip.antiAlias,
           child: Padding(
             padding: widget.config.padding,

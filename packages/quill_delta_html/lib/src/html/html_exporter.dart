@@ -7,7 +7,10 @@ import '../encoder/block_encoder.dart';
 import '../util/html_writer.dart';
 
 /// Delta -> HTML string.
-final class HtmlExporter implements DeltaExporter<String, HtmlOptions>, SyncDeltaExporter<String, HtmlOptions> {
+final class HtmlExporter
+    implements
+        DeltaExporter<String, HtmlOptions>,
+        SyncDeltaExporter<String, HtmlOptions> {
   HtmlExporter({
     EmbedRegistry? registry,
     List<EmbedAdapter> adapters = const [],

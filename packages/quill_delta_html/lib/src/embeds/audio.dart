@@ -15,13 +15,16 @@ class AudioAdapter extends EmbedAdapter {
     Map<String, dynamic>? siblingAttrs,
     required QuillHtmlOptions options,
   }) {
-    final url = value is String ? value : (value as Map?)?['source']?.toString() ?? '';
+    final url =
+        value is String ? value : (value as Map?)?['source']?.toString() ?? '';
     final attrs = <String, String>{'controls': '', 'src': url};
     if (siblingAttrs != null) {
       for (final entry in siblingAttrs.entries) {
         final v = entry.value?.toString() ?? '';
         if (v.isEmpty) continue;
-        if (entry.key == 'style' || entry.key == 'title' || entry.key == 'preload') {
+        if (entry.key == 'style' ||
+            entry.key == 'title' ||
+            entry.key == 'preload') {
           attrs[entry.key] = v;
         }
       }
@@ -34,8 +37,12 @@ class AudioAdapter extends EmbedAdapter {
   bool matches(dom.Element element) {
     if (element.localName == 'audio') return true;
     if (element.localName == 'iframe') {
-      final src = (element.attributes['src'] ?? '').toLowerCase().split('?').first;
-      return src.endsWith('.mp3') || src.endsWith('.wav') || src.endsWith('.m4a') || src.endsWith('.ogg');
+      final src =
+          (element.attributes['src'] ?? '').toLowerCase().split('?').first;
+      return src.endsWith('.mp3') ||
+          src.endsWith('.wav') ||
+          src.endsWith('.m4a') ||
+          src.endsWith('.ogg');
     }
     return false;
   }

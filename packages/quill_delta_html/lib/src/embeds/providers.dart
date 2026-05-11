@@ -170,7 +170,8 @@ class TweetAdapter extends EmbedAdapter {
   @override
   bool matches(dom.Element element) {
     final cls = element.attributes['class'] ?? '';
-    if (element.localName == 'blockquote' && cls.split(' ').contains('twitter-tweet')) return true;
+    if (element.localName == 'blockquote' &&
+        cls.split(' ').contains('twitter-tweet')) return true;
     if (element.localName == 'iframe') {
       final src = element.attributes['src'] ?? '';
       return _re.hasMatch(src) && src.contains('/embed');
@@ -240,7 +241,10 @@ void _applySiblings(Map<String, String> attrs, Map<String, dynamic>? siblings) {
   for (final entry in siblings.entries) {
     final v = entry.value?.toString() ?? '';
     if (v.isEmpty) continue;
-    if (entry.key == 'width' || entry.key == 'height' || entry.key == 'style' || entry.key == 'title') {
+    if (entry.key == 'width' ||
+        entry.key == 'height' ||
+        entry.key == 'style' ||
+        entry.key == 'title') {
       attrs[entry.key] = v;
     }
   }

@@ -123,7 +123,9 @@ void main() {
           // and no Expanded-in-Stack ParentData assertion.
           final ex = tester.takeException();
           expect(
-            ex == null || (ex is _TypeError && ex.toString().contains('Null check operator')),
+            ex == null ||
+                (ex is _TypeError &&
+                    ex.toString().contains('Null check operator')),
             true,
             reason: 'unexpected: $ex',
           );
@@ -418,14 +420,16 @@ void main() {
         await tester.pump(const Duration(milliseconds: 50));
         expect(received, isNotNull);
         expect(received!.showSubscript, false);
-        final tb = tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
+        final tb =
+            tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
         expect(tb.config.showSubscript, true);
         expect(tb.config.showDirection, true);
         controller.dispose();
       });
     });
 
-    testWidgets('toolbarConfig direct override replaces preset', (tester) async {
+    testWidgets('toolbarConfig direct override replaces preset',
+        (tester) async {
       await tester.runAsync(() async {
         final controller = QuillController.basic();
         const override = QuillSimpleToolbarConfig(
@@ -440,7 +444,8 @@ void main() {
           toolbarConfig: override,
         )));
         await tester.pump(const Duration(milliseconds: 50));
-        final tb = tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
+        final tb =
+            tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
         expect(tb.config.showBoldButton, false);
         expect(tb.config.showSubscript, true);
         controller.dispose();
@@ -460,7 +465,8 @@ void main() {
           toolbar: const ToolbarConfig.top(style: ToolbarStyle.full),
         )));
         await tester.pump(const Duration(milliseconds: 50));
-        final tb = tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
+        final tb =
+            tester.widget<QuillSimpleToolbar>(find.byType(QuillSimpleToolbar));
         expect(tb.config.showDirection, true);
         expect(tb.config.showSubscript, true);
         expect(tb.config.showSuperscript, true);

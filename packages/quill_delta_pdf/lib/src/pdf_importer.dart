@@ -10,7 +10,8 @@ import 'pdf_options.dart';
 /// outside this release's scope. Calling [import] always throws
 /// [UnsupportedFormatException].
 final class PdfImporter implements DeltaImporter<List<int>, PdfOptions> {
-  const PdfImporter({PdfOptions? defaultOptions}) : _defaultOptions = defaultOptions;
+  const PdfImporter({PdfOptions? defaultOptions})
+      : _defaultOptions = defaultOptions;
 
   final PdfOptions? _defaultOptions;
 

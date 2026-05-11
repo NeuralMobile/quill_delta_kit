@@ -71,7 +71,8 @@ class MarkdownOptions extends ConverterOptions {
       allowHtmlPassthrough: allowHtmlPassthrough ?? this.allowHtmlPassthrough,
       hardLineBreak: hardLineBreak ?? this.hardLineBreak,
       imageStrategy: imageStrategy ?? this.imageStrategy,
-      fencedCodeBlockInfoString: fencedCodeBlockInfoString ?? this.fencedCodeBlockInfoString,
+      fencedCodeBlockInfoString:
+          fencedCodeBlockInfoString ?? this.fencedCodeBlockInfoString,
       tableAlignment: tableAlignment ?? this.tableAlignment,
       unknownEmbedFallback: unknownEmbedFallback ?? this.unknownEmbedFallback,
     );

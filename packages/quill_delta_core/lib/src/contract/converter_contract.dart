@@ -51,14 +51,16 @@ void runConverterContract({
           final expected = (fx.plainText ?? _plainTextOf(fx.delta));
           final actual = _plainTextOf(back);
           // Compare normalized: collapse whitespace, drop trailing newline.
-          expect(_norm(actual), _norm(expected), reason: 'plain text must survive: ${fx.name}');
+          expect(_norm(actual), _norm(expected),
+              reason: 'plain text must survive: ${fx.name}');
         });
 
         if (fidelity == ConverterFidelity.lossless) {
           test('lossless round trip — Delta equality', () async {
             final s = await encode(fx.delta);
             final back = await decode(s);
-            expect(back.toJson(), fx.delta.toJson(), reason: 'lossless contract: ${fx.name}');
+            expect(back.toJson(), fx.delta.toJson(),
+                reason: 'lossless contract: ${fx.name}');
           });
         }
       });

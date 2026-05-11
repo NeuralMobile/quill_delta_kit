@@ -1,6 +1,7 @@
 /// Parse and serialize an inline `style="…"` attribute into a stable map.
 class StyleMap {
-  StyleMap([Map<String, String>? init]) : _props = init == null ? <String, String>{} : Map.of(init);
+  StyleMap([Map<String, String>? init])
+      : _props = init == null ? <String, String>{} : Map.of(init);
 
   final Map<String, String> _props;
 
@@ -21,7 +22,8 @@ class StyleMap {
   }
 
   String? operator [](String key) => _props[key.toLowerCase()];
-  void operator []=(String key, String value) => _props[key.toLowerCase()] = value;
+  void operator []=(String key, String value) =>
+      _props[key.toLowerCase()] = value;
   void remove(String key) => _props.remove(key.toLowerCase());
   bool containsKey(String key) => _props.containsKey(key.toLowerCase());
   bool get isEmpty => _props.isEmpty;

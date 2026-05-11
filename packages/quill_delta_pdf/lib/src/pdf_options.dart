@@ -43,5 +43,6 @@ class PdfOptions extends ConverterOptions {
   }
 
   @override
-  int get hashCode => Object.hash(pageSize, embedFonts, compress, unknownEmbedFallback);
+  int get hashCode =>
+      Object.hash(pageSize, embedFonts, compress, unknownEmbedFallback);
 }

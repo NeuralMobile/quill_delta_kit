@@ -44,7 +44,8 @@ void main() {
     });
 
     test('CKEditor oembed -> typed video', () {
-      const html = '<figure class="media"><oembed url="https://vimeo.com/789"></oembed></figure>';
+      const html =
+          '<figure class="media"><oembed url="https://vimeo.com/789"></oembed></figure>';
       final ops = c.decode(html).toJson();
       expect(ops.first['insert']['video'], 'https://vimeo.com/789');
     });
@@ -53,7 +54,11 @@ void main() {
       final original = deltaOf([
         {
           'insert': {
-            'iframe': {'src': 'https://example.com/widget', 'width': '400', 'height': '300'}
+            'iframe': {
+              'src': 'https://example.com/widget',
+              'width': '400',
+              'height': '300'
+            }
           }
         }
       ]);
@@ -61,7 +66,8 @@ void main() {
       expect(html, contains('<iframe'));
       expect(html, contains('src="https://example.com/widget"'));
       final back = c.decode(html);
-      expect(back.toJson().first['insert']['iframe']['src'], 'https://example.com/widget');
+      expect(back.toJson().first['insert']['iframe']['src'],
+          'https://example.com/widget');
     });
   });
 }

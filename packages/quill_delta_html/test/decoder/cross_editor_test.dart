@@ -111,7 +111,8 @@ void main() {
       });
 
       test('TipTap iframe (generic)', () {
-        const html = '<p><iframe src="https://example.com/widget" width="400"></iframe></p>';
+        const html =
+            '<p><iframe src="https://example.com/widget" width="400"></iframe></p>';
         final ops = c.decode(html).toJson();
         // No matching provider -> generic IframeAdapter (which is gated by IframePolicy
         // — default policy allows https + any host).
@@ -163,7 +164,8 @@ void main() {
       });
 
       test('CKEditor MediaEmbed oembed', () {
-        const html = '<figure class="media"><oembed url="https://www.youtube.com/watch?v=abc"></oembed></figure>';
+        const html =
+            '<figure class="media"><oembed url="https://www.youtube.com/watch?v=abc"></oembed></figure>';
         expect(c.decode(html).toJson(), [
           {
             'insert': {'video': 'https://www.youtube.com/watch?v=abc'}
@@ -176,11 +178,16 @@ void main() {
             '<figure class="image"><img src="https://x/y.png" width="200"><figcaption>caption</figcaption></figure>';
         final ops = c.decode(html).toJson();
         // Adapter doesn't know "figure.image" specifically — figure transparent, img picked up.
-        expect(ops.any((o) => o['insert'] is Map && (o['insert'] as Map)['image'] == 'https://x/y.png'), true);
+        expect(
+            ops.any((o) =>
+                o['insert'] is Map &&
+                (o['insert'] as Map)['image'] == 'https://x/y.png'),
+            true);
       });
 
       test('CKEditor mention', () {
-        const html = '<p><span class="mention" data-mention="@Alice">@Alice</span> hi</p>';
+        const html =
+            '<p><span class="mention" data-mention="@Alice">@Alice</span> hi</p>';
         final ops = c.decode(html).toJson();
         expect(ops.first['insert']['mention']['value'], 'Alice');
       });
@@ -215,7 +222,8 @@ void main() {
       });
 
       test('Lexical-style anchor with rel/target', () {
-        const html = '<p><a href="https://x" target="_blank" rel="noopener">link</a></p>';
+        const html =
+            '<p><a href="https://x" target="_blank" rel="noopener">link</a></p>';
         final ops = c.decode(html).toJson();
         expect(ops.first['attributes']['link'], 'https://x');
       });

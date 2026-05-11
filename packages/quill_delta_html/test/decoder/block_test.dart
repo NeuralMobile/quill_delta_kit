@@ -57,13 +57,15 @@ void main() {
     });
 
     test('pre with language class', () {
-      expect(c.decode('<pre><code class="language-dart">x</code></pre>').toJson(), [
-        {'insert': 'x'},
-        {
-          'insert': '\n',
-          'attributes': {'code-block': 'dart'}
-        }
-      ]);
+      expect(
+          c.decode('<pre><code class="language-dart">x</code></pre>').toJson(),
+          [
+            {'insert': 'x'},
+            {
+              'insert': '\n',
+              'attributes': {'code-block': 'dart'}
+            }
+          ]);
     });
 
     test('align center via style', () {

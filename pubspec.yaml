@@ -11,4 +11,5 @@ workspace:
   - packages/quill_delta_docx
   - packages/quill_delta_pdf
   - packages/quill_delta_editor
+  - packages/quill_delta_editor/example
   - packages/_e2e_tests

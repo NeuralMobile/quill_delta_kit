@@ -1,6 +1,7 @@
 // Static OOXML package parts written into every produced .docx archive.
 
-const String contentTypesXml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+const String contentTypesXml =
+    '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="xml" ContentType="application/xml"/>
@@ -9,12 +10,14 @@ const String contentTypesXml = '''<?xml version="1.0" encoding="UTF-8" standalon
   <Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>
 </Types>''';
 
-const String rootRelsXml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+const String rootRelsXml =
+    '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
 </Relationships>''';
 
-const String stylesXml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+const String stylesXml =
+    '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:docDefaults>
     <w:rPrDefault>
@@ -84,7 +87,8 @@ const String stylesXml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes
 ///   - abstractNumId 0 -> bullet  (numId 1)
 ///   - abstractNumId 1 -> ordered (numId 2)
 /// Each defines 9 indent levels (ilvl 0..8) which is the OOXML maximum.
-final String numberingXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+final String numberingXml =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     '<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
     '<w:abstractNum w:abstractNumId="0">${_bulletLevels()}</w:abstractNum>'
     '<w:abstractNum w:abstractNumId="1">${_orderedLevels()}</w:abstractNum>'
@@ -134,8 +138,11 @@ String buildDocumentRelsXml(Map<String, String> hyperlinks) {
       'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" '
       'Target="numbering.xml"/>');
   for (final entry in hyperlinks.entries) {
-    final url =
-        entry.value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    final url = entry.value
+        .replaceAll('&', '&amp;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
     buf.write('<Relationship Id="${entry.key}" '
         'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" '
         'Target="$url" TargetMode="External"/>');

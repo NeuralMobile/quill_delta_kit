@@ -11,7 +11,8 @@
 library quill_delta_core;
 
 export 'src/converter/converter_options.dart';
-export 'src/converter/converter_registry.dart' show ConverterRegistry, sniffMagicBytes, sniffExtension;
+export 'src/converter/converter_registry.dart'
+    show ConverterRegistry, sniffMagicBytes, sniffExtension;
 export 'src/converter/delta_exporter.dart';
 export 'src/converter/delta_importer.dart';
 export 'src/converter/embed_adapter_base.dart';

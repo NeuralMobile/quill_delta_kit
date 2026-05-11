@@ -7,7 +7,8 @@ void main() {
 
   group('table adapter', () {
     test('basic table round-trip', () {
-      const html = '<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>';
+      const html =
+          '<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>';
       final delta = c.decode(html);
       final ops = delta.toJson();
       expect(ops.first['insert'], isA<Map<String, dynamic>>());
@@ -34,7 +35,8 @@ void main() {
     });
 
     test('table with formatted cells', () {
-      const html = '<table><tr><td><strong>bold</strong> <em>i</em></td></tr></table>';
+      const html =
+          '<table><tr><td><strong>bold</strong> <em>i</em></td></tr></table>';
       final delta = c.decode(html);
       final reHtml = c.encode(delta);
       expect(reHtml, contains('<strong>bold</strong>'));

@@ -140,8 +140,10 @@ class HtmlOptions extends ConverterOptions {
       preserveWhitespace: preserveWhitespace ?? this.preserveWhitespace,
       iframePolicy: iframePolicy ?? this.iframePolicy,
       canonicalColorFormat: canonicalColorFormat ?? this.canonicalColorFormat,
-      emitCheckedListBothShapes: emitCheckedListBothShapes ?? this.emitCheckedListBothShapes,
-      useFlutterQuillCustomWrapper: useFlutterQuillCustomWrapper ?? this.useFlutterQuillCustomWrapper,
+      emitCheckedListBothShapes:
+          emitCheckedListBothShapes ?? this.emitCheckedListBothShapes,
+      useFlutterQuillCustomWrapper:
+          useFlutterQuillCustomWrapper ?? this.useFlutterQuillCustomWrapper,
       unknownEmbedFallback: unknownEmbedFallback ?? this.unknownEmbedFallback,
     );
   }
@@ -186,7 +188,8 @@ class IframePolicyDefault implements IframePolicy {
   @override
   bool get requireSandbox => false;
   @override
-  List<String> get defaultSandbox => const ['allow-scripts', 'allow-same-origin'];
+  List<String> get defaultSandbox =>
+      const ['allow-scripts', 'allow-same-origin'];
   @override
   Set<String> get allowedAttrs => const {
         'src',

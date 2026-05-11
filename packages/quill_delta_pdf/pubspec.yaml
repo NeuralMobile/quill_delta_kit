@@ -22,8 +22,7 @@ dependencies:
   dart_quill_delta: ^10.8.0
   meta: ^1.16.0
   pdf: ^3.11.0
-  quill_delta_core:
-    path: ../quill_delta_core
+  quill_delta_core: ^0.1.0
 
 dev_dependencies:
   lints: ^4.0.0

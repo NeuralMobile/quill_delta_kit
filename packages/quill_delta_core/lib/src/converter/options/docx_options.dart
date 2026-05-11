@@ -69,7 +69,8 @@ class DocxOptions extends ConverterOptions {
       preserveTrackChanges: preserveTrackChanges ?? this.preserveTrackChanges,
       imageEmbed: imageEmbed ?? this.imageEmbed,
       pageSize: pageSize ?? this.pageSize,
-      extractCommentsAsSideNotes: extractCommentsAsSideNotes ?? this.extractCommentsAsSideNotes,
+      extractCommentsAsSideNotes:
+          extractCommentsAsSideNotes ?? this.extractCommentsAsSideNotes,
       defaultFontFamily: defaultFontFamily ?? this.defaultFontFamily,
       defaultFontSizePt: defaultFontSizePt ?? this.defaultFontSizePt,
       expandMergedCells: expandMergedCells ?? this.expandMergedCells,

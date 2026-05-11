@@ -68,7 +68,8 @@ void main() {
 
   group('StyleMap', () {
     test('parse + canonical serialize', () {
-      final s = StyleMap.parse('color:red;background-color: blue; font-size:14px;');
+      final s =
+          StyleMap.parse('color:red;background-color: blue; font-size:14px;');
       expect(s['color'], 'red');
       expect(s['background-color'], 'blue');
       expect(s.toCss(), 'background-color: blue; color: red; font-size: 14px');

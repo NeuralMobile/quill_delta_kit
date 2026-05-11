@@ -19,7 +19,8 @@ void main() {
       expect(CssColor.parse('red')!.toCss(), '#ff0000');
     });
     test('rgba alpha', () {
-      expect(CssColor.parse('rgba(0, 0, 0, 0.5)')!.toCss(), 'rgba(0, 0, 0, 0.502)');
+      expect(CssColor.parse('rgba(0, 0, 0, 0.5)')!.toCss(),
+          'rgba(0, 0, 0, 0.502)');
     });
   });
 

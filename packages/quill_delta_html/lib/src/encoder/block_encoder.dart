@@ -80,7 +80,9 @@ class BlockEncoder {
           final l = lines[i];
           final bb = l.blockAttrs ?? const <String, dynamic>{};
           if (bb['blockquote'] == null || bb['blockquote'] == false) break;
-          if (bb['list'] != null || bb['code-block'] != null || bb['header'] != null) break;
+          if (bb['list'] != null ||
+              bb['code-block'] != null ||
+              bb['header'] != null) break;
           final styleAttrs = _lineStyleAttrs(bb);
           writer.open('p', styleAttrs);
           for (final op in l.ops) {
@@ -179,7 +181,8 @@ class BlockEncoder {
       if ((tag == 'ol') != (outerTag == 'ol')) break;
 
       consumed++;
-      final indent = (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
+      final indent =
+          (attrs['indent'] is num) ? (attrs['indent'] as num).toInt() : 0;
       final targetDepth = indent + 1;
 
       // De-nest: close lists deeper than target.
@@ -256,5 +259,6 @@ class BlockEncoder {
     return 'ul';
   }
 
-  bool _isBlockLevelEmbed(String type) => type == 'divider' || type == 'hr' || type == 'table';
+  bool _isBlockLevelEmbed(String type) =>
+      type == 'divider' || type == 'hr' || type == 'table';
 }

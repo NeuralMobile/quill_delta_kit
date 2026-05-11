@@ -31,7 +31,8 @@ class PassthroughAdapter extends EmbedAdapter {
 
   @override
   bool matches(dom.Element element) =>
-      element.localName == 'span' && element.attributes.containsKey('data-quill-unknown');
+      element.localName == 'span' &&
+      element.attributes.containsKey('data-quill-unknown');
 
   @override
   Map<String, dynamic>? decode(dom.Element element, QuillHtmlOptions options) {

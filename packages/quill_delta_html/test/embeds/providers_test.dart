@@ -18,7 +18,8 @@ void main() {
 
     test('Loom decode iframe -> typed', () {
       const html = '<iframe src="https://www.loom.com/embed/xyz"></iframe>';
-      expect(c.decode(html).toJson().first['insert'], {'loom': 'https://www.loom.com/embed/xyz'});
+      expect(c.decode(html).toJson().first['insert'],
+          {'loom': 'https://www.loom.com/embed/xyz'});
     });
 
     test('Spotify watch -> embed', () {
@@ -32,7 +33,8 @@ void main() {
     });
 
     test('Spotify decode', () {
-      const html = '<iframe src="https://open.spotify.com/embed/track/abc"></iframe>';
+      const html =
+          '<iframe src="https://open.spotify.com/embed/track/abc"></iframe>';
       expect(c.decode(html).toJson().first['insert']['spotify'], isNotEmpty);
     });
 
@@ -44,7 +46,8 @@ void main() {
         {'insert': '\n'}
       ]);
       final back = c.decode(c.encode(orig));
-      expect(back.toJson().first['insert']['soundcloud'], 'https://w.soundcloud.com/player/?url=...');
+      expect(back.toJson().first['insert']['soundcloud'],
+          'https://w.soundcloud.com/player/?url=...');
     });
 
     test('CodePen pen -> embed', () {
@@ -69,7 +72,8 @@ void main() {
     });
 
     test('Tweet decode', () {
-      const html = '<blockquote class="twitter-tweet" data-tweet-url="https://x.com/u/status/2">'
+      const html =
+          '<blockquote class="twitter-tweet" data-tweet-url="https://x.com/u/status/2">'
           '<a href="https://x.com/u/status/2">x</a></blockquote>';
       expect(
         c.decode(html).toJson().first['insert']['tweet'],

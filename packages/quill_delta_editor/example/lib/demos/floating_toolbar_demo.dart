@@ -67,7 +67,8 @@ class _FloatingToolbarDemoState extends State<FloatingToolbarDemo> {
                   toolbar: ToolbarConfig.floating(
                     position: _position,
                     style: ToolbarStyle.minimal,
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
                   ),
                 ),
               ),

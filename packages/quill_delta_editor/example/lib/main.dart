@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
+import 'package:flutter_quill/flutter_quill.dart'
+    show FlutterQuillLocalizations;
 
 import 'demos/auth_injection_demo.dart';
 import 'demos/auto_grow_demo.dart';
@@ -47,7 +48,8 @@ class _Home extends StatelessWidget {
     _Demo('Auth-injected previews', Icons.lock, AuthInjectionDemo()),
     _Demo('Custom toolbar', Icons.build, CustomToolbarDemo()),
     _Demo('Corner floating toolbar', Icons.layers, FloatingToolbarDemo()),
-    _Demo('Selection toolbar (iOS-style)', Icons.text_fields, SelectionToolbarDemo()),
+    _Demo('Selection toolbar (iOS-style)', Icons.text_fields,
+        SelectionToolbarDemo()),
     _Demo('Multi-format export', Icons.import_export, ExportDemo()),
     _Demo('Import documents', Icons.upload_file, ImportDemo()),
   ];

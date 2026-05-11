@@ -35,7 +35,8 @@ final class DocxImporter extends HtmlPivotImporter<List<int>, DocxOptions>
   DocxOptions get defaultOptions => _defaultOptions ?? const DocxOptions();
 
   @override
-  Future<String> toHtml(List<int> input, DocxOptions options) async => docxToHtml(input);
+  Future<String> toHtml(List<int> input, DocxOptions options) async =>
+      docxToHtml(input);
 
   /// Synchronous variant. ZIP unpacking + OOXML → HTML + HTML → Delta are
   /// all fully sync; this entry point skips the Future.

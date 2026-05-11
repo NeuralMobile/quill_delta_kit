@@ -43,13 +43,21 @@ class MentionAdapter extends EmbedAdapter {
 
   @override
   Map<String, dynamic>? decode(dom.Element element, QuillHtmlOptions options) {
-    final id = element.attributes['data-mention-id'] ?? element.attributes['data-id'] ?? '';
-    var value = element.attributes['data-mention-value'] ?? element.attributes['data-label'] ?? '';
+    final id = element.attributes['data-mention-id'] ??
+        element.attributes['data-id'] ??
+        '';
+    var value = element.attributes['data-mention-value'] ??
+        element.attributes['data-label'] ??
+        '';
     final ckeditor = element.attributes['data-mention'];
     final char = element.attributes['data-denotation-char'] ??
-        (ckeditor != null && ckeditor.isNotEmpty ? ckeditor.substring(0, 1) : '@');
+        (ckeditor != null && ckeditor.isNotEmpty
+            ? ckeditor.substring(0, 1)
+            : '@');
     if (value.isEmpty) {
-      value = element.text.startsWith(char) ? element.text.substring(char.length) : element.text;
+      value = element.text.startsWith(char)
+          ? element.text.substring(char.length)
+          : element.text;
     }
     return {
       'insert': {

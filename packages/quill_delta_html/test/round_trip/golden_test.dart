@@ -9,13 +9,16 @@ void main() {
   /// - color values -> canonical CSS form
   /// - size: 'large' -> 'large' (named round-trips)
   /// - flutter_quill ARGB hex -> canonical rgba (lossy if alpha < 255 in alternate form)
-  void rt(List<Map<String, dynamic>> input, [List<Map<String, dynamic>>? expectedAfter]) {
+  void rt(List<Map<String, dynamic>> input,
+      [List<Map<String, dynamic>>? expectedAfter]) {
     final original = deltaOf(input);
     final html = c.encode(original);
     final out = c.decode(html);
-    final expectedDelta = expectedAfter != null ? deltaOf(expectedAfter) : original;
+    final expectedDelta =
+        expectedAfter != null ? deltaOf(expectedAfter) : original;
     expect(normalize(out).toJson(), normalize(expectedDelta).toJson(),
-        reason: 'round-trip mismatch for $input\n   html: $html\n   out: ${out.toJson()}');
+        reason:
+            'round-trip mismatch for $input\n   html: $html\n   out: ${out.toJson()}');
   }
 
   group('round-trip', () {

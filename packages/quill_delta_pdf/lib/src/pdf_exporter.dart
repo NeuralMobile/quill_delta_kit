@@ -18,7 +18,8 @@ import 'pdf_options.dart';
 ///
 /// Out of scope: tables, images, custom embeds, multi-column layout.
 final class PdfExporter implements DeltaExporter<List<int>, PdfOptions> {
-  const PdfExporter({PdfOptions? defaultOptions}) : _defaultOptions = defaultOptions;
+  const PdfExporter({PdfOptions? defaultOptions})
+      : _defaultOptions = defaultOptions;
 
   final PdfOptions? _defaultOptions;
 
@@ -143,7 +144,8 @@ List<pw.Widget> _buildWidgets(Delta delta) {
     // List item.
     if (block['list'] != null) {
       final type = block['list'].toString();
-      final indent = (block['indent'] is num) ? (block['indent'] as num).toInt() : 0;
+      final indent =
+          (block['indent'] is num) ? (block['indent'] as num).toInt() : 0;
       String marker;
       switch (type) {
         case 'ordered':
@@ -178,7 +180,8 @@ List<pw.Widget> _buildWidgets(Delta delta) {
     // Block-level divider/hr.
     if (line.ops.length == 1 && line.ops.first.isEmbed) {
       final embed = line.ops.first.asEmbed;
-      if (embed.isNotEmpty && (embed.keys.first == 'divider' || embed.keys.first == 'hr')) {
+      if (embed.isNotEmpty &&
+          (embed.keys.first == 'divider' || embed.keys.first == 'hr')) {
         out.add(pw.Divider());
         i++;
         orderedCounters.clear();
@@ -198,7 +201,8 @@ List<pw.Widget> _buildWidgets(Delta delta) {
   return out;
 }
 
-double _headerFontSize(int level) => [24.0, 20.0, 16.0, 14.0, 12.0, 11.0][level - 1];
+double _headerFontSize(int level) =>
+    [24.0, 20.0, 16.0, 14.0, 12.0, 11.0][level - 1];
 
 pw.Widget _buildParagraph(
   List<InlineOp> ops,
@@ -214,7 +218,8 @@ pw.Widget _buildParagraph(
     final text = op.asText;
     if (text.isEmpty) continue;
     final attrs = op.attributes ?? const <String, dynamic>{};
-    spans.add(_buildSpan(text, attrs, bold: bold, italic: italic, baseFontSize: baseFontSize));
+    spans.add(_buildSpan(text, attrs,
+        bold: bold, italic: italic, baseFontSize: baseFontSize));
   }
   if (spans.isEmpty) {
     return pw.SizedBox(height: baseFontSize ?? 11);
@@ -279,7 +284,8 @@ pw.InlineSpan _buildSpan(
     color: color,
     fontWeight: weight,
     fontStyle: fontStyle,
-    decoration: decorations.isEmpty ? null : pw.TextDecoration.combine(decorations),
+    decoration:
+        decorations.isEmpty ? null : pw.TextDecoration.combine(decorations),
   );
 
   final link = attrs['link']?.toString();

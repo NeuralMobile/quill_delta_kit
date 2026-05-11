@@ -32,8 +32,7 @@ void main() {
       expect(json.any((op) => op['insert'] == 'Title'), true);
       expect(
         json.any((op) =>
-            op['insert'] == '\n' &&
-            (op['attributes'] as Map?)?['header'] == 1),
+            op['insert'] == '\n' && (op['attributes'] as Map?)?['header'] == 1),
         true,
       );
       controller.dispose();

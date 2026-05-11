@@ -94,15 +94,73 @@ void main() {
     test('inline image emits <img> with data-URI src', () async {
       // 1×1 transparent PNG.
       const pngBytes = [
-        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
-        0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
-        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-        0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
-        0x89, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x44, 0x41,
-        0x54, 0x78, 0x9C, 0x62, 0x00, 0x01, 0x00, 0x00,
-        0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
-        0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
-        0x42, 0x60, 0x82,
+        0x89,
+        0x50,
+        0x4E,
+        0x47,
+        0x0D,
+        0x0A,
+        0x1A,
+        0x0A,
+        0x00,
+        0x00,
+        0x00,
+        0x0D,
+        0x49,
+        0x48,
+        0x44,
+        0x52,
+        0x00,
+        0x00,
+        0x00,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        0x01,
+        0x08,
+        0x06,
+        0x00,
+        0x00,
+        0x00,
+        0x1F,
+        0x15,
+        0xC4,
+        0x89,
+        0x00,
+        0x00,
+        0x00,
+        0x0D,
+        0x49,
+        0x44,
+        0x41,
+        0x54,
+        0x78,
+        0x9C,
+        0x62,
+        0x00,
+        0x01,
+        0x00,
+        0x00,
+        0x05,
+        0x00,
+        0x01,
+        0x0D,
+        0x0A,
+        0x2D,
+        0xB4,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x49,
+        0x45,
+        0x4E,
+        0x44,
+        0xAE,
+        0x42,
+        0x60,
+        0x82,
       ];
       const documentBody = '<w:p><w:r><w:drawing>'
           '<wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">'
@@ -131,9 +189,11 @@ void main() {
         final bytes = utf8.encode(content);
         archive.addFile(ArchiveFile(path, bytes.length, bytes));
       }
+
       void addBytes(String path, List<int> bytes) {
         archive.addFile(ArchiveFile(path, bytes.length, bytes));
       }
+
       addStr('word/document.xml', doc);
       addStr('word/_rels/document.xml.rels', relsXml);
       addBytes('word/media/image1.png', pngBytes);
@@ -188,7 +248,10 @@ void main() {
       final json = delta.toJson();
       expect(json.length, greaterThanOrEqualTo(1));
       // First op should contain our text.
-      final text = json.where((op) => op['insert'] is String).map((op) => op['insert'] as String).join();
+      final text = json
+          .where((op) => op['insert'] is String)
+          .map((op) => op['insert'] as String)
+          .join();
       expect(text, contains('Hello world'));
     });
 
@@ -199,7 +262,9 @@ void main() {
       final delta = await imp.import(bytes);
       final json = delta.toJson();
       final boldOp = json.firstWhere(
-        (op) => op['attributes'] is Map && (op['attributes'] as Map)['bold'] == true,
+        (op) =>
+            op['attributes'] is Map &&
+            (op['attributes'] as Map)['bold'] == true,
         orElse: () => {},
       );
       expect(boldOp['insert'], 'Bold');
@@ -208,7 +273,10 @@ void main() {
     test('format metadata', () {
       expect(imp.format, 'docx');
       expect(imp.extensions, contains('docx'));
-      expect(imp.mimeTypes, contains('application/vnd.openxmlformats-officedocument.wordprocessingml.document'));
+      expect(
+          imp.mimeTypes,
+          contains(
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document'));
     });
   });
 
@@ -258,8 +326,10 @@ void main() {
         ..insert('\n', {'list': 'bullet'});
       final bytes = await exp.export(delta);
       final back = await imp.import(bytes);
-      final text =
-          back.operations.where((op) => op.isInsert && op.data is String).map((op) => op.data as String).join();
+      final text = back.operations
+          .where((op) => op.isInsert && op.data is String)
+          .map((op) => op.data as String)
+          .join();
       expect(text, contains('Title'));
       expect(text, contains('Para with bold and italic'));
       expect(text, contains('item 1'));

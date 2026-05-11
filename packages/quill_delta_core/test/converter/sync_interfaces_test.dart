@@ -12,9 +12,11 @@ class _FakeSyncImporter implements SyncDeltaImporter<String, HtmlOptions> {
   @override
   HtmlOptions get defaultOptions => const HtmlOptions();
   @override
-  Future<Delta> import(String input, {HtmlOptions? options}) async => importSync(input);
+  Future<Delta> import(String input, {HtmlOptions? options}) async =>
+      importSync(input);
   @override
-  Delta importSync(String input, {HtmlOptions? options}) => Delta()..insert('x');
+  Delta importSync(String input, {HtmlOptions? options}) =>
+      Delta()..insert('x');
 }
 
 void main() {

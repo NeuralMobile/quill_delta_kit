@@ -43,7 +43,10 @@ void main() {
 
     test('checked via per-li data-list (TipTap-ish)', () {
       expect(
-        c.decode('<ul data-checked="false"><li data-list="checked">a</li></ul>').toJson(),
+        c
+            .decode(
+                '<ul data-checked="false"><li data-list="checked">a</li></ul>')
+            .toJson(),
         [
           {'insert': 'a'},
           {
@@ -68,7 +71,8 @@ void main() {
     });
 
     test('TipTap task list', () {
-      const tip = '<ul data-type="taskList"><li data-type="taskItem" data-checked="true">'
+      const tip =
+          '<ul data-type="taskList"><li data-type="taskItem" data-checked="true">'
           '<label><input type="checkbox" checked></label><div>a</div></li></ul>';
       expect(c.decode(tip).toJson(), [
         {'insert': 'a'},

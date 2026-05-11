@@ -23,7 +23,11 @@ void main() {
       final html = c.encode(deltaOf([
         {
           'insert': {'image': 'https://x/a.png'},
-          'attributes': {'width': '100', 'height': '50', 'style': 'margin: auto'}
+          'attributes': {
+            'width': '100',
+            'height': '50',
+            'style': 'margin: auto'
+          }
         },
         {'insert': '\n'}
       ]));

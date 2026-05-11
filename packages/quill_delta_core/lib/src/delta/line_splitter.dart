@@ -67,7 +67,8 @@ List<Line> splitIntoLines(Delta delta) {
         if (data.codeUnitAt(i) != 0x0A) continue;
         // Text before newline -> inline op (may be empty for back-to-back \n).
         if (i > start) {
-          current.add(InlineOp(data: data.substring(start, i), attributes: attrs));
+          current
+              .add(InlineOp(data: data.substring(start, i), attributes: attrs));
         }
         // Block attrs come from this op's attributes (block-keyed subset).
         flush(_extractBlockAttrs(attrs));

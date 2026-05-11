@@ -19,7 +19,8 @@ void main() {
     });
 
     test('decode ql-formula', () {
-      const html = '<p><span class="ql-formula" data-formula="x^2">x^2</span></p>';
+      const html =
+          '<p><span class="ql-formula" data-formula="x^2">x^2</span></p>';
       expect(c.decode(html).toJson().first['insert']['formula'], 'x^2');
     });
 
@@ -50,7 +51,8 @@ void main() {
     test('renderer hook injects rendered HTML', () {
       final cR = QuillHtmlCodec(
         adapters: [
-          FormulaAdapter(renderer: (tex) => '<span class="rendered">[[$tex]]</span>'),
+          FormulaAdapter(
+              renderer: (tex) => '<span class="rendered">[[$tex]]</span>'),
         ],
         options: const QuillHtmlOptions(wrapDocument: false),
       );

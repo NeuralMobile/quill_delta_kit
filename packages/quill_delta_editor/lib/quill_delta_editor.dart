@@ -10,7 +10,8 @@ export 'package:quill_delta_html/quill_delta_html.dart';
 export 'package:quill_delta_markdown/quill_delta_markdown.dart';
 
 // flutter_quill core types so callers don't need a second import.
-export 'package:flutter_quill/flutter_quill.dart' show QuillController, EmbedBuilder, EmbedContext;
+export 'package:flutter_quill/flutter_quill.dart'
+    show QuillController, EmbedBuilder, EmbedContext;
 
 export 'src/config/editor_layout.dart';
 export 'src/config/toolbar_config.dart';

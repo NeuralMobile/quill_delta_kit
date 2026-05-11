@@ -97,7 +97,8 @@ void main() {
 
       final html = c.encode(original);
       final back = c.decode(html);
-      expect(normalize(back).toJson(), normalize(original).toJson(), reason: 'html=\n$html');
+      expect(normalize(back).toJson(), normalize(original).toJson(),
+          reason: 'html=\n$html');
     });
 
     test('deep nested formatting', () {

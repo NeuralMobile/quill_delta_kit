@@ -22,13 +22,18 @@ class MediaPreviewBuilders {
   final MediaPreviewBuilder? formulaBuilder;
 
   /// Convenience: same builder for image / video / audio.
-  factory MediaPreviewBuilders.uniform(MediaPreviewBuilder builder) => MediaPreviewBuilders(
+  factory MediaPreviewBuilders.uniform(MediaPreviewBuilder builder) =>
+      MediaPreviewBuilders(
         imageBuilder: builder,
         videoBuilder: builder,
         audioBuilder: builder,
       );
 
-  bool get isEmpty => imageBuilder == null && videoBuilder == null && audioBuilder == null && formulaBuilder == null;
+  bool get isEmpty =>
+      imageBuilder == null &&
+      videoBuilder == null &&
+      audioBuilder == null &&
+      formulaBuilder == null;
 }
 
 typedef MediaPreviewBuilder = Widget Function(
@@ -79,8 +84,12 @@ class MediaPreviewContext {
       title: attrs['title']?.toString(),
       style: attrs['style']?.toString(),
       extra: Map.fromEntries(
-        attrs.entries.where(
-            (e) => e.key != 'width' && e.key != 'height' && e.key != 'alt' && e.key != 'title' && e.key != 'style'),
+        attrs.entries.where((e) =>
+            e.key != 'width' &&
+            e.key != 'height' &&
+            e.key != 'alt' &&
+            e.key != 'title' &&
+            e.key != 'style'),
       ),
     );
   }

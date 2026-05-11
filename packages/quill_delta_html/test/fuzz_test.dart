@@ -11,7 +11,8 @@ import '_helpers.dart';
 ///
 /// Tests are deterministic per seed. Increase `iterations` for deeper coverage.
 void main() {
-  final c = QuillHtmlCodec(options: const QuillHtmlOptions(wrapDocument: false));
+  final c =
+      QuillHtmlCodec(options: const QuillHtmlOptions(wrapDocument: false));
   const seeds = [1, 7, 42, 1024, 31415, 99991];
   const iterations = 30;
 
@@ -89,8 +90,10 @@ Map<String, dynamic>? _randomInlineAttrs(Random rng) {
     final size = ['small', 'large', 'huge', '14', '16', '20'][rng.nextInt(6)];
     attrs['size'] = size;
   }
-  if (rng.nextDouble() < 0.05) attrs['script'] = rng.nextBool() ? 'super' : 'sub';
-  if (rng.nextDouble() < 0.05) attrs['link'] = 'https://example.com/${rng.nextInt(1000)}';
+  if (rng.nextDouble() < 0.05)
+    attrs['script'] = rng.nextBool() ? 'super' : 'sub';
+  if (rng.nextDouble() < 0.05)
+    attrs['link'] = 'https://example.com/${rng.nextInt(1000)}';
   return attrs.isEmpty ? null : attrs;
 }
 
@@ -141,7 +144,11 @@ Map<String, dynamic> _randomEmbed(Random rng) {
       return {'video': 'https://x/v${rng.nextInt(99)}.mp4'};
     case 3:
       return {
-        'mention': {'id': '${rng.nextInt(1000)}', 'value': 'User${rng.nextInt(99)}', 'denotationChar': '@'}
+        'mention': {
+          'id': '${rng.nextInt(1000)}',
+          'value': 'User${rng.nextInt(99)}',
+          'denotationChar': '@'
+        }
       };
     default:
       return {'formula': 'x^${rng.nextInt(10)}'};

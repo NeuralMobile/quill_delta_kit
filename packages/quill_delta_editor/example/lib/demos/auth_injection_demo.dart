@@ -128,7 +128,8 @@ class _AuthVideoPlaceholder extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.play_circle_outline, color: Colors.white, size: 48),
+            const Icon(Icons.play_circle_outline,
+                color: Colors.white, size: 48),
             const SizedBox(height: 8),
             Text(url,
                 style: const TextStyle(color: Colors.white70, fontSize: 11),

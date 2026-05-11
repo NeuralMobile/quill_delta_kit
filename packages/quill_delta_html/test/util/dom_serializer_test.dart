@@ -42,7 +42,8 @@ void main() {
 
     test('attribute values are entity-encoded', () {
       final el = dom.Element.tag('a')..attributes['href'] = 'x?a=1&b="2"';
-      expect(DomSerializer().serialize(el), '<a href="x?a=1&amp;b=&quot;2&quot;"></a>');
+      expect(DomSerializer().serialize(el),
+          '<a href="x?a=1&amp;b=&quot;2&quot;"></a>');
     });
   });
 }

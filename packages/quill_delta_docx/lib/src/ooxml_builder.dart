@@ -48,7 +48,8 @@ OoxmlBuildResult buildOoxmlBody(Delta delta) {
     // List paragraph: write each as <w:p> with numPr.
     if (block['list'] != null) {
       final type = block['list'].toString();
-      final indent = (block['indent'] is num) ? (block['indent'] as num).toInt() : 0;
+      final indent =
+          (block['indent'] is num) ? (block['indent'] as num).toInt() : 0;
       final numId = type == 'ordered' ? 2 : 1;
       buf.write('<w:p><w:pPr><w:pStyle w:val="ListParagraph"/>');
       buf.write('<w:numPr>');
@@ -106,8 +107,10 @@ OoxmlBuildResult buildOoxmlBody(Delta delta) {
 
     // Plain paragraph.
     buf.write('<w:p>');
-    final hasPPr =
-        block['align'] != null || block['indent'] != null || block['direction'] != null || block['line-height'] != null;
+    final hasPPr = block['align'] != null ||
+        block['indent'] != null ||
+        block['direction'] != null ||
+        block['line-height'] != null;
     if (hasPPr) {
       buf.write('<w:pPr>');
       _writePPrInner(buf, block);
@@ -258,6 +261,7 @@ double? _toPx(String css) {
   return double.tryParse(m.group(1)!);
 }
 
-String _escapeText(String s) => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+String _escapeText(String s) =>
+    s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
 String _escapeAttr(String s) => _escapeText(s).replaceAll('"', '&quot;');

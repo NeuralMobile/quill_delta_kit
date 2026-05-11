@@ -18,7 +18,8 @@ import 'options/html_options.dart';
 /// Why HTML pivot: every embed adapter operates on HTML DOM, so any format
 /// that pivots through HTML automatically gets the full embed adapter
 /// catalog (image, video, mention, table, etc.) for free.
-abstract base class HtmlPivotImporter<TIn, TOpts extends ConverterOptions> implements DeltaImporter<TIn, TOpts> {
+abstract base class HtmlPivotImporter<TIn, TOpts extends ConverterOptions>
+    implements DeltaImporter<TIn, TOpts> {
   const HtmlPivotImporter({required this.htmlImporter});
 
   /// HTML -> Delta importer used for the pivot stage.

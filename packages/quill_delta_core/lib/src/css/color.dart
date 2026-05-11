@@ -85,7 +85,11 @@ class CssColor {
     final end = s.indexOf(')');
     if (start < 0 || end < 0) return null;
     final inner = s.substring(start + 1, end);
-    final parts = inner.replaceAll('/', ',').split(_separatorRe).where((p) => p.isNotEmpty).toList();
+    final parts = inner
+        .replaceAll('/', ',')
+        .split(_separatorRe)
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.length < 3 || parts.length > 4) return null;
     int? component(String p) {
       if (p.endsWith('%')) {
@@ -122,7 +126,11 @@ class CssColor {
     final end = s.indexOf(')');
     if (start < 0 || end < 0) return null;
     final inner = s.substring(start + 1, end);
-    final parts = inner.replaceAll('/', ',').split(_separatorRe).where((p) => p.isNotEmpty).toList();
+    final parts = inner
+        .replaceAll('/', ',')
+        .split(_separatorRe)
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.length < 3 || parts.length > 4) return null;
 
     double? num(String p) {
@@ -174,13 +182,17 @@ class CssColor {
         alpha = (av * 255).round().clamp(0, 255);
       }
     }
-    return CssColor((rd * 255).round(), (gd * 255).round(), (bd * 255).round(), alpha);
+    return CssColor(
+        (rd * 255).round(), (gd * 255).round(), (bd * 255).round(), alpha);
   }
 
   /// Canonical CSS form. Uses rgba() when alpha < 255, else 6-digit hex.
   String toCss() {
     if (a < 255) {
-      final aa = (a / 255).toStringAsFixed(3).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+      final aa = (a / 255)
+          .toStringAsFixed(3)
+          .replaceAll(RegExp(r'0+$'), '')
+          .replaceAll(RegExp(r'\.$'), '');
       return 'rgba($r, $g, $b, $aa)';
     }
     return '#${_h(r)}${_h(g)}${_h(b)}';
@@ -201,7 +213,12 @@ class CssColor {
   String toString() => toCss();
 
   @override
-  bool operator ==(Object other) => other is CssColor && other.r == r && other.g == g && other.b == b && other.a == a;
+  bool operator ==(Object other) =>
+      other is CssColor &&
+      other.r == r &&
+      other.g == g &&
+      other.b == b &&
+      other.a == a;
 
   @override
   int get hashCode => Object.hash(r, g, b, a);

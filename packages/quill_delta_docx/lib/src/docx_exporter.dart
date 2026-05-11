@@ -20,8 +20,11 @@ import 'ooxml_parts.dart';
 /// Out of scope for v0.1: images, comments, track changes, footnotes,
 /// embedded objects, themes, fontTable, sections.
 final class DocxExporter
-    implements DeltaExporter<List<int>, DocxOptions>, SyncDeltaExporter<List<int>, DocxOptions> {
-  const DocxExporter({DocxOptions? defaultOptions}) : _defaultOptions = defaultOptions;
+    implements
+        DeltaExporter<List<int>, DocxOptions>,
+        SyncDeltaExporter<List<int>, DocxOptions> {
+  const DocxExporter({DocxOptions? defaultOptions})
+      : _defaultOptions = defaultOptions;
 
   final DocxOptions? _defaultOptions;
 
@@ -29,7 +32,8 @@ final class DocxExporter
   String get format => 'docx';
 
   @override
-  String get mimeType => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  String get mimeType =>
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
   @override
   String get extension => 'docx';

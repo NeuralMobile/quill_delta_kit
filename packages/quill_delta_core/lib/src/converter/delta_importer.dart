@@ -59,7 +59,8 @@ abstract interface class SyncDeltaImporter<TIn, TOpts extends ConverterOptions>
 
 /// Marker interface for [DeltaExporter]s whose work is fully synchronous.
 /// Pairs with [SyncDeltaImporter].
-abstract interface class SyncDeltaExporter<TOut, TOpts extends ConverterOptions> {
+abstract interface class SyncDeltaExporter<TOut,
+    TOpts extends ConverterOptions> {
   /// Synchronous export. Same contract as [DeltaExporter.export].
   TOut exportSync(Delta delta, {TOpts? options});
 }

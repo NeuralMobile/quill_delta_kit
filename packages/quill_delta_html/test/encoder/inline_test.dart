@@ -29,7 +29,12 @@ void main() {
       final html = c.encode(deltaOf([
         {
           'insert': 'x',
-          'attributes': {'italic': true, 'underline': true, 'strike': true, 'code': true}
+          'attributes': {
+            'italic': true,
+            'underline': true,
+            'strike': true,
+            'code': true
+          }
         },
         {'insert': '\n'}
       ]));
@@ -91,7 +96,8 @@ void main() {
         },
         {'insert': '\n'}
       ]));
-      expect(html, '<p><span style="font-family: serif; font-size: 18px">x</span></p>');
+      expect(html,
+          '<p><span style="font-family: serif; font-size: 18px">x</span></p>');
     });
 
     test('size numeric', () {

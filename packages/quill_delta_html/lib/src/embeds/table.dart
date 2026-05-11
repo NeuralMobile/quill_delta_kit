@@ -13,7 +13,20 @@ import 'embed_adapter.dart';
 /// captions.
 class TableAdapter extends EmbedAdapter {
   TableAdapter({
-    Set<String> allowedCellTags = const {'p', 'div', 'br', 'strong', 'em', 'u', 's', 'code', 'a', 'span', 'sub', 'sup'},
+    Set<String> allowedCellTags = const {
+      'p',
+      'div',
+      'br',
+      'strong',
+      'em',
+      'u',
+      's',
+      'code',
+      'a',
+      'span',
+      'sub',
+      'sup'
+    },
   }) : allowedCellTags = Set.unmodifiable(allowedCellTags);
 
   final Set<String> allowedCellTags;
@@ -65,7 +78,8 @@ class TableAdapter extends EmbedAdapter {
         if (k.startsWith('on')) return true;
         if (k == 'href' || k == 'src') {
           final v = value.toLowerCase().trim();
-          if (v.startsWith('javascript:') || v.startsWith('data:text/html')) return true;
+          if (v.startsWith('javascript:') || v.startsWith('data:text/html'))
+            return true;
         }
         return false;
       });
