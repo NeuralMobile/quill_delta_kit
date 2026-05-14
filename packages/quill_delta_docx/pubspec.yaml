@@ -2,7 +2,7 @@ name: quill_delta_docx
 description: >-
   Quill Delta <-> DOCX (Office Open XML) conversion. Pure Dart.
   Importer pivots through HTML; exporter writes OOXML directly.
-version: 0.1.1
+version: 0.1.2
 repository: https://github.com/NeuralMobile/quill_delta_kit
 issue_tracker: https://github.com/NeuralMobile/quill_delta_kit/issues
 topics:
@@ -15,16 +15,12 @@ topics:
 environment:
   sdk: ^3.6.0
 
-resolution: workspace
-
 dependencies:
   archive: ^4.0.0
   dart_quill_delta: ^10.8.0
   quill_delta_core: ^0.1.0
   quill_delta_html: ^0.1.0
-  # xml: capped at <7 because package:pdf still pins xml ^6.3.0. Bump
-  # to ^7.0.0 once package:pdf ships xml 7 support.
-  xml: ">=6.5.0 <8.0.0"
+  xml: ^7.0.0
 
 dev_dependencies:
   lints: ^4.0.0

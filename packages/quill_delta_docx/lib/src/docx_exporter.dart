@@ -69,6 +69,6 @@ final class DocxExporter
     add('word/styles.xml', stylesXml);
     add('word/numbering.xml', numberingXml);
 
-    return ZipEncoder().encode(archive)!;
+    return ZipEncoder().encode(archive);
   }
 }

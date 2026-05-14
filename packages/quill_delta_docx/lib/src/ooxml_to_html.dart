@@ -65,7 +65,7 @@ String docxToHtml(List<int> bytes) {
     }
   }
 
-  final body = doc.findAllElements('body', namespace: '*').firstOrNull;
+  final body = doc.findAllElements('body', namespaceUri: '*').firstOrNull;
   if (body == null) return '';
 
   final buf = StringBuffer();
@@ -89,7 +89,7 @@ class _Relationships {
   factory _Relationships.parse(String xml) {
     final doc = XmlDocument.parse(xml);
     final map = <String, String>{};
-    for (final rel in doc.findAllElements('Relationship', namespace: '*')) {
+    for (final rel in doc.findAllElements('Relationship', namespaceUri: '*')) {
       final id = rel.getAttribute('Id');
       final target = rel.getAttribute('Target');
       if (id != null && target != null) map[id] = target;
@@ -178,11 +178,11 @@ void _writeBody(
     } else if (name == 'tbl') {
       closeOpenList();
       buf.write('<table>');
-      for (final row in el.findElements('tr', namespace: '*')) {
+      for (final row in el.findElements('tr', namespaceUri: '*')) {
         buf.write('<tr>');
-        for (final cell in row.findElements('tc', namespace: '*')) {
+        for (final cell in row.findElements('tc', namespaceUri: '*')) {
           buf.write('<td>');
-          for (final p in cell.findElements('p', namespace: '*')) {
+          for (final p in cell.findElements('p', namespaceUri: '*')) {
             _writeRuns(p, buf, images);
             buf.write('<br>');
           }
@@ -212,12 +212,12 @@ void _writeRuns(
       final href = _hyperlinkTarget(node);
       if (href != null) {
         buf.write('<a href="${_escapeAttr(href)}">');
-        for (final r in node.findElements('r', namespace: '*')) {
+        for (final r in node.findElements('r', namespaceUri: '*')) {
           _writeRun(r, buf, images);
         }
         buf.write('</a>');
       } else {
-        for (final r in node.findElements('r', namespace: '*')) {
+        for (final r in node.findElements('r', namespaceUri: '*')) {
           _writeRun(r, buf, images);
         }
       }
@@ -226,30 +226,30 @@ void _writeRuns(
 }
 
 void _writeRun(XmlElement run, StringBuffer buf, _ImageContext images) {
-  final rPr = run.findElements('rPr', namespace: '*').firstOrNull;
+  final rPr = run.findElements('rPr', namespaceUri: '*').firstOrNull;
   final bold = rPr != null && _hasOnElement(rPr, 'b');
   final italic = rPr != null && _hasOnElement(rPr, 'i');
   final underline =
-      rPr != null && rPr.findElements('u', namespace: '*').isNotEmpty;
+      rPr != null && rPr.findElements('u', namespaceUri: '*').isNotEmpty;
   final strike = rPr != null &&
       (_hasOnElement(rPr, 'strike') || _hasOnElement(rPr, 'dstrike'));
 
   String? colorVal;
   String? sizeVal;
   if (rPr != null) {
-    final col = rPr.findElements('color', namespace: '*').firstOrNull;
+    final col = rPr.findElements('color', namespaceUri: '*').firstOrNull;
     final v = col?.attributes
         .firstWhere(
           (a) => a.localName == 'val',
-          orElse: () => XmlAttribute(XmlName('val'), ''),
+          orElse: () => XmlAttribute(XmlName.parts('val'), ''),
         )
         .value;
     if (v != null && v.isNotEmpty && v != 'auto') colorVal = '#$v';
-    final sz = rPr.findElements('sz', namespace: '*').firstOrNull;
+    final sz = rPr.findElements('sz', namespaceUri: '*').firstOrNull;
     final szVal = sz?.attributes
         .firstWhere(
           (a) => a.localName == 'val',
-          orElse: () => XmlAttribute(XmlName('val'), ''),
+          orElse: () => XmlAttribute(XmlName.parts('val'), ''),
         )
         .value;
     if (szVal != null && szVal.isNotEmpty) {
@@ -281,10 +281,10 @@ void _writeRun(XmlElement run, StringBuffer buf, _ImageContext images) {
   for (final w in wrappers) {
     buf.write('<$w>');
   }
-  for (final t in run.findElements('t', namespace: '*')) {
+  for (final t in run.findElements('t', namespaceUri: '*')) {
     buf.write(_escapeText(t.innerText));
   }
-  for (final br in run.findElements('br', namespace: '*')) {
+  for (final br in run.findElements('br', namespaceUri: '*')) {
     // Type may be page/column/textWrapping; treat all as <br>.
     // Avoid using br for that — keep it simple.
     final _ = br;
@@ -292,7 +292,7 @@ void _writeRun(XmlElement run, StringBuffer buf, _ImageContext images) {
   }
   // <w:drawing> nodes carry images (and other DrawingML content). We pull
   // out picture-bearing blips and emit <img src="data:...">.
-  for (final drawing in run.findElements('drawing', namespace: '*')) {
+  for (final drawing in run.findElements('drawing', namespaceUri: '*')) {
     _writeDrawingImage(drawing, buf, images);
   }
   for (final w in wrappers.reversed) {
@@ -374,7 +374,7 @@ String _mimeFromPath(String path) {
 }
 
 bool _hasOnElement(XmlElement parent, String name) {
-  final el = parent.findElements(name, namespace: '*').firstOrNull;
+  final el = parent.findElements(name, namespaceUri: '*').firstOrNull;
   if (el == null) return false;
   // <w:b/> or <w:b w:val="true"/> means bold; <w:b w:val="false"/> means off.
   final val = el.attributes
@@ -385,9 +385,9 @@ bool _hasOnElement(XmlElement parent, String name) {
 }
 
 String? _paragraphStyle(XmlElement p) {
-  final pPr = p.findElements('pPr', namespace: '*').firstOrNull;
+  final pPr = p.findElements('pPr', namespaceUri: '*').firstOrNull;
   if (pPr == null) return null;
-  final pStyle = pPr.findElements('pStyle', namespace: '*').firstOrNull;
+  final pStyle = pPr.findElements('pStyle', namespaceUri: '*').firstOrNull;
   if (pStyle == null) return null;
   return pStyle.attributes
       .where((a) => a.localName == 'val')
@@ -409,12 +409,12 @@ class _ListInfo {
 }
 
 _ListInfo? _detectList(XmlElement p, _NumberingMap numbering) {
-  final pPr = p.findElements('pPr', namespace: '*').firstOrNull;
+  final pPr = p.findElements('pPr', namespaceUri: '*').firstOrNull;
   if (pPr == null) return null;
-  final numPr = pPr.findElements('numPr', namespace: '*').firstOrNull;
+  final numPr = pPr.findElements('numPr', namespaceUri: '*').firstOrNull;
   if (numPr == null) return null;
-  final ilvl = numPr.findElements('ilvl', namespace: '*').firstOrNull;
-  final numIdEl = numPr.findElements('numId', namespace: '*').firstOrNull;
+  final ilvl = numPr.findElements('ilvl', namespaceUri: '*').firstOrNull;
+  final numIdEl = numPr.findElements('numId', namespaceUri: '*').firstOrNull;
   if (numIdEl == null) return null;
   final indentStr = ilvl?.attributes
       .where((a) => a.localName == 'val')
@@ -456,14 +456,15 @@ class _NumberingMap {
   factory _NumberingMap.parse(String xml) {
     final doc = XmlDocument.parse(xml);
     final numIdToAbstract = <int, int>{};
-    for (final num in doc.findAllElements('num', namespace: '*')) {
+    for (final num in doc.findAllElements('num', namespaceUri: '*')) {
       final numIdStr = num.attributes
           .where((a) => a.localName == 'numId')
           .map((a) => a.value)
           .firstOrNull;
       final numId = int.tryParse(numIdStr ?? '');
       if (numId == null) continue;
-      final abs = num.findElements('abstractNumId', namespace: '*').firstOrNull;
+      final abs =
+          num.findElements('abstractNumId', namespaceUri: '*').firstOrNull;
       final absVal = abs?.attributes
           .where((a) => a.localName == 'val')
           .map((a) => a.value)
@@ -472,7 +473,7 @@ class _NumberingMap {
       if (absId != null) numIdToAbstract[numId] = absId;
     }
     final abstractToFmt = <int, Map<int, _NumFmt>>{};
-    for (final abs in doc.findAllElements('abstractNum', namespace: '*')) {
+    for (final abs in doc.findAllElements('abstractNum', namespaceUri: '*')) {
       final absIdStr = abs.attributes
           .where((a) => a.localName == 'abstractNumId')
           .map((a) => a.value)
@@ -480,14 +481,15 @@ class _NumberingMap {
       final absId = int.tryParse(absIdStr ?? '');
       if (absId == null) continue;
       final levelMap = <int, _NumFmt>{};
-      for (final lvl in abs.findElements('lvl', namespace: '*')) {
+      for (final lvl in abs.findElements('lvl', namespaceUri: '*')) {
         final ilvlStr = lvl.attributes
             .where((a) => a.localName == 'ilvl')
             .map((a) => a.value)
             .firstOrNull;
         final ilvl = int.tryParse(ilvlStr ?? '');
         if (ilvl == null) continue;
-        final numFmt = lvl.findElements('numFmt', namespace: '*').firstOrNull;
+        final numFmt =
+            lvl.findElements('numFmt', namespaceUri: '*').firstOrNull;
         final fmtVal = numFmt?.attributes
             .where((a) => a.localName == 'val')
             .map((a) => a.value)

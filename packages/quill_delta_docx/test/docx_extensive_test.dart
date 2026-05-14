@@ -20,7 +20,7 @@ List<int> buildDocxBytes(String bodyXml, {String? numberingXml}) {
 
   add('word/document.xml', document);
   if (numberingXml != null) add('word/numbering.xml', numberingXml);
-  return ZipEncoder().encode(archive)!;
+  return ZipEncoder().encode(archive);
 }
 
 void main() {

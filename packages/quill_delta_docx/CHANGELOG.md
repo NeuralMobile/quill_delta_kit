@@ -1,3 +1,12 @@
+## 0.1.2 - 2026-05-14
+
+* Bump `xml` constraint to `^7.0.0` and switch deprecated `namespace:` parameter
+  to `namespaceUri:` across the OOXML reader. Clears xml 7 deprecation warnings.
+* Drop unnecessary null assertion on `ZipEncoder().encode(...)` (archive 4 returns
+  non-nullable `List<int>`).
+* Package leaves the monorepo workspace so it can resolve `xml: ^7.0.0`
+  independently of `package:pdf`'s `xml <7` pin.
+
 ## 0.1.1 - 2026-05-11
 
 * Bump `archive` constraint to `^4.0.0` (track latest stable).

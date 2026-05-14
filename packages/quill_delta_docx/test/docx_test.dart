@@ -21,7 +21,7 @@ List<int> buildDocxBytes(String bodyXml) {
     document.length,
     document.codeUnits,
   ));
-  return ZipEncoder().encode(archive)!;
+  return ZipEncoder().encode(archive);
 }
 
 void main() {
@@ -197,7 +197,7 @@ void main() {
       addStr('word/document.xml', doc);
       addStr('word/_rels/document.xml.rels', relsXml);
       addBytes('word/media/image1.png', pngBytes);
-      final docxBytes = ZipEncoder().encode(archive)!;
+      final docxBytes = ZipEncoder().encode(archive);
 
       final html = docxToHtml(docxBytes);
       expect(html, contains('<img'));
