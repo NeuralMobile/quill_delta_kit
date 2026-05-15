@@ -20,7 +20,7 @@ void main() {
         ..insert('say ')
         ..insert('hello()', {'code': true})
         ..insert('\n'));
-      expect(md, 'say `hello\\(\\)`\n');
+      expect(md, 'say `hello()`\n');
     });
 
     test('bold + italic combined', () async {
@@ -37,9 +37,16 @@ void main() {
       expect(md, '[**here**](https://x.test)\n');
     });
 
-    test('escapes brackets and parens', () async {
+    test('escapes brackets but not parens (parens are only structural after `]`, which is already escaped)',
+        () async {
       final md = await exp.export(Delta()..insert('a[b](c)\n'));
-      expect(md, 'a\\[b\\]\\(c\\)\n');
+      expect(md, 'a\\[b\\](c)\n');
+    });
+
+    test('does not escape hyphens or parens in plain prose', () async {
+      final md = await exp
+          .export(Delta()..insert('plan-o-gram (sleeveless), x.\n'));
+      expect(md, 'plan-o-gram (sleeveless), x.\n');
     });
 
     test('escapes hash, plus, bang, pipe in plain text', () async {
@@ -201,6 +208,31 @@ void main() {
         return a != null && a['blockquote'] == true;
       });
       expect(hasQuote, true);
+    });
+
+    test('GFM blank-line separator after **bold** paragraph does not produce empty Quill paragraph',
+        () async {
+      final d = await imp.import('**Bold**\n\nParagraph');
+      expect(d.toJson(), [
+        {
+          'insert': 'Bold',
+          'attributes': {'bold': true}
+        },
+        {'insert': '\nParagraph\n'},
+      ]);
+    });
+
+    test('GFM blank-line separator after heading does not produce empty Quill paragraph',
+        () async {
+      final d = await imp.import('## Heading\n\nParagraph');
+      expect(d.toJson(), [
+        {'insert': 'Heading'},
+        {
+          'insert': '\n',
+          'attributes': {'header': 2}
+        },
+        {'insert': 'Paragraph\n'},
+      ]);
     });
 
     test('reference-style link', () async {

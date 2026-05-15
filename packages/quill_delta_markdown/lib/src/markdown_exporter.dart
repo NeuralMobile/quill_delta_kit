@@ -225,7 +225,15 @@ final class MarkdownExporter
     }
   }
 
-  static final _mdEscape = RegExp(r'([\\`*_{}\[\]()#+\-!|<>])');
+  // Inline-significant characters only. Block-level markers (`#`, `+`, `-`,
+  // `>`) are written by the block writers at line start, so they don't need
+  // escaping when they appear mid-paragraph. Parentheses are only structural
+  // inside link targets (`[text](url)`) where the escape on `]` already
+  // disambiguates. Braces and `!` carry no structural meaning in CommonMark
+  // outside of `${...}` (template) and `![](...)` (image), neither of which
+  // arise from plain text. Aggressive escaping here corrupts text across
+  // round-trips (each save adds another backslash).
+  static final _mdEscape = RegExp(r'([\\`*_\[\]#+!|<>])');
 
   static String _escapeMd(String s) =>
       s.replaceAllMapped(_mdEscape, (m) => '\\${m[0]}');
